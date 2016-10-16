@@ -259,7 +259,7 @@ has a place holder for all related slot definitions."
                        :direct-slots
                        `((:name rdfs:|subClassOf|
                           :initform nil
-                          :initfunction ,(load-time-value #'excl::false)
+                          :initfunction ,(load-time-value #'false)
                           :type ,(load-time-value rdfs:|Class|)
                           :initargs (rdfs:|subClassOf|)
                           ;:readers (superclass-of)

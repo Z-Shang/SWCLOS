@@ -423,16 +423,16 @@
        (push `(,(car forms) line ,*line-number*) *referenced-resources*)
        slot-form)
       (rdf:|about|
-       (let ((*uri2symbol-package-mapping-fun* #'excl::false)
-             (*uri2symbol-name-mapping-fun* #'excl::false)
+       (let ((*uri2symbol-package-mapping-fun* #'false)
+             (*uri2symbol-name-mapping-fun* #'false)
              (about (iri (car forms))))
          (let ((symbol (uri2symbol about)))
            (when symbol
              (push `(,symbol line ,*line-number*) *referenced-resources*)))
          `(rdf:|about| ,about)))
       (rdf:|ID|
-       (let ((*uri2symbol-package-mapping-fun* #'excl::false)
-             (*uri2symbol-name-mapping-fun* #'excl::false))
+       (let ((*uri2symbol-package-mapping-fun* #'false)
+             (*uri2symbol-name-mapping-fun* #'false))
          (let ((symbol (car forms)))
            (when symbol
              (push `(,symbol line ,*line-number*) *referenced-resources*))))

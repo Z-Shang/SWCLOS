@@ -176,20 +176,20 @@
                        `((:name rdfs:|domain| :initargs (rdfs:|domain|) )
                          (:name rdfs:|range| :initargs (rdfs:|range|) )
                          (:name rdfs:|subPropertyOf| :initform common-lisp:nil
-                                :initfunction ,(load-time-value #'excl::false)
+                                :initfunction ,(load-time-value #'false)
                                 :type rdf:|Property| :initargs (rdfs:|subPropertyOf|)
                                 :readers (superproperty-of) :writers ((setf superproperty-of)))
                          (:name subproperty :initform common-lisp:nil 
-                                :initfunction ,(load-time-value #'excl::false)
+                                :initfunction ,(load-time-value #'false)
                                 :type rdf:|Property| :initargs (:subproperty))
                          (:name slotds :initargs (:slotds) :initform common-lisp:nil
-                                :initfunction ,(load-time-value #'excl::false) )
+                                :initfunction ,(load-time-value #'false) )
                          (:name equivs :initargs (:equivs) :initform common-lisp:nil 
-                                :initfunction ,(load-time-value #'excl::false) )
+                                :initfunction ,(load-time-value #'false) )
                          ;; this is for OWL
                          (:name equivalent-property :initargs (:equivalent-property)
                           :initform common-lisp:nil
-                          :initfunction ,(load-time-value #'excl::false))
+                          :initfunction ,(load-time-value #'false))
                          ))
 
 (reinitialize-instance rdf:|Property|
@@ -804,22 +804,22 @@ An RDF statement is the statement made by a token of an RDF triple.")
   (mop:ensure-class-using-class
    () 'xsd:|duration| 
    :direct-superclasses '(xsd:|anySimpleType|)
-   :direct-slots `((:name year :initform () :initfunction ,(load-time-value #'excl::false)
+   :direct-slots `((:name year :initform () :initfunction ,(load-time-value #'false)
                     :initargs (:year)
                     :readers (xsd:|duration-year|) :writers ((setf xsd:|duration-year|)))
-                   (:name month :initform () :initfunction ,(load-time-value #'excl::false)
+                   (:name month :initform () :initfunction ,(load-time-value #'false)
                     :initargs (:month)
                     :readers (xsd:|duration-month|) :writers ((setf xsd:|duration-month|)))
-                   (:name day :initform () :initfunction ,(load-time-value #'excl::false)
+                   (:name day :initform () :initfunction ,(load-time-value #'false)
                     :initargs (:day)
                     :readers (xsd:|duration-day|) :writers ((setf xsd:|duration-day|)))
-                   (:name hour :initform () :initfunction ,(load-time-value #'excl::false)
+                   (:name hour :initform () :initfunction ,(load-time-value #'false)
                     :initargs (:hour)
                     :readers (xsd:|duration-hour|) :writers ((setf xsd:|duration-hour|)))
-                   (:name minute :initform () :initfunction ,(load-time-value #'excl::false)
+                   (:name minute :initform () :initfunction ,(load-time-value #'false)
                     :initargs (:minute)
                     :readers (xsd:|duration-minute|) :writers ((setf xsd:|duration-minute|)))
-                   (:name second :initform () :initfunction ,(load-time-value #'excl::false)
+                   (:name second :initform () :initfunction ,(load-time-value #'false)
                     :initargs (:second)
                     :readers (xsd:|duration-second|) :writers ((setf xsd:|duration-second|))))
    :metaclass 'rdfs:|Datatype|)

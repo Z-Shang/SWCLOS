@@ -62,7 +62,7 @@
                        `((:name rdf:|about| :initargs (rdf:|about|))
                          (:name rdf:|ID| :initargs (rdf:|ID|))
                          (:name xml:lang :initform common-lisp:nil
-                          :initfunction ,(load-time-value #'excl::false)
+                          :initfunction ,(load-time-value #'false)
                           :initargs (xml:lang))
                          (:name rdfs:|label| :type ,(load-time-value rdfs:|Literal|)
                           :initargs (rdfs:|label|))
