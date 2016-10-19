@@ -19,7 +19,9 @@
 
 (cl:defpackage :xsd
   (:nicknames :xs)
-  (:use puri) ; supressing using common lisp package
+  (:use ; supressing using common lisp package
+        #+(and allegro-vesion>= (version>= 10)) :puri
+        #-(and allegro-vesion>= (version>= 10)) :net.uri)
   (:export "string" "boolean" "decimal" "float" "double" "dataTime" "time" "date"
            "gYearMonth" "gYear" "gMonthDay" "gDay" "gMonth" "hexBinary" "base64Binary"
            "anyURI" "normallizedString" "token" "language" "NMTOKEN" "Name" "NCName"
@@ -73,6 +75,8 @@
   )
 
 (defpackage :gx
-  (:use :common-lisp :puri)
+  (:use :common-lisp
+        #+(and allegro-vesion>= (version>= 10)) :puri
+        #-(and allegro-vesion>= (version>= 10)) :net.uri)
   (:shadow typep subtypep type-of)
   (:documentation "http://www.TopOntologies.com/tools/SWCLOS#"))
