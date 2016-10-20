@@ -89,7 +89,7 @@ rdfs:|Resource|.")
 ;;;
 
 ;;;
-;;; <mop:direct-slot-definition-class> returns a direct slot definition class for target class. 
+;;; <closer-mop:direct-slot-definition-class> returns a direct slot definition class for target class. 
 ;;; This method is customized to return an appropriate slot definition class in SWCLOS, i.e., 
 ;;; <Property-direct-slot-definition> or <OwlProperty-direct-slot-definition>. Namely, if an 
 ;;; indicator in initargs is not a keyword, it must be a property name. The name of rdf, rdfs, 
@@ -97,7 +97,7 @@ rdfs:|Resource|.")
 ;;; then Property-direct-slot-definition is returned. If the property is an instance of 'owl:|ObjectProperty|', 
 ;;; then OwlProperty-direct-slot-definition is returned, else if the defalut value is returned.
 
-(defmethod mop:direct-slot-definition-class ((class rdfs:|Class|) &rest initargs)
+(defmethod closer-mop:direct-slot-definition-class ((class rdfs:|Class|) &rest initargs)
   "If <initargs> include non-keyword indicators for slot initarg or include a property name as slot name, 
     then returns Property-direct-slot-definition or OwlProperty-direct-slot-definition metaobject."
   ;; this code is shared by OWL.
@@ -147,7 +147,7 @@ rdfs:|Resource|.")
 ;;; (defclass C3 (C1) ((s :type cl:integer)))
 ;;; (defclass C4 (C3) ((s :type cl:fixnum)))
 ;;; (defclass C5 (C4 C2) ())
-;;; (mop:slot-definition-type (first (mop:compute-slots (find-class 'C5))))
+;;; (closer-mop:slot-definition-type (first (closer-mop:compute-slots (find-class 'C5))))
 ;;;  -> (and float fixnum)
 ;;; ----------------------------------------------------------------------------------
 ;;; This computational result by native routine of ACL is sound, if members of conjunct are not 
@@ -166,7 +166,7 @@ rdfs:|Resource|.")
 ;;; (defConcept C4 (rdfs:|subClassOf| (owl:|Restriction| (owl:|onProperty| s)
 ;;;                                    (owl:|allValuesFrom| xsd:|short|))))
 ;;; (defConcept C5 (rdfs:|subClassOf| C4 C2))
-;;; (mop:slot-definition-type (car (mop:compute-slots C5)))
+;;; (closer-mop:slot-definition-type (car (closer-mop:compute-slots C5)))
 ;;; -> Error: Disjoint pair #<forall s xsd:|short|> and #<forall s xsd:|float|> found in slot 
 ;;;    inheritance computation of #<rdfs:|Class| C5>.
 ;;; ----------------------------------------------------------------------------------
@@ -192,10 +192,10 @@ rdfs:|Resource|.")
 
 ;;;
 ;;; If <initargs> in making an effective-slot-definition includes :subject-type keyword, the slot-definition must be 
-;;; Property-effective-slot-definition. So, <mop:effective-slot-definition-class> methods returns the class metaobject. 
+;;; Property-effective-slot-definition. So, <closer-mop:effective-slot-definition-class> methods returns the class metaobject. 
 ;;; Then, CLOS system takes care of all after.
 
-(defmethod mop:effective-slot-definition-class ((class rdfs:|Class|) &rest initargs)
+(defmethod closer-mop:effective-slot-definition-class ((class rdfs:|Class|) &rest initargs)
   "see above"
   (declare (optimize (speed 3) (safety 0)))
   (cond ((member :subject-type initargs)

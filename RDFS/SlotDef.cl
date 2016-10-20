@@ -30,14 +30,14 @@
 
 ;;;; Slot definitions for SWCLOS
 ;;;
-;;; The standard slot definition in CLOS (mop:standard-slot-definition) is also a CLOS object 
+;;; The standard slot definition in CLOS (closer-mop:standard-slot-definition) is also a CLOS object 
 ;;; and includes the information for slot creation of instances, i.e., initargs, type, 
 ;;; documentation and so on. Hereafter, we call a slot in slot definition object an option of 
 ;;; slot. So, we say, for example, the standard slot definition has an initargs option, a type 
 ;;; option, and documentation option, and so on. 
 ;;;
 ;;; The slot with respect to rdf property is an instance of <Property-direct-slot-definition>, 
-;;; which is a specialized class of <mop:standard-direct-slot-definition>. In addition to CLOS 
+;;; which is a specialized class of <closer-mop:standard-direct-slot-definition>. In addition to CLOS 
 ;;; native options, <Property-direct-slot-definition> has a <subject-type> option, and the slot 
 ;;; with respect to owl specific property is an instance of <OwlProperty-direct-slot-definition>, 
 ;;; which is a specialized class of <Property-direct-slot-definition>. It has a <maxcardinality> 
@@ -60,12 +60,12 @@
 (defparameter *default-slot-definition-class* 'gx::Property-direct-slot-definition
   "Symbol 'Property-direct-slot-definition' is set to this parameter in RDF. This value is overwritten 
 by OWL module. This value directs the default class for slot definition. See 
-<mop:direct-slot-definition-class> method in RDFboot module.")
+<closer-mop:direct-slot-definition-class> method in RDFboot module.")
 
-(defclass gx::Property-direct-slot-definition (mop:standard-direct-slot-definition)
+(defclass gx::Property-direct-slot-definition (closer-mop:standard-direct-slot-definition)
   ((subject-type :initarg :subject-type :accessor slot-definition-subject-type))
   (:documentation "defines a subject-type option."))
-(defclass gx::Property-effective-slot-definition (mop:standard-effective-slot-definition)
+(defclass gx::Property-effective-slot-definition (closer-mop:standard-effective-slot-definition)
   ((subject-type :initarg :subject-type :accessor slot-definition-subject-type))
   (:documentation "An instance of this class has a subject-type option in which a class of 
 subject in triple is stored."))
@@ -114,11 +114,11 @@ which work as the constraint for settable number of values."))
 
 (defun collect-prop-names-from (class)
   "collect direct and inherited property (slot) names on this class and returns a list of them."
-  (mapcar #'mop:slot-definition-name
+  (mapcar #'closer-mop:slot-definition-name
     (remove-if-not #'property-effective-slotd-p
-                   (if (mop:class-finalized-p class)
-                       (mop:class-slots class)
-                     (mop:compute-slots class)))))
+                   (if (closer-mop:class-finalized-p class)
+                       (closer-mop:class-slots class)
+                     (closer-mop:compute-slots class)))))
 
 ;;;
 ;;;; How a Type Value is set in Direct Slot Definition
@@ -146,10 +146,10 @@ which work as the constraint for settable number of values."))
 ;;;   from onProperty value. See <shared-initialize>:after(owl:someValuesFromRestriction).
 ;;;
 #|
-;; To get a newest option value of type in current situation, use <mop:slot-definition-type>. 
+;; To get a newest option value of type in current situation, use <closer-mop:slot-definition-type>. 
 ;; It is specialized for <Property-direct-slot-definition> and <Property-effective-slot-definition> 
 ;; in order to activate a get daemon. 
-;; See also <mop:slot-definition-type> before method in GxType module.
+;; See also <closer-mop:slot-definition-type> before method in GxType module.
 |#
 #|
 (defmethod shared-initialize :after ((slotd gx::Property-direct-slot-definition) slot-names
@@ -159,7 +159,7 @@ which work as the constraint for settable number of values."))
    in <initargs> and the value retrieved from range constraints of property <name>."
   (declare (optimize (speed 3) (safety 0)))
   (cond ((eq slot-names t) ; when first
-         (cond ((eq name (mop:slot-definition-name slotd))
+         (cond ((eq name (closer-mop:slot-definition-name slotd))
                 ;; definition of property itself, so cannot invoke get-range.
                 ;; the type option must be set up at an upper method before this after method invoking, 
                 ;; if it is supplied in initargs.
@@ -208,7 +208,7 @@ which work as the constraint for settable number of values."))
    the slotds of the property."
   (declare (optimize (speed 3) (safety 0)))
   (cond ((eq slot-names t) ; when first
-         ;(assert (eq name (mop:slot-definition-name slotd))) ; name is always name
+         ;(assert (eq name (closer-mop:slot-definition-name slotd))) ; name is always name
          (cond ((and (boundp name) (cl:typep (symbol-value name) 'rdf:|Property|)) ; instead of (property? name)
                 (let ((prop (symbol-value name)))
                   (let ((slotds (slot-value prop 'slotds))
@@ -237,19 +237,19 @@ which work as the constraint for settable number of values."))
     (otherwise 
      (and (boundp name) (cl:typep (symbol-value name) 'rdf:|Property|)))))
 
-(defmethod name ((object mop:standard-direct-slot-definition))
+(defmethod name ((object closer-mop:standard-direct-slot-definition))
   "returns a name of <object>, if it is named, otherwise nil."
-  (mop:slot-definition-name object))
+  (closer-mop:slot-definition-name object))
 
-(defmethod name ((object mop:standard-effective-slot-definition))
+(defmethod name ((object closer-mop:standard-effective-slot-definition))
   "returns a name of <object>, if it is named, otherwise nil."
-  (mop:slot-definition-name object))
+  (closer-mop:slot-definition-name object))
 
 ;;;
 ;;;; Slot Definition for owl:oneOf 
 ;;;
 ;;; Note that the slot definition for owl:oneOf is an instance of <gx::Property-effective-slot-definition>
-;;; rather than <OwlProperty-direct-slot-definition>. It depends on method <mop:direct-slot-definition-class> 
+;;; rather than <OwlProperty-direct-slot-definition>. It depends on method <closer-mop:direct-slot-definition-class> 
 ;;; and rdfs:Class.
 
 ;; End of module

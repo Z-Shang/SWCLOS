@@ -35,10 +35,10 @@
   "returns multiple classes of <gnode>. This function returns length=1 list for single class."
   (labels ((get-bright-supers (super)
                               (cond ((not (shadowed-class-p super)) (list super))
-                                    (t (mapcan #'get-bright-supers (mop:class-direct-superclasses super))))))
+                                    (t (mapcan #'get-bright-supers (closer-mop:class-direct-superclasses super))))))
     (let ((class (class-of instance)))
       (cond ((shadowed-class-p class)
-             (remove-duplicates (mapcan #'get-bright-supers (mop:class-direct-superclasses class))))
+             (remove-duplicates (mapcan #'get-bright-supers (closer-mop:class-direct-superclasses class))))
             (t (list class))))))
 
 ;;; An element of direct-instances slot are initially stored by <make-instance(rdf-node)> method 

@@ -417,14 +417,14 @@
             (cond ((rdf-class-p range)
                    (warn "Entail by range: ~S rdf:type ~S." value (class-name range))
                    (cond ((rdf-metaclass-p range)
-                          (apply #'mop:ensure-class-using-class (find-class value nil) value
+                          (apply #'closer-mop:ensure-class-using-class (find-class value nil) value
                                  :metaclass range
                                  ()))
                          (t (make-instance range :name value))))
                   ((and (symbol-value range) (class? range))
                    (warn "Entail by range: ~S rdf:type ~S." value range)
                    (cond ((rdf-metaclass-p range)
-                          (apply #'mop:ensure-class-using-class (find-class value nil) value
+                          (apply #'closer-mop:ensure-class-using-class (find-class value nil) value
                                  :metaclass (symbol-value range)
                                  ()))
                          (t (make-instance (symbol-value range) :name value))))

@@ -123,8 +123,8 @@
           (t (error "Not Yet!")))))
 (defun %intersection12-subsumed-p (var conjuncts dintersections)
   (loop for c in conjuncts
-      unless (mop:class-finalized-p c)
-      do (mop:finalize-inheritance c))
+      unless (closer-mop:class-finalized-p c)
+      do (closer-mop:finalize-inheritance c))
   (let ((cpl (remove-duplicates (loop for c in conjuncts append (clos:class-precedence-list c)))))
     (and (every #'(lambda (ds) 
                     (some #'(lambda (cs) (subsumed-p cs ds))
@@ -141,12 +141,12 @@
                                 drestrs))
                           (cslot (remove-duplicates
                                   (loop for c in conjuncts 
-                                      when (find prop (mop:class-slots c)
-                                                 :key #'mop:slot-definition-name)
+                                      when (find prop (closer-mop:class-slots c)
+                                                 :key #'closer-mop:slot-definition-name)
                                       collect it)))
                           (cmax (slot-definition-maxcardinality cslot))
                           (cmin (slot-definition-mincardinality cslot))
-                          (crs (mklist (mop:slot-definition-type cslot))))
+                          (crs (mklist (closer-mop:slot-definition-type cslot))))
                      (format t "~%crs: ~S cmax: ~S cmin: ~S~%drs: ~S" crs cmax cmin drs)
                      ;; crs includes every user defined restriction and range constraint.
                      ;; x: predecessor, y: successor
@@ -386,7 +386,7 @@
         ((%clos-subtype-p c d))
         ((every #'(lambda (ci) (typep ci d)) (slot-value c 'owl:|oneOf|)))
         (t (some #'(lambda (csuper) (%oneof1-subsumed-p csuper d))
-                 (mop:class-direct-superclasses c)))))
+                 (closer-mop:class-direct-superclasses c)))))
 
 (defun %oneof2-subsumed-p (c d)
   ;; c is not an oneof but d is an oneof, seldom happen.
@@ -401,7 +401,7 @@
 
 (defun collect-most-specific-concepts (class instance)
   "This function is used for shared-initialize."
-  (let ((subs (mop:class-direct-subclasses class)))
+  (let ((subs (closer-mop:class-direct-subclasses class)))
     (setq subs     ; same as owl:Thing
           (remove-if #'(lambda (sub) (eql (complement-of sub) owl:|Nothing|)) subs))
     (setq subs (remove owl:|Nothing| subs))
@@ -428,7 +428,7 @@
   ;; e.g., DryWine vs. TableWine 
   (remove-if #'(lambda (sib) (%intersection-equivalent sib class))
              (remove-duplicates
-              (mappend #'mop:class-direct-subclasses intersections))))
+              (mappend #'closer-mop:class-direct-subclasses intersections))))
 
 (defun get-union-spouses (class unions)
   "returns a set of superclases of all member of <unions>, removing duplicates and 
@@ -438,7 +438,7 @@
              (remove-duplicates
               ;; remove-if-not is necessary for (owl:unionOf owl:Nothing (owl:Class (owl:complementOf owl:Nothing)))
               (remove-if-not #'owl-class-p
-                             (mappend #'mop:class-direct-superclasses unions)))))
+                             (mappend #'closer-mop:class-direct-superclasses unions)))))
 
 (defun get-superclasses-siblings (class superclasses)
   (remove-if #'(lambda (sib) (and (owl-class-p sib)
@@ -446,7 +446,7 @@
                                   (%intersection-equivalent sib class)))
              (remove class
                      (remove-duplicates
-                      (mappend #'mop:class-direct-subclasses superclasses)))))
+                      (mappend #'closer-mop:class-direct-subclasses superclasses)))))
 
 (defun get-subclasses-siblings (class subclasses)
   (remove-if #'(lambda (sib) (and (owl-class-p sib)
@@ -454,7 +454,7 @@
                                   (%union-equivalent sib class)))
              (remove class
                      (remove-duplicates
-                      (mappend #'mop:class-direct-superclasses subclasses)))))
+                      (mappend #'closer-mop:class-direct-superclasses subclasses)))))
 
 ;; refine-sibling-from-intersection causes DryWine subtype TableWine and 
 ;; TableWine subtype DryWine.
@@ -470,9 +470,9 @@
   (let ((intersections nil))
     (when (and (owl-class-p c2) (setq intersections (intersection-of c2)))
       (let ((cpl (remove c1
-                         (cond ((mop:class-finalized-p c1)
+                         (cond ((closer-mop:class-finalized-p c1)
                                 (clos:class-precedence-list c1))
-                               (t (mop:compute-class-precedence-list c1)))))
+                               (t (closer-mop:compute-class-precedence-list c1)))))
             (c2supers (remove-if #'owl-restriction-p intersections))
             (c2restrictions (remove-if-not #'owl-restriction-p intersections)))
         (unless (and c2supers
@@ -550,11 +550,11 @@
   (let ((siblings (get-intersect-siblings class intersections)))
     ;; class and its structural equivalents are removed from siblings
     (loop for sib in siblings
-        do (cond ((subsetp intersections (mop:class-direct-superclasses sib))
+        do (cond ((subsetp intersections (closer-mop:class-direct-superclasses sib))
                   (let ((new-supers (refine-concept-by-intersection
                                      (most-specific-concepts-by-superclasses
-                                      (cons class (mop:class-direct-superclasses sib))))))
-                    (format t "~%Old1:~S" (mop:class-direct-superclasses sib))
+                                      (cons class (closer-mop:class-direct-superclasses sib))))))
+                    (format t "~%Old1:~S" (closer-mop:class-direct-superclasses sib))
                     (format t "~%New1:~S" new-supers)
                     (warn "~S is refined to a subclass of ~S by defining ~S's intersection."
                       sib class class)
@@ -562,8 +562,8 @@
                  ((every #'(lambda (sup) (cl:subtypep sib sup)) intersections)
                   (let ((new-supers (refine-concept-by-intersection
                                      (most-specific-concepts-by-superclasses
-                                      (cons sib (mop:class-direct-superclasses class))))))
-                    (format t "~%Old2:~S" (mop:class-direct-superclasses sib))
+                                      (cons sib (closer-mop:class-direct-superclasses class))))))
+                    (format t "~%Old2:~S" (closer-mop:class-direct-superclasses sib))
                     (format t "~%New2:~S" new-supers)
                     (warn "~S is refined to a subclass of ~S by defining ~S's intersection."
                       class sib class)
@@ -580,7 +580,7 @@
 
 ;; rule14
 (defun check-intersection-refining-for-subclasses (class superclasses)
-  (let ((old-supers (mop:class-direct-superclasses class))
+  (let ((old-supers (closer-mop:class-direct-superclasses class))
         (siblings (get-superclasses-siblings class superclasses)))
     (loop for sib in siblings
         unless (member sib old-supers)
@@ -608,7 +608,7 @@
                                          (most-specific-concepts-by-superclasses
                                           (cons sub classes)))))
                                      )) ; otherwise finally returns classes for mapc
-                       (mop:class-direct-subclasses class)))
+                       (closer-mop:class-direct-subclasses class)))
              classes))))
 )
 ;;;
@@ -631,11 +631,11 @@
       do (reinitialize-instance
           sub
           :direct-superclasses (most-specific-concepts-by-clos-supers
-                                (cons class (mop:class-direct-superclasses sub)))))
+                                (cons class (closer-mop:class-direct-superclasses sub)))))
   (let ((spouses (remove-if #'owl-restriction-p (get-union-spouses class unions))))
     ;; class and its rdf equivalents are removed from spouses
     (when spouses
-      (let ((old-supers (mop:class-direct-superclasses class))
+      (let ((old-supers (closer-mop:class-direct-superclasses class))
             (add-supers (remove-if-not #'(lambda (sp) (%union-subsumed-p class sp)) spouses)))
         (when add-supers
           ;(format t "~%Adding-supers-for-union:~S" add-supers)
@@ -646,7 +646,7 @@
               (reinitialize-instance class :direct-superclasses class-supers))))))))
 
 (defun check-union-refining-for-subclasses (class subclasses)
-  (let ((old-supers (mop:class-direct-superclasses class))
+  (let ((old-supers (closer-mop:class-direct-superclasses class))
         (siblings (get-subclasses-siblings class subclasses)))
     (loop for sib in siblings
         unless (member sib old-supers)
@@ -728,8 +728,8 @@
            ;; see also ensure-meta-absts-using-class class for subclasses and intersections
            (when (and (slot-boundp class 'rdfs:|subClassOf|) rdfs:|subClassOf|)
              (check-intersection-refining-for-subclasses class (mklist rdfs:|subClassOf|))
-             (when (mop:class-direct-subclasses class)
-               (check-union-refining-for-subclasses class (mop:class-direct-subclasses class))))
+             (when (closer-mop:class-direct-subclasses class)
+               (check-union-refining-for-subclasses class (closer-mop:class-direct-subclasses class))))
            (when (and (slot-boundp class 'owl:|intersectionOf|) owl:|intersectionOf|)
              (shared-initialize-after-for-intersectionOf class owl:|intersectionOf|))
            (when (and (slot-boundp class 'owl:|unionOf|) owl:|unionOf|)
@@ -744,7 +744,7 @@
          (unless (owl-thing-p class)
            (reinitialize-instance
             class
-            :direct-superclasses (list owl:|Thing| (mop:class-direct-superclasses class))))
+            :direct-superclasses (list owl:|Thing| (closer-mop:class-direct-superclasses class))))
          )))
 
 ;;;
@@ -757,13 +757,13 @@
   (and (excl::standard-instance-p obj)
        (let ((class (class-of obj)))
          (cond ((eq class (load-time-value owl:|SymmetricProperty|)))
-               ((mop:class-finalized-p class)
+               ((closer-mop:class-finalized-p class)
                 (and (member (load-time-value owl:|SymmetricProperty|)
-                                (mop:class-precedence-list class)
+                                (closer-mop:class-precedence-list class)
                                 :test #'eq)
                      t))
                ((labels ((walk-partial-cpl (c)
-                                           (let ((supers (mop:class-direct-superclasses c)))
+                                           (let ((supers (closer-mop:class-direct-superclasses c)))
                                              (when (member
                                                     (load-time-value owl:|SymmetricProperty|)
                                                     supers :test #'eq)
@@ -887,7 +887,7 @@
          ;; transitive property is moved to shared-initialize:after(rdfs:Resource)
          
          ;; satisfiability check for oneOf individual
-         (let ((oneof (find-if #'owl-oneof-p  (mop:class-precedence-list (class-of instance)))))
+         (let ((oneof (find-if #'owl-oneof-p  (closer-mop:class-precedence-list (class-of instance)))))
            (when oneof
              ;(format t "~%SHARED-INITIALIZE :AFTER ~S ~S ~S" instance slot-names initargs)
              ;(format t "~%CLASS = ~S" (class-of instance))
@@ -1131,9 +1131,9 @@
   ;;this is same as '(cl:typep <obj> owl:|Restriction|)'
   (let ((class (class-of obj)))
     (cond ((eq class (load-time-value owl:|Restriction|)))
-          ((not (mop:class-finalized-p class))
+          ((not (closer-mop:class-finalized-p class))
            (labels ((walk-partial-cpl (c)
-                                      (let ((supers (mop:class-direct-superclasses c)))
+                                      (let ((supers (closer-mop:class-direct-superclasses c)))
                                         (when (member (load-time-value owl:|Restriction|)
                                                          supers
                                                          :test #'eq)
@@ -1143,7 +1143,7 @@
              (walk-partial-cpl class)
              nil))
           (t (and (member (load-time-value owl:|Restriction|)
-                             (mop:class-precedence-list class)
+                             (closer-mop:class-precedence-list class)
                              :test #'eq)
                   t)))))
 )
@@ -1190,11 +1190,11 @@
                                             (remove-if-not #'(lambda (ins) (%typep ins class))
                                                            (class-direct-instances sub))
                                             (mappend #'%all-instances-from 
-                                                     (mop:class-direct-subclasses sub)))))
+                                                     (closer-mop:class-direct-subclasses sub)))))
                (remove-duplicates 
                 (loop for super in (remove-if #'owl-restriction-p (intersection-of class))
                     append 
-                      (loop for sib in (mop:class-direct-subclasses super)
+                      (loop for sib in (closer-mop:class-direct-subclasses super)
                           append (%all-instances-from sib)))))))))
 
 (defmethod all-instances-generator ((class owl:|Class|))
@@ -1213,7 +1213,7 @@
                                                   (class-direct-instances next-class))))
                               (when instances (setf pending-instances instances))
                               (setf pending-classes
-                                (append (mop:class-direct-subclasses next-class)
+                                (append (closer-mop:class-direct-subclasses next-class)
                                         pending-classes))))))))
                #'generator)))))
 
@@ -1241,9 +1241,9 @@
 ;;
 ;;
 
-(defmethod mop:ensure-class-using-class ((class owl:|Class|) name &rest args)
+(defmethod closer-mop:ensure-class-using-class ((class owl:|Class|) name &rest args)
   ;(format t "~%ENSURE-CLASS-USING-CLASS ~S ~S ~S" class name args)
-  (assert (not (eq (car (mop:class-direct-superclasses owl:|Thing|)) owl:|Thing|)))
+  (assert (not (eq (car (closer-mop:class-direct-superclasses owl:|Thing|)) owl:|Thing|)))
   (cond ((eq class owl:|Thing|) class)                              ; nothing done
         ((getf args :direct-superclasses) (call-next-method))     ; next
         (t (let ((initargs (copy-list args)))
@@ -1268,22 +1268,22 @@
              (when range
                (slot-value-range-check 'owl:|hasValue| hasvalues range)))
            (let* ((name (name property))
-                  (slotd (find name (mop:class-direct-slots class) :key #'name))
+                  (slotd (find name (closer-mop:class-direct-slots class) :key #'name))
                #|   (initfun (cond ((symbolp hasvalues)
                                   (eval (excl::compute-initfunction-function
-                                         hasvalues 'mop:slot-definition-initfunction
+                                         hasvalues 'closer-mop:slot-definition-initfunction
                                          (class-name class) name :boot)))
                                  ((rsc-object-p hasvalues)
                                   (eval (excl::compute-initfunction-function
-                                         hasvalues 'mop:slot-definition-initfunction
+                                         hasvalues 'closer-mop:slot-definition-initfunction
                                          (class-name class) name)))
                                  ((stringp hasvalues)
                                   (eval (excl::compute-initfunction-function
-                                         hasvalues 'mop:slot-definition-initfunction
+                                         hasvalues 'closer-mop:slot-definition-initfunction
                                          (class-name class) name)))
                                  ((numberp hasvalues)
                                   (eval (excl::compute-initfunction-function
-                                         hasvalues 'mop:slot-definition-initfunction
+                                         hasvalues 'closer-mop:slot-definition-initfunction
                                          (class-name class) name)))
                                  (t (error "Not Yet for ~S" hasvalues)))) |#
                   )
@@ -1307,7 +1307,7 @@
                                  :subject-type class
                                  ;:initform hasvalues :initfunction initfun
                                  )
-                               (mop:class-direct-slots class)))
+                               (closer-mop:class-direct-slots class)))
                         (otherwise
                          (push (make-instance 'OwlProperty-direct-slot-definition
                                  :documentation (format nil
@@ -1320,7 +1320,7 @@
                                  :subject-type class
                                  ;:initform hasvalues :initfunction initfun
                                  )
-                               (mop:class-direct-slots class)))))))))))
+                               (closer-mop:class-direct-slots class)))))))))))
 
 (defmethod shared-initialize :after
   ((class owl:|someValuesFromRestriction|) slot-names &rest initargs)
@@ -1332,7 +1332,7 @@
          (let ((property (slot-value class 'owl:|onProperty|))
                (somevalues (slot-value class 'owl:|someValuesFrom|)))
            (let* ((name (name property))
-                  (slotd (find name (mop:class-direct-slots class) :key #'name)))
+                  (slotd (find name (closer-mop:class-direct-slots class) :key #'name)))
              (cond (slotd (reinitialize-instance slotd :name name
                                                  :type (make-instance 'exists
                                                          :role name
@@ -1348,7 +1348,7 @@
                                          :subject-type class)
                                  :documentation "From someValuesFromRestriction as range" 
                                  :subject-type class)
-                               (mop:class-direct-slots class)))
+                               (closer-mop:class-direct-slots class)))
                         (otherwise
                          (push (make-instance 'OwlProperty-direct-slot-definition
                                  :name name :initargs `(,name)
@@ -1358,7 +1358,7 @@
                                          :subject-type class)
                                  :documentation "From someValuesFromRestriction"
                                  :subject-type class)
-                               (mop:class-direct-slots class)))))))))))
+                               (closer-mop:class-direct-slots class)))))))))))
 
 (defmethod shared-initialize :after
   ((class owl:|allValuesFromRestriction|) slot-names &rest initargs)
@@ -1388,9 +1388,9 @@
                        allvalues
                        :direct-superclasses 
                        (most-specific-concepts
-                        (append (mklist range) (mop:class-direct-superclasses allvalues))))))) |#
+                        (append (mklist range) (closer-mop:class-direct-superclasses allvalues))))))) |#
              
-             (let ((slotd (find name (mop:class-direct-slots class) :key #'name)))
+             (let ((slotd (find name (closer-mop:class-direct-slots class) :key #'name)))
                (cond (slotd (reinitialize-instance slotd
                                                    :name name
                                                    :type (make-instance 'forall
@@ -1407,7 +1407,7 @@
                                            :subject-type class)
                                    :documentation "From allValuesFromRestriction as range"
                                    :subject-type class)
-                                 (mop:class-direct-slots class)))
+                                 (closer-mop:class-direct-slots class)))
                           (otherwise
                            (push (make-instance 'OwlProperty-direct-slot-definition
                                    :name name :initargs `(,name)
@@ -1417,7 +1417,7 @@
                                            :subject-type class)
                                    :documentation "From allValuesFromRestriction" 
                                    :subject-type class)
-                                 (mop:class-direct-slots class))))))))))))
+                                 (closer-mop:class-direct-slots class))))))))))))
 
 (defmethod shared-initialize :after
   ((class owl:|cardinalityRestriction|) slot-names &rest initargs)
@@ -1434,7 +1434,7 @@
                                        (slot-value class 'owl:|minCardinality|)))
                   (cardinality (and (slot-boundp class 'owl:|cardinality|) 
                                     (slot-value class 'owl:|cardinality|)))
-                  (slotd (find name (mop:class-direct-slots class) :key #'name)))
+                  (slotd (find name (closer-mop:class-direct-slots class) :key #'name)))
              (when (datatype-p (class-of cardinality))
                (setq cardinality (value-of cardinality)))
              (assert (or (null cardinality) (integerp cardinality)))
@@ -1454,7 +1454,7 @@
                             :name name :initargs `(,name)
                             :maxcardinality (or maxcardinality cardinality)
                             :mincardinality (or mincardinality cardinality))
-                          (mop:class-direct-slots class)))))))))
+                          (closer-mop:class-direct-slots class)))))))))
 
 ;;;
 ;;;; For owl:|equivalentProperty|
@@ -1530,7 +1530,7 @@
                ;(format t "~%REINITIALIZE ~S rdfs:domain ~S rdfs:range ~S" instance inv-range (or inv-domain t))
                (reinitialize-instance instance 'rdfs:|domain| inv-range 'rdfs:|range| (or inv-domain t))
                ; slot ub:memberOf for ub:Person
-               (mop:finalize-inheritance inv-range)
+               (closer-mop:finalize-inheritance inv-range)
                ))))))
 
 ;; rule8 by seiji
@@ -1594,7 +1594,7 @@
 ;; HasValue Restriction Violation
 ;;
 #|
-(defmethod (setf mop:slot-value-using-class) :before
+(defmethod (setf closer-mop:slot-value-using-class) :before
   (value (class owl:|Class|) (object owl:|Thing|) (slotd gx::OwlProperty-effective-slot-definition))
   ;(format t "~%Setf Slot-value-using-class:before with ~S to ~S ~S" value object slotd)
   (when (slot-value slotd 'excl::initform)
@@ -1837,17 +1837,17 @@
 ;; (typep ub:Department10.University0.FullProfessor5 ub:Chair) => t
 ;;
 
-(defmethod (setf mop:slot-value-using-class)
+(defmethod (setf closer-mop:slot-value-using-class)
     ((value Property-direct-slot-definition) (class rdfs:|Class|) (object owl:|Restriction|) slotd)
   ;(format t "~%Setf Slot-value-using-class with ~S to ~S ~S" value object slotd)
   (error "Bingo")
-  (let ((slot-name (mop:slot-definition-name slotd))
-        (prop-name (mop:slot-definition-name value)))
+  (let ((slot-name (closer-mop:slot-definition-name slotd))
+        (prop-name (closer-mop:slot-definition-name value)))
     (assert (eq slot-name 'excl::direct-slots))
     (cond ((not (slot-boundp object slot-name))
            (funcall #'call-next-method (list value) class object slotd))
           (t (let ((direct-slotds (remove prop-name (slot-value object slot-name)
-                                          :key #'mop:slot-definition-name)))
+                                          :key #'closer-mop:slot-definition-name)))
                (cond ((null direct-slotds)
                       (funcall #'call-next-method
                                (list value) class object slotd))
@@ -1868,10 +1868,10 @@
 
 (defmethod superclasses-of ((object owl:|Class|))
   (mappend #'equivalent-classes-of
-           (mappend #'mop:class-direct-superclasses (equivalent-classes-of object))))
+           (mappend #'closer-mop:class-direct-superclasses (equivalent-classes-of object))))
 (defmethod subclasses-of ((object owl:|Class|))
   (mappend #'equivalent-classes-of
-           (mappend #'mop:class-direct-subclasses (equivalent-classes-of object))))
+           (mappend #'closer-mop:class-direct-subclasses (equivalent-classes-of object))))
 
 ;;
 ;; Additional Useful Axioms

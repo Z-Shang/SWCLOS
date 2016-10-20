@@ -39,10 +39,10 @@
       (export-as-QName name)
       (setf (symbol-value name) instance))))
 |#
-(defmethod mop:ensure-class-using-class :after ((class mop:forward-referenced-class) name
+(defmethod closer-mop:ensure-class-using-class :after ((class closer-mop:forward-referenced-class) name
                                                 &rest args)
   ;; the class has become an instance of designated metaclass but this code is invoked 
-  ;; if the original class was mop:forward-referenced-class.
+  ;; if the original class was closer-mop:forward-referenced-class.
   (declare (ignore args))
   (when (and (%clos-subtype-p class rdfs:|Class|) name 
              (or (not (boundp name)) (null (symbol-value name))))
@@ -51,14 +51,14 @@
 )
 #|
 (without-package-locks
-(defmethod mop:finalize-inheritance :before ((class rdfs:|Class|))
+(defmethod closer-mop:finalize-inheritance :before ((class rdfs:|Class|))
   (let* ((classes (collect-superclasses* class))
          (forward-referenced-classes
           (remove-if-not #'excl::forward-referenced-class-p classes)))
     (loop for fclass in forward-referenced-classes
         do (change-class fclass rdfs:|Class|))
     ))
-(defmethod mop:finalize-inheritance :before ((class mop:forward-referenced-class))
+(defmethod closer-mop:finalize-inheritance :before ((class closer-mop:forward-referenced-class))
   (change-class class rdfs:|Class|))
 )
 |#
@@ -67,8 +67,8 @@
 ;; Finalize Inheritance for Partial Order Inconsistency in CPL
 ;;
 
-(defmethod mop:finalize-inheritance ((class rdfs:|Class|))
-  (let* ((oldsupers (mop:class-direct-superclasses class))
+(defmethod closer-mop:finalize-inheritance ((class rdfs:|Class|))
+  (let* ((oldsupers (closer-mop:class-direct-superclasses class))
          (newsupers (if (> (length oldsupers) 1)
                         (most-specific-concepts-by-superclasses oldsupers)
                       oldsupers)))
@@ -76,7 +76,7 @@
       ;; keep the partial order in list
       (setf (slot-value class 'excl::direct-superclasses)
         (remove del (slot-value class 'excl::direct-superclasses)))
-      (mop:remove-direct-subclass del class))
+      (closer-mop:remove-direct-subclass del class))
     (check-superclasses-order class)
     (call-next-method)))
 
@@ -110,15 +110,15 @@
                      ((eql self |rdfs:Resource|) nil)
                      ((member (cadr inconsistent)
                                  (member (car inconsistent)
-                                            (mop:class-direct-superclasses super)))
+                                            (closer-mop:class-direct-superclasses super)))
                       (setf (slot-value super 'excl::direct-superclasses)
                         (swap (car inconsistent) (cadr inconsistent) 
-                              (mop:class-direct-superclasses super)))
-                      (when (mop:class-finalized-p super)
-                        (mop:finalize-inheritance super))
+                              (closer-mop:class-direct-superclasses super)))
+                      (when (closer-mop:class-finalized-p super)
+                        (closer-mop:finalize-inheritance super))
                       (format t "~%Repaired ~S at ~S" inconsistent super)
                       t)
-                     (t (loop for sup in (mop:class-direct-superclasses super) with rslt
+                     (t (loop for sup in (closer-mop:class-direct-superclasses super) with rslt
                             when (walk-supers-to-repair inconsistent sup)
                             do (setq rslt t)
                             finally (return rslt))))))
@@ -128,11 +128,11 @@
               (let ((repairing (car to-be-repaired)))
                 (when (member (cadr repairing)
                                  (member (car repairing)
-                                            (mop:class-direct-superclasses self)))
+                                            (closer-mop:class-direct-superclasses self)))
                   (setf (slot-value self 'excl::direct-superclasses)
                     (swap (car repairing) (cadr repairing) 
-                          (mop:class-direct-superclasses self))))
-                (loop for super in (mop:class-direct-superclasses self) with found
+                          (closer-mop:class-direct-superclasses self))))
+                (loop for super in (closer-mop:class-direct-superclasses self) with found
                     when (walk-supers-to-repair repairing super)
                     do (setq found t)
                     finally (if found
@@ -160,7 +160,7 @@
 ;;......................................................................................
 ;; from Kiczales "The Art of the Metaobject Protocol"
 #+never
-(defmethod mop:class-precedence-list ((root rdfs:|Class|))
+(defmethod closer-mop:class-precedence-list ((root rdfs:|Class|))
   (std-compute-class-precedence-list root))
 
 (defun std-compute-class-precedence-list (class)
@@ -178,14 +178,14 @@
                  (let ((class-to-process (car to-be-processed)))
                    (all-superclasses-loop
                     (cons class-to-process seen)
-                    (union (mop:class-direct-superclasses class-to-process)
+                    (union (closer-mop:class-direct-superclasses class-to-process)
                            superclasses)))))))
     (all-superclasses-loop () (list class))))
 (defun local-precedence-ordering (class)
   (mapcar #'list
     (cons class
-          (butlast (mop:class-direct-superclasses class)))
-    (mop:class-direct-superclasses class)))
+          (butlast (closer-mop:class-direct-superclasses class)))
+    (closer-mop:class-direct-superclasses class)))
 (defun topological-sort (elements constraints tie-breaker)
   (let ((remaining-constraints constraints)
         (remaining-elements elements)
@@ -209,7 +209,7 @@
                 (remove choice remaining-constraints :test #'member)))))))
 (defun std-tie-breaker-rule (minimal-elements cpl-so-far)
   (dolist (cpl-constituent (reverse cpl-so-far))
-    (let* ((supers (mop:class-direct-superclasses cpl-constituent))
+    (let* ((supers (closer-mop:class-direct-superclasses cpl-constituent))
            (common (intersection minimal-elements supers)))
       (when (not (null common))
         (return-from std-tie-breaker-rule (car common))))))

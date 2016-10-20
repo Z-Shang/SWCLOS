@@ -397,8 +397,8 @@ instersection, then returns false."
            (cond ((intersection c1-ones c2-ones :test #'%owl-same-p)
                   (values nil t))
                  (t (values t t)))))
-        (t (let ((supers1 (remove-if #'owl-restriction-p (mop:class-direct-superclasses c1)))
-                 (supers2 (remove-if #'owl-restriction-p (mop:class-direct-superclasses c2))))
+        (t (let ((supers1 (remove-if #'owl-restriction-p (closer-mop:class-direct-superclasses c1)))
+                 (supers2 (remove-if #'owl-restriction-p (closer-mop:class-direct-superclasses c2))))
              ;; this recursion stops at rdfs:Resource or owl:Class
              ;; rule4
              (cond ((some #'(lambda (s) (%owl-disjoint-p s c2)) supers1)

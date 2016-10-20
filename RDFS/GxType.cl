@@ -492,7 +492,7 @@ cases, each value is compared with each slot name."
   (cond ((member c2 visited) nil)
         ((or (%clos-subtype-p c1 c2) (%clos-subtype-p c2 c1)) c2)
         ((some #'(lambda (sub) (check-instance-sharing c1 sub (cons c2 visited)))
-               (mop:class-direct-subclasses c2)))
+               (closer-mop:class-direct-subclasses c2)))
         ))
 (defun %disjoint-p (c d)
   (cond ((and (rdf-class-p c) (rdf-class-p d))
@@ -588,10 +588,10 @@ cases, each value is compared with each slot name."
 
 (defun collect-all-subs (class)
   "returns all subclasses of <class> but <class> itself. 
-   Note that this function uses only <mop:class-direct-subclasses>."
+   Note that this function uses only <closer-mop:class-direct-subclasses>."
   (remove-duplicates 
-   (append (mop:class-direct-subclasses class)
-           (loop for sub in (mop:class-direct-subclasses class)
+   (append (closer-mop:class-direct-subclasses class)
+           (loop for sub in (closer-mop:class-direct-subclasses class)
                append (collect-all-subs sub)))))
 
 ;;;
@@ -612,12 +612,12 @@ cases, each value is compared with each slot name."
         ((and (or (eql c1 rdfs:|Resource|) (eql c1 |rdfs:Resource|))
               (eql (class-of c2) rdfs:|Class|))
          nil)
-        ((mop:class-finalized-p c1)
-         (cond ((member c2 (mop:class-precedence-list c1) :test #'eq) t)
+        ((closer-mop:class-finalized-p c1)
+         (cond ((member c2 (closer-mop:class-precedence-list c1) :test #'eq) t)
                (t nil)))
         ((labels ((walk-partial-cpl (c)
                                     ;(format t "~%walk-partial-cpl ~S" c)
-                    (let ((supers (mop:class-direct-superclasses c)))
+                    (let ((supers (closer-mop:class-direct-superclasses c)))
                       (when (member c2 supers :test #'eq)
                         (return-from %clos-subtype-p t))
                       (mapc #'walk-partial-cpl supers))))
@@ -630,11 +630,11 @@ cases, each value is compared with each slot name."
   (declare (optimize (speed 3) (safety 0)))
   (cond ((eq class rdfs:|Resource|))
         ((eq class |rdfs:Resource|))
-        ((mop:class-finalized-p class)
-         (cond ((member rdfs:|Resource| (mop:class-precedence-list class) :test #'eq) t)
+        ((closer-mop:class-finalized-p class)
+         (cond ((member rdfs:|Resource| (closer-mop:class-precedence-list class) :test #'eq) t)
                (t nil)))
         ((labels ((walk-partial-cpl (c)
-                    (let ((supers (mop:class-direct-superclasses c)))
+                    (let ((supers (closer-mop:class-direct-superclasses c)))
                       (when (member rdfs:|Resource| supers :test #'eq)
                         (return-from %resource-subtype-p t))
                       (mapc #'walk-partial-cpl supers))))
@@ -646,15 +646,15 @@ cases, each value is compared with each slot name."
   "same as (<subtypep> <class> <rdfs:Class>) in CLOS, but more efficient."
   (declare (optimize (speed 3) (safety 0)))
   (cond ((eq class rdfs:|Class|))
-        ((mop:class-finalized-p class)
-         (cond ((member rdfs:|Class| (mop:class-precedence-list class) :test #'eq) t)
+        ((closer-mop:class-finalized-p class)
+         (cond ((member rdfs:|Class| (closer-mop:class-precedence-list class) :test #'eq) t)
                ((and (string= (symbol-name (class-name class)) "Class")
                      (string= (package-name (symbol-package (class-name class))) "owl"))
                 (cerror "Anyway continue?" "Maybe OWL module is not loaded!")
                 (reinitialize-instance class :direct-superclasses `(,rdfs:|Class|)))
                (t nil)))
         ((labels ((walk-partial-cpl (c)
-                    (let ((supers (mop:class-direct-superclasses c)))
+                    (let ((supers (closer-mop:class-direct-superclasses c)))
                       (when (member rdfs:|Class| supers :test #'eq)
                         (return-from %rdf-class-subtype-p t))
                       (mapc #'walk-partial-cpl supers))))
@@ -678,7 +678,7 @@ A subclass of this class is a metaclass.")
 
 ;;;
 ;;; To compare slot-type-constraints with t (which is supplied by system as default type option)
-;;; using cl:subtypep in the standard protocol of mop:compute-effective-slot-definition, 
+;;; using cl:subtypep in the standard protocol of closer-mop:compute-effective-slot-definition, 
 ;;; we needed slot type constraints as type or class, or else the default value t remains in 
 ;;; the type slot option together with slot type constraints. So, we needed following metaclasses 
 ;;; to create type slot constraints as class so as to eliminate t from type options in slot definitions.
@@ -1266,7 +1266,7 @@ A subclass of this class is a metaclass.")
                           (substitute resource rsc classes)))))
           (t (most-specific-concepts-for-slotd-type-1 classes)))))
 #|
-(defmethod mop:slot-definition-type :before ((slotd gx::Property-direct-slot-definition))
+(defmethod closer-mop:slot-definition-type :before ((slotd gx::Property-direct-slot-definition))
   "daemon for type in slotd, because it can be refined after the first creation."
   (declare (optimize (speed 3) (safety 0)))
   (let ((type (slot-value slotd 'excl::type)))
@@ -1290,7 +1290,7 @@ A subclass of this class is a metaclass.")
               ((and (cl:subtypep type MSCs) (cl:subtypep MSCs type)) type)
               (t (setf (slot-value slotd 'excl::type) (mkatom MSCs))))))))
 
-(defmethod mop:slot-definition-type :before ((slotd gx::Property-effective-slot-definition))
+(defmethod closer-mop:slot-definition-type :before ((slotd gx::Property-effective-slot-definition))
   "daemon for type in slotd, because it can be refined after the first creation."
   (declare (optimize (speed 3) (safety 0)))
   (let ((type (slot-value slotd 'excl::type)))
@@ -1393,9 +1393,9 @@ A subclass of this class is a metaclass.")
   "returns true if <x> is an instance of rdf:Property. <x> must be a CLOS object."
   (declare (optimize (speed 3) (safety 0)))
   (cond ((eq class (load-time-value (find-class 'rdf:|Property|))))
-        ((not (mop:class-finalized-p class))
+        ((not (closer-mop:class-finalized-p class))
          (labels ((walk-partial-cpl (c)
-                    (let ((supers (mop:class-direct-superclasses c)))
+                    (let ((supers (closer-mop:class-direct-superclasses c)))
                       (when (member (load-time-value (find-class 'rdf:|Property|))
                                        supers
                                        :test #'eq)
@@ -1405,7 +1405,7 @@ A subclass of this class is a metaclass.")
            (walk-partial-cpl class)
            nil))
         ((member (load-time-value (find-class 'rdf:|Property|))
-                    (mop:class-precedence-list class)
+                    (closer-mop:class-precedence-list class)
                     :test #'eq)
          t)))
 

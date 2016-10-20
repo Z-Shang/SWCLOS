@@ -102,7 +102,7 @@
     (unless sym (setq sym (some #'(lambda (cls) (slot-value cls 'name))
                                 mclasses)))
     (cond ((shadowed-class-p (symbol-value sym))
-           (let ((supers (mop:class-direct-superclasses (symbol-value sym))))
+           (let ((supers (closer-mop:class-direct-superclasses (symbol-value sym))))
              (some #'(lambda (super) (shadow-name super supers)) supers)))
           (sym (let ((str (symbol-name sym))
                      (pkg (symbol-package sym)))
@@ -123,7 +123,7 @@
              ;(format t "~%  refined-classes ~S" refined-classes)
              (cond ((set-eq (mklist old-class) refined-classes) old-class)
                    ((null (cdr refined-classes)) (car refined-classes))
-                   (t (apply #'mop:ensure-class-using-class nil (shadow-name old-class mclasses)
+                   (t (apply #'closer-mop:ensure-class-using-class nil (shadow-name old-class mclasses)
                              :direct-superclasses refined-classes
                              :metaclass 'shadowed-class
                              nil)))))))
@@ -138,16 +138,16 @@
   (unless (cl:typep current 'destroyed-class)
     (let ((old-class (class-of previous)))
       (when (shadowed-class-p old-class)
-        (when (and (null (mop:class-direct-subclasses old-class))
+        (when (and (null (closer-mop:class-direct-subclasses old-class))
                    (null (class-direct-instances old-class)))
           (destroy old-class))))))
 
 (defun destroy (class)
   ;(format t "~%~S is destroyed ..." class)
   (change-class class (find-class 'destroyed-class))
-  (loop for super in (mop:class-direct-superclasses class)
+  (loop for super in (closer-mop:class-direct-superclasses class)
       do (setf (slot-value super 'excl::direct-subclasses)
-           (remove class (mop:class-direct-subclasses super))))
+           (remove class (closer-mop:class-direct-subclasses super))))
   (setf (slot-value class 'excl::direct-superclasses) nil)
   (setf (slot-value class 'excl::class-precedence-list) nil)
   (setf (slot-value class 'excl::slots) nil)
@@ -475,7 +475,7 @@ An RDF statement is the statement made by a token of an RDF triple.")
 ;;;
 
 (defparameter xsd:|anySimpleType|
-  (mop:ensure-class-using-class () 'xsd:|anySimpleType| 
+  (closer-mop:ensure-class-using-class () 'xsd:|anySimpleType| 
                                 :direct-superclasses '(rdf:|XMLLiteral|)
                                 :form '(cl:or xsd:|boolean| xsd:|anyURI| xsd:|string| xsd:|float| xsd:|double| xsd:|decimal|)
                                 :metaclass 'rdfs:|Datatype|)
@@ -491,7 +491,7 @@ An RDF statement is the statement made by a token of an RDF triple.")
   (symbol-value 'xsd:|anySimpleType|))
 
 (defparameter xsd:|decimal|
-  (mop:ensure-class-using-class () 'xsd:|decimal| 
+  (closer-mop:ensure-class-using-class () 'xsd:|decimal| 
                                 :direct-superclasses '(xsd:|anySimpleType|)
                                 :form 'cl:rational
                                 :metaclass 'rdfs:|Datatype|)
@@ -507,7 +507,7 @@ An RDF statement is the statement made by a token of an RDF triple.")
   (symbol-value 'xsd:|decimal|))
 
 (defparameter xsd:|integer|
-  (mop:ensure-class-using-class () 'xsd:|integer| 
+  (closer-mop:ensure-class-using-class () 'xsd:|integer| 
                                 :direct-superclasses '(xsd:|decimal|)
                                 :form 'cl:integer
                                 :metaclass 'rdfs:|Datatype|
@@ -524,7 +524,7 @@ An RDF statement is the statement made by a token of an RDF triple.")
   (symbol-value 'xsd:|integer|))
 
 (defparameter xsd:|nonPositiveInteger|
-  (mop:ensure-class-using-class () 'xsd:|nonPositiveInteger| 
+  (closer-mop:ensure-class-using-class () 'xsd:|nonPositiveInteger| 
                                 :direct-superclasses '(xsd:|integer|)
                                 :form '(cl:integer cl:* 0)
                                 :metaclass 'rdfs:|Datatype|)
@@ -540,7 +540,7 @@ An RDF statement is the statement made by a token of an RDF triple.")
   (symbol-value 'xsd:|nonPositiveInteger|))
 
 (defparameter xsd:|negativeInteger|
-  (mop:ensure-class-using-class () 'xsd:|negativeInteger| 
+  (closer-mop:ensure-class-using-class () 'xsd:|negativeInteger| 
                                 :direct-superclasses '(xsd:|nonPositiveInteger|)
                                 :form '(cl:integer cl:* -1)
                                 :metaclass 'rdfs:|Datatype|)
@@ -556,7 +556,7 @@ An RDF statement is the statement made by a token of an RDF triple.")
   (symbol-value 'xsd:|negativeInteger|))
 
 (defparameter xsd:|long|
-  (mop:ensure-class-using-class () 'xsd:|long| 
+  (closer-mop:ensure-class-using-class () 'xsd:|long| 
                                 :direct-superclasses '(xsd:|integer|)
                                 :form '(cl:signed-byte 64)
                                 :metaclass 'rdfs:|Datatype|)
@@ -572,7 +572,7 @@ An RDF statement is the statement made by a token of an RDF triple.")
   (symbol-value 'xsd:|long|))
 
 (defparameter xsd:|int|
-  (mop:ensure-class-using-class () 'xsd:|int| 
+  (closer-mop:ensure-class-using-class () 'xsd:|int| 
                                 :direct-superclasses '(xsd:|long|)
                                 :form '(cl:signed-byte 32)
                                 :metaclass 'rdfs:|Datatype|)
@@ -588,7 +588,7 @@ An RDF statement is the statement made by a token of an RDF triple.")
   (symbol-value 'xsd:|int|))
 
 (defparameter xsd:|short|
-  (mop:ensure-class-using-class () 'xsd:|short| 
+  (closer-mop:ensure-class-using-class () 'xsd:|short| 
                                 :direct-superclasses '(xsd:|int|)
                                 :metaclass 'rdfs:|Datatype|)
   "xsd:|short| class object")
@@ -603,7 +603,7 @@ An RDF statement is the statement made by a token of an RDF triple.")
   (symbol-value 'xsd:|short|))
 
 (defparameter xsd:|byte|
-  (mop:ensure-class-using-class () 'xsd:|byte| 
+  (closer-mop:ensure-class-using-class () 'xsd:|byte| 
                                 :direct-superclasses '(xsd:|short|)
                                 :form '(cl:signed-byte 8)
                                 :metaclass 'rdfs:|Datatype|)
@@ -619,7 +619,7 @@ An RDF statement is the statement made by a token of an RDF triple.")
   (symbol-value 'xsd:|byte|))
 
 (defparameter xsd:|nonNegativeInteger|
-  (mop:ensure-class-using-class () 'xsd:|nonNegativeInteger| 
+  (closer-mop:ensure-class-using-class () 'xsd:|nonNegativeInteger| 
                                 :direct-superclasses '(xsd:|integer|)
                                 :form '(cl:integer 0 cl:*)
                                 :metaclass 'rdfs:|Datatype|)
@@ -635,7 +635,7 @@ An RDF statement is the statement made by a token of an RDF triple.")
   (symbol-value 'xsd:|nonNegativeInteger|))
 
 (defparameter xsd:|positiveInteger|
-  (mop:ensure-class-using-class () 'xsd:|positiveInteger| 
+  (closer-mop:ensure-class-using-class () 'xsd:|positiveInteger| 
                                 :direct-superclasses '(xsd:|nonNegativeInteger|)
                                 :form '(cl:integer 1 cl:*)
                                 :metaclass 'rdfs:|Datatype|)
@@ -651,7 +651,7 @@ An RDF statement is the statement made by a token of an RDF triple.")
   (symbol-value 'xsd:|positiveInteger|))
 
 (defparameter xsd:|unsignedLong|
-  (mop:ensure-class-using-class () 'xsd:|unsignedLong| 
+  (closer-mop:ensure-class-using-class () 'xsd:|unsignedLong| 
                                 :direct-superclasses '(xsd:|nonNegativeInteger|)
                                 :form '(cl:unsigned-byte 64)
                                 :metaclass 'rdfs:|Datatype|)
@@ -667,7 +667,7 @@ An RDF statement is the statement made by a token of an RDF triple.")
   (symbol-value 'xsd:|unsignedLong|))
 
 (defparameter xsd:|unsignedInt|
-  (mop:ensure-class-using-class () 'xsd:|unsignedInt| 
+  (closer-mop:ensure-class-using-class () 'xsd:|unsignedInt| 
                                 :direct-superclasses '(xsd:|unsignedLong|)
                                 :form '(cl:unsigned-byte 32)
                                 :metaclass 'rdfs:|Datatype|)
@@ -683,7 +683,7 @@ An RDF statement is the statement made by a token of an RDF triple.")
   (symbol-value 'xsd:|unsignedInt|))
 
 (defparameter xsd:|unsignedShort|
-  (mop:ensure-class-using-class () 'xsd:|unsignedShort| 
+  (closer-mop:ensure-class-using-class () 'xsd:|unsignedShort| 
                                 :direct-superclasses '(xsd:|unsignedInt|)
                                 :form '(cl:unsigned-byte 16)
                                 :metaclass 'rdfs:|Datatype|)
@@ -699,7 +699,7 @@ An RDF statement is the statement made by a token of an RDF triple.")
   (symbol-value 'xsd:|unsignedShort|))
 
 (defparameter xsd:|unsignedByte|
-  (mop:ensure-class-using-class () 'xsd:|unsignedByte| 
+  (closer-mop:ensure-class-using-class () 'xsd:|unsignedByte| 
                                 :direct-superclasses '(xsd:|unsignedShort|)
                                 :form '(cl:unsigned-byte 8)
                                 :metaclass 'rdfs:|Datatype|)
@@ -715,7 +715,7 @@ An RDF statement is the statement made by a token of an RDF triple.")
   (symbol-value 'xsd:|unsignedByte|))
 
 (defparameter xsd:|string|
-  (mop:ensure-class-using-class () 'xsd:|string| 
+  (closer-mop:ensure-class-using-class () 'xsd:|string| 
                                 :direct-superclasses '(xsd:|anySimpleType|)
                                 :form 'cl:string
                                 :metaclass 'rdfs:|Datatype|)
@@ -731,7 +731,7 @@ An RDF statement is the statement made by a token of an RDF triple.")
   (symbol-value 'xsd:|string|))
 
 (defparameter xsd:|float|
-  (mop:ensure-class-using-class () 'xsd:|float| 
+  (closer-mop:ensure-class-using-class () 'xsd:|float| 
                                 :direct-superclasses '(xsd:|anySimpleType|)
                                 :form 'cl:single-float
                                 :metaclass 'rdfs:|Datatype|)
@@ -747,7 +747,7 @@ An RDF statement is the statement made by a token of an RDF triple.")
   (symbol-value 'xsd:|float|))
 
 (defparameter xsd:|double|
-  (mop:ensure-class-using-class () 'xsd:|double| 
+  (closer-mop:ensure-class-using-class () 'xsd:|double| 
                                 :direct-superclasses '(xsd:|anySimpleType|)
                                 :form 'cl:double-float
                                 :metaclass 'rdfs:|Datatype|)
@@ -763,7 +763,7 @@ An RDF statement is the statement made by a token of an RDF triple.")
   (symbol-value 'xsd:|double|))
 
 (defparameter xsd:|anyURI|
-  (mop:ensure-class-using-class () 'xsd:|anyURI| 
+  (closer-mop:ensure-class-using-class () 'xsd:|anyURI| 
                                 :direct-superclasses '(xsd:|anySimpleType|)
                                 :form 'uri
                                 :metaclass 'rdfs:|Datatype|)
@@ -779,7 +779,7 @@ An RDF statement is the statement made by a token of an RDF triple.")
   (symbol-value 'xsd:|anyURI|))
 
 (defparameter xsd:|boolean|
-  (mop:ensure-class-using-class () 'xsd:|boolean| 
+  (closer-mop:ensure-class-using-class () 'xsd:|boolean| 
                                 :direct-superclasses '(xsd:|anySimpleType|)
                                 :form '(cl:member xsd:|true| xsd:|false|)
                                 :metaclass 'rdfs:|Datatype|)
@@ -802,7 +802,7 @@ An RDF statement is the statement made by a token of an RDF triple.")
   "xsd:|boolean| instance")
 
 (defparameter xsd:|duration|
-  (mop:ensure-class-using-class
+  (closer-mop:ensure-class-using-class
    () 'xsd:|duration| 
    :direct-superclasses '(xsd:|anySimpleType|)
    :direct-slots `((:name year :initform () :initfunction ,(load-time-value #'false)

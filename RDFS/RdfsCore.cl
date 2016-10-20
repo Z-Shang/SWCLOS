@@ -705,8 +705,10 @@
   )
 
 (defmethod ensure-meta-absts-using-class (meta class slot-forms domains)
+  (declare (ignore meta class slot-forms domains))
   (error "Can't happen!"))
 (defmethod ensure-meta-absts-using-class ((meta rdfs:|Class|) (class rdfs:|Resource|) slot-forms domains)
+  (declare (ignore meta class slot-forms demains))
   "<class> must be an instance."
   (error "Cant happen!"))
 
@@ -747,12 +749,12 @@
                      ;; change to metaclass
                      (reinitialize-instance
                       typ
-                      :direct-superclasses (cons *meta* (mop:class-direct-superclasses typ))))
+                      :direct-superclasses (cons *meta* (closer-mop:class-direct-superclasses typ))))
                     ((and (rdf-metaclass-p class) (rdf-instance-p typ))
                      (cerror "Anyway change it to class ?" "~S is not metaclass!" (class-of typ))
                      (reinitialize-instance
                       (class-of typ)
-                      :direct-superclasses (cons *meta* (mop:class-direct-superclasses (class-of typ)))))
+                      :direct-superclasses (cons *meta* (closer-mop:class-direct-superclasses (class-of typ)))))
                     ((error "Cant happen!"))))
       (setq types (remove-duplicates types)))
     (let ((newmetas (adjoin class (union types domains))))
@@ -800,7 +802,7 @@
                      ;; change to metaclass
                      (reinitialize-instance
                       typ
-                      :direct-superclasses (cons *meta* (mop:class-direct-superclasses typ))))
+                      :direct-superclasses (cons *meta* (closer-mop:class-direct-superclasses typ))))
                     ((and (strict-class-p class) (rdf-metaclass-p typ))
                      (error "Check it!"))
                     ((and (strict-class-p class) (rdf-instance-p typ))
@@ -809,7 +811,7 @@
                      (cerror "Anyway change it to class ?" "~S is not metaclass!" (class-of typ))
                      (reinitialize-instance
                       (class-of typ)
-                      :direct-superclasses (cons *meta* (mop:class-direct-superclasses (class-of typ)))))
+                      :direct-superclasses (cons *meta* (closer-mop:class-direct-superclasses (class-of typ)))))
                     ((error "Cant happen!"))))
       (setq types (remove-duplicates types)))
     (let ((newmetas (adjoin class (union types domains))))
@@ -829,17 +831,17 @@
                                   ((rdf-class-p fil)
                                    (reinitialize-instance
                                     fil
-                                    :direct-superclasses (cons *meta* (mop:class-direct-superclasses fil))))
+                                    :direct-superclasses (cons *meta* (closer-mop:class-direct-superclasses fil))))
                                   (t (cerror "Anyway metaclassify ~S?" "~S is not metaclass!" (class-of fil))
                                      (reinitialize-instance
                                       (class-of fil)
-                                      :direct-superclasses (cons *meta* (mop:class-direct-superclasses (class-of fil))))
+                                      :direct-superclasses (cons *meta* (closer-mop:class-direct-superclasses (class-of fil))))
                                      fil)))
          (ensure-abst (fil) (cond ((rdf-class-p fil) fil)
                                   (t (cerror "Anyway metaclassify ~S?" "~S is not metaclass!" (class-of fil))
                                      (reinitialize-instance
                                       (class-of fil)
-                                      :direct-superclasses (cons *meta* (mop:class-direct-superclasses (class-of fil))))
+                                      :direct-superclasses (cons *meta* (closer-mop:class-direct-superclasses (class-of fil))))
                                      fil))))
     (let ((absts nil)
           (metas nil))
@@ -960,7 +962,7 @@
                     (when name (setf (find-class name) obj))
                     (ensure-multiple-classes
                      classes
-                     (apply #'mop:ensure-class-using-class obj name
+                     (apply #'closer-mop:ensure-class-using-class obj name
                             :direct-superclasses absts
                             :metaclass (car classes)
                             initargs)))
@@ -978,27 +980,27 @@
                           ((and name absts)
                            (ensure-multiple-classes
                             classes
-                            (apply #'mop:ensure-class name
+                            (apply #'closer-mop:ensure-class name
                                    :direct-superclasses absts
                                    :metaclass (car classes)
                                    initargs)))
                           ((and name (null absts))
                            (ensure-multiple-classes
                             classes
-                            (apply #'mop:ensure-class name
+                            (apply #'closer-mop:ensure-class name
                                    :metaclass (car classes)
                                    initargs)))
                           ((and (null name) absts)
                            (ensure-multiple-classes
                             classes
-                            (apply #'mop:ensure-class-using-class obj nil
+                            (apply #'closer-mop:ensure-class-using-class obj nil
                                    :direct-superclasses absts
                                    :metaclass (car classes)
                                    initargs)))
                           ((and (null name) (null absts))
                            (ensure-multiple-classes
                             classes
-                            (apply #'mop:ensure-class-using-class obj nil
+                            (apply #'closer-mop:ensure-class-using-class obj nil
                                    :metaclass (car classes)
                                    initargs)))
                           ((error "cant happen!"))))
@@ -1010,11 +1012,11 @@
               (ensure-multiple-classes
                classes
                (if absts
-                   (apply #'mop:ensure-class name
+                   (apply #'closer-mop:ensure-class name
                           :direct-superclasses absts
                           :metaclass (car classes)
                           initargs)
-                 (apply #'mop:ensure-class name
+                 (apply #'closer-mop:ensure-class name
                         :metaclass (car classes)
                         initargs)))))
             ((null name)                                        ; anonymous
@@ -1023,11 +1025,11 @@
               (ensure-multiple-classes
                classes
                (if absts
-                   (apply #'mop:ensure-class-using-class nil nil
+                   (apply #'closer-mop:ensure-class-using-class nil nil
                           :direct-superclasses absts
                           :metaclass (car classes)
                           initargs)
-                 (apply #'mop:ensure-class-using-class nil nil
+                 (apply #'closer-mop:ensure-class-using-class nil nil
                         :metaclass (car classes)
                         initargs)))))
             ))))
@@ -1173,7 +1175,7 @@
    Note that initargs are for an instance of <class>, not for <class>."
   (let ((properties (collect-props-from-initargs initargs)))
     (when properties
-      (unless (mop:class-finalized-p class) (mop:finalize-inheritance class))
+      (unless (closer-mop:class-finalized-p class) (closer-mop:finalize-inheritance class))
       (let ((slot-names (collect-prop-names-from class))
             (new-props nil)
             (operated nil))
@@ -1187,7 +1189,7 @@
                            :documentation "By ensuring this class slot definition"
                            :subject-type ,class)))
                 (setq operated t))
-          (when operated (mop:finalize-inheritance class)))))))
+          (when operated (closer-mop:finalize-inheritance class)))))))
 
 (defmethod make-instance :before ((class rdfs:|Class|) &rest initargs)
   (when initargs
@@ -1469,7 +1471,7 @@
                 )))))))
 
 (defun collect-owl-role-name-if (test obj)
-  (loop for slotd in (mop:class-slots (class-of obj))
+  (loop for slotd in (closer-mop:class-slots (class-of obj))
       when (and (cl:typep slotd 'gx::Property-effective-slot-definition)
                 (funcall test (symbol-value (name slotd))))
       collect (name slotd)))

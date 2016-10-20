@@ -48,14 +48,14 @@
        (let ((class (class-of obj)))
          (cond ((eq class (load-time-value 
                            (symbol-value 'owl:|FunctionalProperty|))))
-               ((mop:class-finalized-p class)
+               ((closer-mop:class-finalized-p class)
                 (and (member (load-time-value
                               (symbol-value 'owl:|FunctionalProperty|))
-                             (mop:class-precedence-list class)
+                             (closer-mop:class-precedence-list class)
                              :test #'eq)
                      t))
                ((labels ((walk-partial-cpl (c)
-                           (let ((supers (mop:class-direct-superclasses c)))
+                           (let ((supers (closer-mop:class-direct-superclasses c)))
                              (when (member (load-time-value
                                             (symbol-value 'owl:|FunctionalProperty|))
                                            supers
@@ -85,9 +85,9 @@
        (let ((class (class-of obj)))
          (cond ((eq class (load-time-value 
                           (symbol-value 'owl:|InverseFunctionalProperty|))))
-               ((not (mop:class-finalized-p class))
+               ((not (closer-mop:class-finalized-p class))
                 (labels ((walk-partial-cpl (c)
-                           (let ((supers (mop:class-direct-superclasses c)))
+                           (let ((supers (closer-mop:class-direct-superclasses c)))
                              (when (member
                                     (load-time-value 
                                      (symbol-value 'owl:|InverseFunctionalProperty|))
@@ -100,7 +100,7 @@
                   nil))
                (t (and (member (load-time-value 
                                 (symbol-value 'owl:|InverseFunctionalProperty|))
-                               (mop:class-precedence-list class)
+                               (closer-mop:class-precedence-list class)
                                :test #'eq)
                        t))))))
 
@@ -219,8 +219,8 @@
                                (member c2super (slot-value c1super 'disjoint-classes)))
                           (and (slot-exists-p c2super 'disjoint-classes) (slot-boundp c2super 'disjoint-classes)
                                (member c1super (slot-value c2super 'disjoint-classes)))))
-                  (mop:class-precedence-list c2)))
-        (mop:class-precedence-list c1)))
+                  (closer-mop:class-precedence-list c2)))
+        (closer-mop:class-precedence-list c1)))
 
 ;;;
 ;;;; owl-different-p
