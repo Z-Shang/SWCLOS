@@ -928,7 +928,7 @@ and instance of owl:Class."))
 ;; Magic change-class, I don't know why, but this is needed absolutely.
 ;;
 
-#+(and allegro (not (and allegro-vesion>= (version>= 10)))) ; Allegro CL 9 only
+#+ignore
 (defmethod change-class :before ((from cl:class) (to cl:class) &rest initargs) ;bug3166
   (declare (ignore initargs))		;bug3166
   (unless (mop:class-finalized-p to)	;bug3254
