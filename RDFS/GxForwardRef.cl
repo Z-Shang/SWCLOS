@@ -34,7 +34,7 @@
 (defmethod change-class :after ((instance standard-object) (new-class rdfs:|Resource|) &rest initargs)
   (declare (ignore initargs))
   ;(format t "~%CHANGE-CLASS:AFTER standard-object ~S to rdfs:Resource ~S" instance new-class)
-  (let ((name (slot-value instance 'excl::name)))
+  (let ((name (slot-value instance 'name)))
     (when (and name (or (not (boundp name)) (null (symbol-value name))))
       (export-as-QName name)
       (setf (symbol-value name) instance))))

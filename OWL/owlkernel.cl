@@ -276,9 +276,9 @@ and instance of owl:Class."))
 (defclass owl:|allValuesFromRestriction| (owl:|Restriction|) () (:metaclass rdfs:|Class|)
   (:documentation "A class for value restrictions is a subclass of owl:Restriction."))
 (defmethod print-object ((obj owl:|allValuesFromRestriction|) stream)
-  (cond ((and (slot-exists-p obj 'excl::name)
-              (slot-boundp obj 'excl::name)
-              (slot-value obj 'excl::name))
+  (cond ((and (slot-exists-p obj 'name)
+              (slot-boundp obj 'name)
+              (slot-value obj 'name))
          (call-next-method))
         ((and (slot-exists-p obj 'owl:|onProperty|)
               (name (slot-value obj 'owl:|onProperty|))
@@ -291,7 +291,7 @@ and instance of owl:Class."))
         (t (call-next-method))))
 
 (defmethod name ((object owl:|allValuesFromRestriction|))
-  (cond ((and (slot-boundp object 'excl::name) (slot-value object 'excl::name)))
+  (cond ((and (slot-boundp object 'name) (slot-value object 'name)))
         (t (cons 'owl:|allValuesFromRestriction|
                  (mapcar #'name (mklist (slot-value object 'owl:|allValuesFrom|)))))))
 
@@ -308,7 +308,7 @@ and instance of owl:Class."))
         (t (call-next-method))))
 
 (defmethod name ((object owl:|someValuesFromRestriction|))
-  (cond ((and (slot-boundp object 'excl::name) (slot-value object 'excl::name)))
+  (cond ((and (slot-boundp object 'name) (slot-value object 'name)))
         (t (cons 'owl:|someValuesFromRestriction|
                  (mapcar #'name (mklist (slot-value object 'owl:|someValuesFrom|)))))))
 
@@ -333,7 +333,7 @@ and instance of owl:Class."))
         (t (call-next-method))))
 
 (defmethod name ((object owl:|hasValueRestriction|))
-  (cond ((and (slot-boundp object 'excl::name) (slot-value object 'excl::name)))
+  (cond ((and (slot-boundp object 'name) (slot-value object 'name)))
         (t (cons 'owl:|hasValueRestriction|
                  (mapcar #'name (mklist (slot-value object 'owl:|hasValue|)))))))
 
@@ -360,16 +360,16 @@ and instance of owl:Class."))
 ;;; The owl:oneOf slot definition is attached to rdfs:Class.
 (without-redefinition-warnings
 (defmethod print-object ((obj rdfs:|Class|) stream)
-  (cond ((and (slot-boundp obj 'excl::name)
-              (slot-value obj 'excl::name))
+  (cond ((and (slot-boundp obj 'name)
+              (slot-value obj 'name))
          (print-unreadable-object (obj stream :type t)
-           (prin1 (slot-value obj 'excl::name) stream)))
+           (prin1 (slot-value obj 'name) stream)))
         ((slot-boundp obj 'owl:|oneOf|)
          (let ((ones (slot-value obj 'owl:|oneOf|)))
            (print-unreadable-object (obj stream :type t)
-             (when (and (slot-boundp obj 'excl::name)
-                        (slot-value obj 'excl::name))
-               (prin1 (slot-value obj 'excl::name) stream))
+             (when (and (slot-boundp obj 'name)
+                        (slot-value obj 'name))
+               (prin1 (slot-value obj 'name) stream))
              (princ #\{ stream)
              (prin1 (cond ((delay-p (car ones)) :delayed)
                           ((anonymous-p (car ones)) nil)
@@ -525,7 +525,7 @@ and instance of owl:Class."))
                        (setf (getf initargs ':initform) initform)
                        (setf (getf initargs ':initfunction)
                          (cond ((consp initfunc)
-                                (eval `(excl::named-function
+                                (eval `(named-function
                                         (mop:slot-definition-initfunction 
                                          ,class-name ,(gentemp (string slot-name)))
                                         (lambda () (mapcar #'funcall ',initfunc)))))
@@ -606,7 +606,7 @@ and instance of owl:Class."))
                        (setf (getf initargs ':initform) initform)
                        (setf (getf initargs ':initfunction)
                          (cond ((consp initfunc)
-                                (eval `(excl::named-function
+                                (eval `(named-function
                                         (mop:slot-definition-initfunction 
                                          ,class-name ,(gentemp (string slot-name)))
                                         (lambda () (mapcar #'funcall ',initfunc)))))

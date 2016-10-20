@@ -815,7 +815,7 @@
                 (let ((name (getf args :name)))
                   (when name
                     (when (nodeID? name)
-                      (setf (slot-value instance 'excl::name) nil))
+                      (setf (slot-value instance 'name) nil))
                     (export-as-QName name)
                     (setf (symbol-value name) instance)))
                          

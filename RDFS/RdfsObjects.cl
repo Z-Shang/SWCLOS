@@ -99,7 +99,7 @@
    Note that 'shadow-name' is expressed as '<abst-name>.nn'. If <abst> is null, 
    the first class in <mclasses> that has name is used instead."
   (let ((sym (class-name abst)))
-    (unless sym (setq sym (some #'(lambda (cls) (slot-value cls 'excl::name))
+    (unless sym (setq sym (some #'(lambda (cls) (slot-value cls 'name))
                                 mclasses)))
     (cond ((shadowed-class-p (symbol-value sym))
            (let ((supers (mop:class-direct-superclasses (symbol-value sym))))
@@ -375,7 +375,7 @@
 
 (defparameter rdf:|Statement|
   (defclass rdf:|Statement| (rdfs:|Resource|)
-    ((excl::name :initarg :name :initform ())
+    ((name :initarg :name :initform ())
      (rdf:|subject| :initarg :subject :accessor rdf:|subject|)
      (rdf:|predicate| :initarg :predicate )
      (rdf:|object| :initarg :object ))

@@ -77,7 +77,7 @@
 ;; note: the package "gx-user" is defined in "RDFS:gxutils.cl"
 
 (defpackage :gx
-  (:use :closer-common-lisp :named-readtables
+  (:use :common-lisp :named-readtables ; TODO: using closer-common-lisp has more compilation issues
         #+(and allegro-vesion>= (version>= 10)) :puri
         #-(and allegro-vesion>= (version>= 10)) :net.uri)
   (:shadow typep subtypep type-of)

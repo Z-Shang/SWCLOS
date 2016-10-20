@@ -124,15 +124,15 @@ Note that it is not cared that symbols are bound to resource objects or not."))
     (rdfs:|Class| (not (not (class-name resource))))
     (rdf:|Property| (not (not (name resource))))
     (rdfs:|Resource|
-     (not (not (slot-value resource 'excl::name))))))
+     (not (not (slot-value resource 'name))))))
 
 (defun anonymous-p (resource)
   (typecase resource
     (rdfs:|Class| (not (class-name resource)))
     (rdf:|Property| (not (name resource)))
     (rdfs:|Resource|
-     (or (not (slot-exists-p resource 'excl::name))
-         (not (slot-value resource 'excl::name))))))
+     (or (not (slot-exists-p resource 'name))
+         (not (slot-value resource 'name))))))
 #|
 (defun nodeID-p (resource)
   (and (cl:typep resource rdfs:|Resource|)
@@ -485,8 +485,8 @@ Note that it is not cared that symbols are bound to resource objects or not."))
 
 (defun list-all-statements ()
   (loop for state in (class-direct-instances rdf:|Statement|)
-      collect (cond ((slot-value state 'excl::name)
-                     `(,(slot-value state 'excl::name)
+      collect (cond ((slot-value state 'name)
+                     `(,(slot-value state 'name)
                          ,(slot-value state 'rdf:|subject|)
                          ,(slot-value state 'rdf:|predicate|)
                          ,(slot-value state 'rdf:|object|)))

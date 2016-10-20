@@ -530,7 +530,7 @@ of this <instance> property."
                       ((eq name 'documentation) (slot-value slotd name))
                       ((eq name 'excl::fixed-index) nil)
                       (t t)))
-      append (cond ((eq name 'excl::name) `(:name ,(mop:slot-definition-name slotd)))
+      append (cond ((eq name 'name) `(:name ,(mop:slot-definition-name slotd)))
                    ((eq name 'excl::initargs) `(:initargs ,(mop:slot-definition-initargs slotd)))
                    ((eq name 'excl::initform) `(:initform ,(mop:slot-definition-initform slotd)))
                    ((eq name 'excl::initfunction) `(:initfunction ,(mop:slot-definition-initfunction slotd)))

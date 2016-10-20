@@ -22,7 +22,7 @@
   (:documentation "This metaclass is node class. This metaclass provides method class-direct-instances"))
 
 (defclass gnode ()
-  ((excl::name :initarg :name :initform nil)
+  ((name :initarg :name :initform nil)
    (iri :initarg :iri :initform nil :accessor iri)
    ;(mclasses :initarg :mclasses :initform nil :accessor mclasses)
    (type-tag :initform nil :accessor type-tag)
@@ -76,24 +76,24 @@
   (cl:typep x 'gnode))
 
 (defun bnode-p (node)
-  (or (not (slot-value node 'excl::name))
-      (not (symbol-package (slot-value node 'excl::name)))))
+  (or (not (slot-value node 'name))
+      (not (symbol-package (slot-value node 'name)))))
 
 (defmethod ground? ((node gnode))
-  (and (slot-value node 'excl::name)
-       (symbol-package (slot-value node 'excl::name))))
+  (and (slot-value node 'name)
+       (symbol-package (slot-value node 'name))))
 
 (defmethod name ((node symbol))
   node)
 
 (defmethod name ((node gnode))
   "returns a QName or a nodeID of <node>, if it exists. Otherwise nil."
-  (let ((name (slot-value node 'excl::name)))
+  (let ((name (slot-value node 'name)))
     (when (and name (symbol-package name)) name))) ; name might have uninterned symbol.
 
 (defmethod (setf name) (symbol (node gnode))
   "exports <symbol> for QName."
-  (setf (slot-value node 'excl::name) symbol)
+  (setf (slot-value node 'name) symbol)
   (export-as-QName symbol)
   (setf (symbol-value symbol) node))
 
@@ -106,7 +106,7 @@
          (let ((name (getf initargs :name)))
            (when name
              (when (nodeID? name)
-               (setf (slot-value instance 'excl::name) nil))
+               (setf (slot-value instance 'name) nil))
              (export-as-QName name)
              (setf (symbol-value name) instance))))))
 
