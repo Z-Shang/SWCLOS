@@ -153,7 +153,7 @@ instersection, then returns false."
         ((inverse-functional-property-equal-p x y :test #'%owl-equivalent-p))
         ))
 
-(excl:without-redefinition-warnings
+(without-redefinition-warnings
 (defun owl-equivalent-p (x y)
   "returns true if <x> and <y> are equivalent classes."
   (declare (optimize (speed 3) (safety 0)))
@@ -567,7 +567,7 @@ instersection, then returns false."
 ;;;
 ;;; disjointness in OWL universe is ????
 
-(excl:without-redefinition-warnings
+(without-redefinition-warnings
 (defun disjoint-p (c d)
   "returns true if <c> and <d> are disjoint in OWL."
   (declare (optimize (speed 3) (safety 0)))

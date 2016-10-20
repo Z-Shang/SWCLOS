@@ -32,7 +32,7 @@
 ;;; # owl-same-p holds.
 ;;; # otherwise equal in the sense of rdf-graph equality.
 
-(excl:without-redefinition-warnings
+(without-redefinition-warnings
 (defun owl-equalp (x y)
   "returns true if <x> and <y> is equal in semantics of RDF(S) superimposed by OWL. 
    This predicate checks <x> and <y> in classes as individuals."
@@ -591,7 +591,7 @@
                (unless (set-equalp old-supers new-supers)
                  (warn "~S is refined to subclass of ~S." class sib)
                  (reinitialize-instance class :direct-superclasses new-supers)))))))
-(excl:without-redefinition-warnings
+(without-redefinition-warnings
 (defun refine-concept-by-intersection (classes)
   "returns most specific concepts that include subs of <classes> as intersection's sub.
    Note that return values include initial values and newly added values."
@@ -750,7 +750,7 @@
 ;;;
 ;;;; Symmetric Property
 ;;;
-(excl:without-redefinition-warnings
+(without-redefinition-warnings
 (defun symmetric-property-p (obj)
   "Is this <obj> an instance of owl:SymmetricProperty?"
   ;;this is same as '(cl:typep <obj> owl:SymmetricProperty)'
@@ -774,7 +774,7 @@
                   nil))))))
 )
 
-(excl:without-redefinition-warnings
+(without-redefinition-warnings
 (defun shared-initialize-before-in-OWL (instance slot-names initargs)
   ;; filler = oldval + newval, computed at shared-initialize:around(rdfs:Resource).
   (when (consp slot-names)
@@ -1125,7 +1125,7 @@
 ;;;
 ;;;; owl:|Restriction| again
 ;;;
-(excl:without-redefinition-warnings 
+(without-redefinition-warnings 
 (defun owl-restriction-p (obj)
   "Is this <obj> an instance of owl:|Restriction|?"
   ;;this is same as '(cl:typep <obj> owl:|Restriction|)'
@@ -1459,7 +1459,7 @@
 ;;;
 ;;;; For owl:|equivalentProperty|
 ;;;
-(excl:without-redefinition-warnings
+(without-redefinition-warnings
 (defun equivalentProperty-maintain (instance slot-names &rest initargs)
   (declare (ignore slot-names))
   (when (getf initargs 'owl:|equivalentProperty|)
@@ -1501,7 +1501,7 @@
 ;;;
 ;;;; owl:|inverseOf|
 ;;;
-(excl:without-redefinition-warnings
+(without-redefinition-warnings
 (defun %get-inverse-prop (prop)              ; See rdfp8ax, rdfp8bx
   (when (cl:typep prop owl:|ObjectProperty|)
     (or (and (slot-boundp prop 'owl:|inverseOf|) (slot-value prop 'owl:|inverseOf|))
@@ -1548,7 +1548,7 @@
                 (setf (slot-value cls 'equivalent-classes) equivs)
                 ))))))
 
-(excl:without-redefinition-warnings
+(without-redefinition-warnings
 (defmethod domain-value ((property rdf:|Property|))
   (flet ((get-dom (p) (and (slot-boundp p 'rdfs:|domain|) (slot-value p 'rdfs:|domain|))))
     (mkatom (mappend #'(lambda (p) (mklist (get-dom p))) (equivalent-property-of property)))))
@@ -1571,7 +1571,7 @@
                             (equivalent-property-of property))))      ; rule11a
       (mkatom (append domain inv-range)))))
 
-(excl:without-redefinition-warnings
+(without-redefinition-warnings
 (defmethod range-value ((property rdf:|Property|))
   (flet ((get-ran (p) (and (slot-boundp p 'rdfs:|range|) (slot-value p 'rdfs:|range|))))
     (mkatom (mappend #'(lambda (p) (mklist (get-ran p))) (equivalent-property-of property)))))
@@ -1636,7 +1636,7 @@
 ;;; we do not treat here the equivalent property.
 ;;; We do not implement sameAs functions for properties.
 
-(excl:without-redefinition-warnings
+(without-redefinition-warnings
 (defun %%typep (object type)
   "<object> and <type> is an object in RDF universe."
   (declare (optimize (speed 3) (safety 0)))        

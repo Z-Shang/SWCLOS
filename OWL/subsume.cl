@@ -19,7 +19,7 @@
 ;;;; Subsumption 
 ;;;
 
-(excl:without-redefinition-warnings
+(without-redefinition-warnings
 (defun subsumed-p (c d)
   "tests whether <c> is subsumed by <d> in OWL semantics."
   (declare (optimize (speed 3) (safety 0)))

@@ -21,7 +21,7 @@
 
 ;; redefined rdfsClass
 
-(excl:without-redefinition-warnings
+(without-redefinition-warnings
     (defclass rdfsClass (rdfs:|Class|) ()
       (:metaclass rdf-node)
       (:documentation "This is the proxy of rdfs:|Class| in order to make the membership loop."))
@@ -37,7 +37,7 @@
     (:documentation "Every resource in RDF(S) universe including classes is an instance of 
 rdfs:|Resource|."))
 
-(excl:without-redefinition-warnings
+(without-redefinition-warnings
     (defclass rdfs:|Class| (rdfs:|Resource| rdf-node) ()
       (:metaclass rdfsClass)
       (:documentation "This is rdfs:|Class|, and it is a class of all classes in RDF(S) universe."))

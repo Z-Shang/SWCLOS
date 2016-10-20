@@ -290,6 +290,21 @@ but optimized for vectors."
   (cond ((eq code :default) :utf-8)
 	(t code)))
 
+;;; a portable excl:without-redefinition-warnings
+(defmacro without-redefinition-warnings (&body body)
+  #+allegro
+  `(excl:without-redefinition-warnings ,@body)
+  #+lispworks
+  `(let ((dspec:*redefinition-action* :quiet)) ,@body)
+  #+sbcl
+  `(locally
+       (declare (sb-ext:muffle-conditions sb-kernel:redefinition-warning))
+     (handler-bind
+	 ((sb-kernel:redefinition-warning #'muffle-warning))
+       ,@body))
+  #-(or allegro lispworks sbcl)
+  `(progn ,@body))
+
 ;; End of module
 ;; --------------------------------------------------------------------
 ;;;

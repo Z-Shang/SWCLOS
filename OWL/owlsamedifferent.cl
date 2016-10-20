@@ -147,7 +147,7 @@
                                      (setf (slot-value s 'same-as) sames)))
                  sames))))))
 
-(excl:without-redefinition-warnings
+(without-redefinition-warnings
 (defun definitely-%owl-same-p (x y &optional pairs)
   "returns true if <x> and <y> is defined as the same in OWL semantics.
    <x> and <y> should be neither a symbol nor an iri."
@@ -187,7 +187,7 @@
         ((iri-p x) (definitely-owl-same-p (iri-value x) y pairs))
         ((iri-p y) (definitely-owl-same-p x (iri-value y) pairs))))
 
-(excl:without-redefinition-warnings
+(without-redefinition-warnings
 (defmethod %owl-same-p ((x rdfs:|Resource|) (y rdfs:|Resource|) &optional pairs)
   "Non-resolution version. This is used in <owl-equalp> and <owl-equivalent-p>."
   (declare (optimize (speed 3) (safety 0)))

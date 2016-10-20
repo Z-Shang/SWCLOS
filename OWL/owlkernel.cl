@@ -70,7 +70,7 @@
 ;;;
 ;;;; OWL Property Slot Definition
 ;;;
-(excl:without-redefinition-warnings
+(without-redefinition-warnings
 (defparameter *default-slot-definition-class* 'OwlProperty-direct-slot-definition
   "Every slot of which name corresponds to RDF property is defined as an instance of 
 Property-direct-slot-definition. This variable is set to symbol 
@@ -184,7 +184,7 @@ and instance of owl:Class."))
   (and (slot-exists-p x 'same-as)
        (slot-boundp x 'same-as)
        (slot-value x 'same-as)))
-(excl:without-redefinition-warnings
+(without-redefinition-warnings
 (defun same-as-of (x)
   "returns a list of sames as <x>. Note that this function 
    returns one element list of <x>, when no same individuals defined."
@@ -197,7 +197,7 @@ and instance of owl:Class."))
 
 (defvar owl:|Nothing|)
 
-(excl:without-redefinition-warnings
+(without-redefinition-warnings
 (defun owl-thing-p (obj)
   "Is this <obj> an instance of owl:Thing?
    Note that owl:Class and owl:Thing is not owl thing."
@@ -358,7 +358,7 @@ and instance of owl:Class."))
 ;;; Note that oneOf elements may be in the RDF universe.
 ;;; Note that the domain of owl:oneOf is rdfs:Class. Namely, 
 ;;; The owl:oneOf slot definition is attached to rdfs:Class.
-(excl:without-redefinition-warnings
+(without-redefinition-warnings
 (defmethod print-object ((obj rdfs:|Class|) stream)
   (cond ((and (slot-boundp obj 'excl::name)
               (slot-value obj 'excl::name))
@@ -387,7 +387,7 @@ and instance of owl:Class."))
              (prin1 :unbound stream)))))
 )
 
-(excl:without-redefinition-warnings
+(without-redefinition-warnings
 (defun owl-oneof-p (x)
   "Is this <x> an object that holds owl:oneOf data?"
   (and (rdf-class-p x)
@@ -426,7 +426,7 @@ and instance of owl:Class."))
 ;;; <strict-subtype-p-for-slotd-type> are defined, which specifically process these <fval> 
 ;;; with <subsumed-p> and <owl-equivalent-p>. 
 
-(excl:without-redefinition-warnings
+(without-redefinition-warnings
 (defmethod excl::compute-effective-slot-definition-initargs ((class rdfs:|Class|) direct-slotds)
   (declare (optimize (speed 3) (safety 0)))
   (let ((initargs (call-next-method)))
@@ -619,7 +619,7 @@ and instance of owl:Class."))
 ;;;
 ;;; If <initargs> in making an effective-slot-definition includes :maxcardinality or 
 ;;; :mincardinality keyword, the slot-definition must be OwlProperty-direct-slot-definition.
-(excl:without-redefinition-warnings
+(without-redefinition-warnings
 (defmethod mop:effective-slot-definition-class ((class rdfs:|Class|) &rest initargs)
   "This method calls next method if there is no :maxcardinality keyword in <initargs>."
   (cond ((member :maxcardinality initargs)
@@ -774,7 +774,7 @@ and instance of owl:Class."))
                                   (t (mapc #'(lambda (fil) (fills-satisfy fil)) y))))
                  (t (cond ((atom y) (range-satisfy y))
                           (t (mapc #'(lambda (fil) (range-satisfy fil)) y))))))))))
-) ; end of excl:without-redefinition-warnings
+) ; end of without-redefinition-warnings
 
 (defProperty owl:|complementOf|)
 (defConcept owl:|Ontology|)
@@ -906,7 +906,7 @@ and instance of owl:Class."))
 ;;; # If <role> is a symbol owl:distinctMembers or owl:oneOf, then owl:Thing is used for <type>. 
 ;;;   See. rule3.
 
-(excl:without-redefinition-warnings
+(without-redefinition-warnings
 (defun get-range-constraint-from (role)
   "This is same as one in RDFS module except owl:intersectionOf, owl:unionOf returns owl:Class, 
    and owl:oneOf returns owl:Thing instead of rdf:List."
