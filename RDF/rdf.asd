@@ -60,7 +60,7 @@
    (:file "RDFShare"     :depends-on ("packages" "RdfIO" "NameSpace"))
    (:file "RdfParser"    :depends-on ("packages" "NameSpace" "RDFShare"))
    (:file "RdfReader"    :depends-on ("packages" "RdfParser"))
-   (:file "node"         ))
+   (:file "node"         :depends-on ("packages" "IRI")))
 )
 
 (in-package #:cl-user)

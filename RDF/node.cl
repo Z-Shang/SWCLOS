@@ -31,6 +31,9 @@
   (:metaclass rdf-node)
   (:documentation "This class provides the concept of RDF graph."))
 
+(defmethod validate-superclass ((class rdf-node) (superclass standard-class))
+  t)
+
 (defmethod mclasses ((instance gnode))
   "returns multiple classes of <gnode>. This function returns length=1 list for single class."
   (labels ((get-bright-supers (super)
