@@ -75,7 +75,7 @@
   )
 
 (defpackage :gx
-  (:use :common-lisp
+  (:use :common-lisp :named-readtables
         #+(and allegro-vesion>= (version>= 10)) :puri
         #-(and allegro-vesion>= (version>= 10)) :net.uri)
   (:shadow typep subtypep type-of)

@@ -747,7 +747,7 @@ no <*default-namespace*> and no <*base-uri*>, the string is returned."
                     'cl:string))
                   (uri (iri uri-str)))
              uri))
-          (t (excl::read-token stream char)
+          (t (read-token stream char)
              ))))
 
 ;; End of module

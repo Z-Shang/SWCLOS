@@ -265,6 +265,14 @@ but optimized for vectors."
   (declare (ignore ignore))
   nil)
 
+(defreadtable token
+  (:case :preserve))
+
+(defun read-token (stream firstchar &aux symbol)
+  (let ((*readtable* (ensure-readtable 'token)))
+    (setq symbol (read stream)))
+  (intern (coerce (cons firstchar (coerce (symbol-name symbol) 'list)) 'string)))
+
 ;; End of module
 ;; --------------------------------------------------------------------
 ;;;

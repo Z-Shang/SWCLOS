@@ -44,7 +44,7 @@
   :licence "SWCLOS"
   :description "RDF subsystem of SWCLOS (an OWL Full processor on top of CLOS)."
   :long-description "This code is written at Galaxy Express Corporation, Japan, for the realization of the MEXT IT Program in Japan."
-  :depends-on (puri flexi-streams closer-mop)
+  :depends-on ()
   :pathname #+(and :asdf (not :asdf2)) (translate-logical-pathname "RDF:")
             #+(and :asdf :asdf2)       nil
   :default-component-class cl-source-file.cl

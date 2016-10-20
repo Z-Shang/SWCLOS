@@ -360,9 +360,6 @@ This function returns a S-expression of <x>. If <x> is a comment, nil is returne
 ;;; This mechanism is similar to lisp symbol evaluation, but note that the form is not any 
 ;;; symbol. So, the evaluation for such a form cannot be suppressed, even if you quoted it.
 
-(defparameter cl::*standard-readtable* (copy-readtable nil))
-(defparameter rdf::*standard-readtable* (copy-readtable))
-
 (defun rdf::read-string (stream closech)
   (let ((str (excl::read-string stream closech)))
     (let ((nxtch (peek-char nil stream nil nil t)))
@@ -415,7 +412,7 @@ This function returns a S-expression of <x>. If <x> is a comment, nil is returne
   (let ((char firstchar))
     (cond ((char= #\< char)
            (second (double-angle-bracket-reader stream char)))
-          (t (excl::read-token stream char)))))
+          (t (read-token stream char)))))
 
 (defun single-underscore-reader (stream char)
   (let ((nc (peek-char nil stream t nil t)))
@@ -440,12 +437,16 @@ This function returns a S-expression of <x>. If <x> is a comment, nil is returne
                     (export (intern id-str :_) :_)
                     (setf (symbol-value (find-symbol id-str :_)) (make-instance '|rdfs:Resource|))
                     (find-symbol id-str :_)))))
-          (t (excl::read-token stream char)
+          (t (read-token stream char)
              ))))
 
-(set-macro-character #\< #'double-angle-bracket-reader t rdf::*standard-readtable*)
-(set-macro-character #\_ #'single-underscore-reader    t rdf::*standard-readtable*)
-(set-macro-character #\" #'rdf::read-string            nil rdf::*standard-readtable*)
+(defreadtable RDF
+  (:macro-char #\< #'double-angle-bracket-reader t)
+  (:macro-char #\_ #'single-underscore-reader t)
+  (:macro-char #\" #'rdf::read-string nil))
+
+(defvar *standard-readtable* (copy-readtable nil))
+(defvar *rdf-readtable* (ensure-readtable 'RDF))
 
 #|
 (in-package :gx)

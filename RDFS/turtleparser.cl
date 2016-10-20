@@ -666,7 +666,7 @@
                     'cl:string))
                   (uri (gx:uri uri-str)))
              uri))
-          (t (excl::read-token stream char)
+          (t (read-token stream char)
              ))))
 
 |#

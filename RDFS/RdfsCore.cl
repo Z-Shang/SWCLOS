@@ -24,7 +24,6 @@
   (require :rdfsobjects)
   (require :domainrange)
   (require :rdfskernel)
-  (copy-readtable rdf::*standard-readtable* cl:*readtable*) ; after RdfsKernel See it.
 ) ; end of eval-when
 
 (in-package :gx)
