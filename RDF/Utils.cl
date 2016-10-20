@@ -268,10 +268,20 @@ but optimized for vectors."
 (defreadtable token
   (:case :preserve))
 
+;;; a portable excl::read-token
 (defun read-token (stream firstchar &aux symbol)
   (let ((*readtable* (ensure-readtable 'token)))
     (setq symbol (read stream)))
   (intern (coerce (cons firstchar (coerce (symbol-name symbol) 'list)) 'string)))
+
+;;; a portable excl::read-string
+(defun read-string (stream closech)
+  (loop with string-buffer = (make-array 0 :element-type 'character :adjustable t :fill-pointer t)
+	for next-char = (read-char-no-hang stream nil closech nil)
+	unless (char= next-char closech) do
+    (vector-push-extend next-char string-buffer)
+	finally
+	  (return (subseq string-buffer 0 (fill-pointer string-buffer)))))
 
 ;; End of module
 ;; --------------------------------------------------------------------

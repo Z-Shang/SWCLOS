@@ -361,7 +361,7 @@ This function returns a S-expression of <x>. If <x> is a comment, nil is returne
 ;;; symbol. So, the evaluation for such a form cannot be suppressed, even if you quoted it.
 
 (defun rdf::read-string (stream closech)
-  (let ((str (excl::read-string stream closech)))
+  (let ((str (read-string stream closech)))
     (let ((nxtch (peek-char nil stream nil nil t)))
       (cond ((char= nxtch #\@)
              (read-char stream)
