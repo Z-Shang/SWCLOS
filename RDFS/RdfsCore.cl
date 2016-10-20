@@ -349,7 +349,7 @@
                                     ((consp cls) (setq cls (addForm cls 'rdf:|type|)))
                                     (t (error "Not Yet!")))
                              (unless (or (rdf-class-p cls) (class? cls))
-                               (warn "Range entail by rdf:type: ~S rdf:type ~S." cls (name (rdfs:|range| rdf:|type|)))
+                               (warn "Range entail by rdf:type: ~S rdf:type ~S." cls (name rdfs:|range|))
                                (cond ((length=1 domains)
                                       (cond ((eq (car domains) rdfs:|Resource|)
                                              (addClass rdfs:|Class| cls (list rdfs:|Resource|)))
@@ -361,7 +361,7 @@
                                                           (rdfs:|subClassOf| ,(name (car domains))))))
                                             ((warn "Nothing done!"))))
                                      (t (let ((uri (symbol2uri cls))
-                                              (obj (addClass (rdfs:|range| rdf:|type|) cls ())))
+                                              (obj (addClass '(rdfs:|range| rdf:|type|) cls ())))
                                           (when uri (setf (iri-value uri) obj))
                                           obj)))))
                        (let ((class
