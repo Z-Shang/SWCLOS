@@ -181,6 +181,7 @@ rdfs:|Resource|.")
 ;;; See <compute-effective-slot-definition-initargs> in OWL system.
 ;;;
 
+#+allegro
 (defmethod excl::compute-effective-slot-definition-initargs ((class rdfs:|Class|) direct-slotds)
   "see above"
   (declare (optimize (speed 3) (safety 0)))
@@ -190,6 +191,15 @@ rdfs:|Resource|.")
            `(:subject-type ,class ,@initargs))
           (t initargs))))
 
+#+lispworks
+(defmethod clos::compute-effective-slot-definition-initargs ((class rdfs:|Class|) name direct-slotds)
+  "see above"
+  (declare (optimize (speed 3) (safety 0)) (ignore name))
+  (let ((initargs (call-next-method)))
+    (cond ((member-if #'property-direct-slotd-p direct-slotds)
+           ;; if a slotd is property slotd, add subject-type option.
+           `(:subject-type ,class ,@initargs))
+          (t initargs))))
 ;;;
 ;;; If <initargs> in making an effective-slot-definition includes :subject-type keyword, the slot-definition must be 
 ;;; Property-effective-slot-definition. So, <effective-slot-definition-class> methods returns the class metaobject. 

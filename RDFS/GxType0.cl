@@ -114,4 +114,6 @@ format-control and format-arguments are from simple-condition.")
   (format *query-io* "~&Type a form to be evaluated: ")
   (list (eval (read *query-io*))))
 
+(defvar *the-class-t* (find-class t))
+
 (cl:provide :gxtype0)

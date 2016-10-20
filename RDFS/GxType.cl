@@ -605,7 +605,7 @@ cases, each value is compared with each slot name."
    when <c1> and <c2> are CLOS objects."
   (declare (optimize (speed 3) (safety 0)))
   (cond ((eql c1 c2))
-        ((eql c2 excl::*the-class-t*))
+        ((eql c2 *the-class-t*))
         ((and (eql (class-of c1) rdfs:|Class|)
               (or (eql c2 rdfs:|Resource|) (eql c2 |rdfs:Resource|)))
          t)
@@ -1316,7 +1316,7 @@ A subclass of this class is a metaclass.")
 (defun rsc-object-p (x)
   "returns true if <x> is an RDF(S) metaclass, class, instance object, and xsd typed data, and not lisp data."
   ;(declare (optimize (speed 3) (safety 0)))
-  (and (excl::standard-instance-p x)
+  (and (standard-instance-p x)
        (not (eq x (load-time-value (find-class 'gnode))))  ; not gnode
        (%resource-subtype-p (class-of x))))
 
@@ -1329,14 +1329,14 @@ A subclass of this class is a metaclass.")
 (defun rdf-class-p (x)
   "returns true if <x> is an RDF(S) metaclass and class object."
   (declare (optimize (speed 3) (safety 0)))
-  (and (excl::standard-instance-p x)
+  (and (standard-instance-p x)
        (cond ((eq x (load-time-value (find-class 'rdfs:|Class|)))) ; rdfs:Class
              ((%rdf-class-subtype-p (class-of x))))))
 
 (defun rdf-metaclass-p (x)
   "returns true if <x> is an RDF(S) metaclass resource object."
   (declare (optimize (speed 3) (safety 0)))
-  (and (excl::standard-instance-p x)
+  (and (standard-instance-p x)
        (cond ((eq x (load-time-value (find-class 'rdfs:|Class|)))) ; rdfs:Class
              ((and (%rdf-class-subtype-p (class-of x))
                    (%rdf-class-subtype-p x))
@@ -1345,7 +1345,7 @@ A subclass of this class is a metaclass.")
 (defun strict-class-p (x)
   "returns true if <x> is an RDF(S) class but not a metaclass."
   (declare (optimize (speed 3) (safety 0)))
-  (and (excl::standard-instance-p x)
+  (and (standard-instance-p x)
        (%rdf-class-subtype-p (class-of x))
        (not (%rdf-class-subtype-p x))))
 
@@ -1367,7 +1367,7 @@ A subclass of this class is a metaclass.")
   "when <x> is a CLOS object, if <x> is an instance of rdfs:|Resource| but not rdfs:|Class|, this returns true, 
    otherwise nil." 
   (declare (optimize (speed 3) (safety 0)))
-  (and (excl::standard-instance-p x)
+  (and (standard-instance-p x)
        (%resource-subtype-p (class-of x))
        (not (%rdf-class-subtype-p (class-of x)))
        (not (eq x (load-time-value (find-class 'rdfs:|Class|))))
@@ -1386,7 +1386,7 @@ A subclass of this class is a metaclass.")
 (defun role-p (x)
   "returns true if <x> is an instance of rdf:Property."
   (declare (inline))
-  (and (excl::standard-instance-p x)
+  (and (standard-instance-p x)
        (%rdf-property-subtype-p (class-of x))))
 
 (defun %rdf-property-subtype-p (class)
@@ -1750,8 +1750,8 @@ A subclass of this class is a metaclass.")
   "<type> is a CLOS object including rdfs:|Literal| including datatypes (instances of rdf:Datatype).
    Note that this subfunction is invoked with <type> that is a CLOS class."
   (declare (optimize (speed 3) (safety 0)))
-  (assert (excl::standard-instance-p object))
-  (assert (excl::standard-instance-p type))
+  (assert (standard-instance-p object))
+  (assert (standard-instance-p type))
   (when (eq type |rdfs:Resource|) (setq type rdfs:|Resource|))
   (typecase object
     (rdfs:|Class| (%typep object type))

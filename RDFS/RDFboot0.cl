@@ -76,7 +76,10 @@
 ;;; Portable versions of private MOP APIs in Allegro CL
 (declaim (inline standard-instance-p))
 (defun standard-instance-p (object)
-  (subtypep (type-of object) 'standard-object))
+  #+allegro
+  (excl::standard-instance-p object)
+  #-allegro
+  (c2cl:subtypep (c2cl:type-of object) 'standard-object))
 
 ;;;
 ;;;; First of all, 

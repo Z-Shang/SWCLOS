@@ -135,7 +135,7 @@
 ;;; Therefore, old-class is cleared when it falls here.
 (defmethod update-instance-for-different-class :after ((previous rdfs:|Resource|) current &rest initargs)
   (declare (ignore initargs))
-  (unless (cl:typep current 'destroyed-class)
+  (unless (c2cl:typep current 'destroyed-class)
     (let ((old-class (class-of previous)))
       (when (shadowed-class-p old-class)
         (when (and (null (class-direct-subclasses old-class))
@@ -146,11 +146,15 @@
   ;(format t "~%~S is destroyed ..." class)
   (change-class class (find-class 'destroyed-class))
   (loop for super in (class-direct-superclasses class)
-      do (setf (slot-value super 'excl::direct-subclasses)
-           (remove class (class-direct-subclasses super))))
-  (setf (slot-value class 'excl::direct-superclasses) nil)
-  (setf (slot-value class 'excl::class-precedence-list) nil)
-  (setf (slot-value class 'excl::slots) nil)
+	do (setf (class-direct-subclasses super) ; (slot-value super 'excl::direct-subclasses)
+		 (remove class (class-direct-subclasses super))))
+  ;;(setf (slot-value class 'excl::direct-superclasses) nil)
+  (setf (class-direct-superclasses class) nil)
+  ;;(setf (slot-value class 'excl::class-precedence-list) nil)
+  (setf (class-precedence-list class) nil)
+  ;;(setf (slot-value class 'excl::slots) nil)
+  (setf (class-slots class) nil)
+  #+allegro
   (setf (slot-value class 'excl::wrapper) nil)
   )
 
@@ -461,7 +465,7 @@ An RDF statement is the statement made by a token of an RDF triple.")
 ;;; Every RDFS datatype is defined as lisp type and RDF resource, too.
 ;;; As lisp type, data as lisp object is typed as follows.
 ;;; ----------------------------------------------------------------------------------
-;;;  (cl:typep 1 'xsd:|nonNegativeInteger|)
+;;;  (c2cl:typep 1 'xsd:|nonNegativeInteger|)
 ;;; ----------------------------------------------------------------------------------
 ;;; See XML module.
 ;;;
