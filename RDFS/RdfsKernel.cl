@@ -634,13 +634,13 @@ of this <instance> property."
       (null nil)
       (cons (case (op type)
               (and (mapc #'(lambda (type)
-                             (satisfy-filler instance name filler type oldval slotd))
+                             (satisfy-filler instance name filler type 0 0 oldval slotd))
                      (cdr type)))
               (or (error "Not Yet!"))
               (not (error "Cant happen!"))
               (otherwise ;; conjunction of type options
                (mapc #'(lambda (type)
-                         (satisfy-filler instance name filler type oldval slotd))
+                         (satisfy-filler instance name filler type 0 0 oldval slotd))
                  type))))
       (symbol (case type
                 ((t) nil)  ; nothing done in RDF, See OWL module
@@ -661,8 +661,9 @@ of this <instance> property."
                            (change-class filler type))))
       (otherwise (error "Cant happen!")))))
 
-(defun satisfy-filler (x R y type oldval slotd)
-  (declare (ignore x oldval slotd))
+;;; this function will be redefined in OWL:owlkernel.cl
+(defun satisfy-filler (x R y type maxc minc oldval slotd)
+  (declare (ignore x maxc minc oldval slotd))
   (flet ((range-satisfy (filler)
                         (cond ((typep filler type) t) ; nothing done
                               ((eq (type-of filler) '|rdfs:Resource|)
