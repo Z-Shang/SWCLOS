@@ -276,7 +276,7 @@
      val2)))
   
 (defun satisfy-max-cardinality (dmax model)
-  (format t "~%satisfy-max-cardinality(~S ~S)" dmax model)
+  #+debug (format t "~%satisfy-max-cardinality(~S ~S)" dmax model)
   (destructuring-bind (bindings cbindings . roles) model
     (format t "~%bindings:~S~%cbindings:~S~%roles:~S" bindings cbindings roles)
     (let ((vars (remove-duplicates (mapcar #'car bindings)))
@@ -284,7 +284,7 @@
       (and dmax (<= (length (union vars cbars)) dmax)))))
 
 (defun satisfy-min-cardinality (dmin model)
-  (format t "~%satisfy-min-cardinality(~S ~S)" dmin model)
+  #+debug (format t "~%satisfy-min-cardinality(~S ~S)" dmin model)
   (destructuring-bind (bindings cbindings . roles) model
     (format t "~%bindings:~S~%cbindings:~S~%roles:~S" bindings cbindings roles)
     (let ((vars (remove-duplicates (mapcar #'car bindings)))
@@ -342,6 +342,7 @@
       (generate-subsumee-models var role cmax cmin types alls exists fillers models))))
 
 (defun create-models-for-subsumer-from-restrictions (var role max min conjuncts models)
+  (declare (ignore min))
   "creates a model from universal <var> and restriction <conjuncts>.
    Note that all properties in <conjuncts> are is <role>."
   (let ((fills      (remove-if-not #'(lambda (r) (cl:typep r 'owl:|hasValueRestriction|)) conjuncts))
@@ -385,6 +386,7 @@
                do (return-from clash-p t)))))
 
 (defun add-conjunct-existentially (role predecessor successor exist model models)
+  (declare (ignore models))
   "adds a new atom of (<role> <predecessor> <successor>:<exist>) into <model>, 
    and returns a satisfiable model. Note this function is applied for existential 
    quantification of successor."
@@ -399,6 +401,7 @@
       (list (cons bindings (cons cbindings atoms))))))
 
 (defun impose-conjunct-existentially (role predecessor successor type model models)
+  (declare (ignore models))
   "imposes a new atom of (<role> <predecessor> <successor>:<type>) onto each atom in <atoms>
    and returns a satisfiable model for <bindings>, <cbindings>, and <atoms>. 
    Note that the cardinality of atoms do not increased but bindings may be extended and  
@@ -409,10 +412,11 @@
     (setq bindings
           (extend-bindings successor (cons (skolem-constant successor) predecessor)  ; skolemize successor
                            bindings))
-    (loop for atom in atoms with kbindings = +no-bindings+
-        do 
+    (loop for atom in atoms with kbindings = +no-bindings+ do
+        (progn 
           (multiple-value-setq (bindings cbindings kbindings)
             (unify `(,role ,predecessor ,successor) atom bindings cbindings))
+          kbindings)   ; to prevent ignore warnings
         when bindings  ; satisfiable model
         collect (cons bindings (cons cbindings atoms)))))
 
@@ -472,6 +476,7 @@
                                    (multiple-value-setq (bindings cbindings kbindings)
                                      (unify `(,role ,var ,newvar) atom
                                             bindings (extend-bindings newvar all cbindings)))
+                                   kbindings ; to prevent ignore warnings
                                    (not (eq bindings +fail+))) ; not clashed
                                alls))
         collect (cons bindings (cons cbindings atoms)))
@@ -493,6 +498,7 @@
              (destructuring-bind (binding cbinding . atoms) model
                (assert (length=1 atoms))
                (destructuring-bind (role predecessor successor) (car atoms)
+                 (declare (ignore role predecessor))
                  (setq models
                        (list (cons binding
                                    (cons (extend-bindings successor type cbinding)
@@ -506,7 +512,7 @@
 
 (defun reduce-models (cmax models)
   (loop for (bindings cbindings . atoms) in models
-      as kbindings = +no-bindings+
+      ;; as kbindings = +no-bindings+
       append (cond ((and cmax (> (length atoms) cmax))
                     ;; then reduce the possibilities
                     (reduce-atoms cmax bindings cbindings atoms))
@@ -519,14 +525,16 @@
   (setq models
         (loop for (one . others) in (mapcar #'(lambda (atom) (cons atom (remove atom atoms))) atoms)
             append (loop for i from 0 to (1- (length others))
-                       append (multiple-value-bind (newbindings newcbindings newkbidnings)
-                                   (unify one (nth i others) bindings cbindings)
-                                 (when newbindings
-                                   (list (cons newbindings (cons newcbindings others))))))))
+                       append (multiple-value-bind (newbindings newcbindings newkbindings)
+                                  (unify one (nth i others) bindings cbindings)
+                                (declare (ignore newkbindings))
+                                (when newbindings
+                                  (list (cons newbindings (cons newcbindings others))))))))
   (setq models
         (remove-duplicates models
                            :test #'(lambda (model1 model2)
                                      (destructuring-bind (bindings1 cbindings1 . atoms1) model1
+                                       (declare (ignore bindings1 cbindings1))
                                        (destructuring-bind (bindings2 cbindings2 . atoms2) model2
                                          (and (subsetp atoms1 atoms2
                                                        :test #'(lambda (atom1 atom2)
@@ -537,6 +545,7 @@
   (reduce-models cmax models))
 
 (defun generate-subsumer-models (var role cmax types alls exists fillers models)
+  (declare (ignore cmax types))
   "generates updated models for <var> and <role> onto <models> with constraint 
    max caridinality <cmax>, <types>, <alls>, <exists>, and <fillers> of successor 
    of <var> for <role>. If <var> is nil, then new-var is created inside."
@@ -579,6 +588,7 @@
                                    (multiple-value-setq (bindings cbindings kbindings)
                                      (unify `(,role ,var ,newvar) atom
                                             bindings (extend-bindings newvar all cbindings)))
+                                   kbindings ; to prevent ignore warnings
                                    (not (eq bindings +fail+)))
                                alls))
         collect (cons bindings (cons cbindings atoms))))
@@ -635,6 +645,7 @@
                 (error "Not Yet1!"))
                ((skolem-p y2)
                 (multiple-value-bind (pred2 suc2) (unskolemize y2)
+		  (declare (ignore pred2))
                   (subsumed-p-in-satisfy (class-of+ y1 bindings1 cbindings1)
                                          (class-of+ suc2 bindings2 cbindings2))))
                ((rsc-object-p y2)
@@ -644,6 +655,7 @@
         ((skolem-p y1)
          (cond ((variable? y2)
                 (multiple-value-bind (pred1 suc1) (unskolemize y1)
+		  (declare (ignore pred1))
                   (subsumed-p-in-satisfy (class-of+ suc1 bindings1 cbindings1)
                                          (class-of+ y2 bindings2 cbindings2))))
                ((skolem-p y2)
