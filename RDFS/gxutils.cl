@@ -34,7 +34,7 @@
 	    *autoepistemic-local-closed-world*)))
 
 (defpackage :gx-user
-  (:use :common-lisp :gx)
+  (:use :closer-common-lisp :gx)
   (:shadow change-class subject predicate object type)
   (:shadowing-import-from :gx type-of typep subtypep)
   (:documentation "http://www.galaxy-express.co.jp/semweb/gx-user#"))

@@ -23,11 +23,10 @@
   (require :swclospackages)
 ) ; end of eval-when
 
-(defpackage :gx
-  (:export collect-prop-names-from)
-  )
-
 (in-package :gx)
+
+(eval-when (:execute :load-toplevel :compile-toplevel)
+  (export 'collect-prop-names-from))
 
 ;;;; Slot definitions for SWCLOS
 ;;;

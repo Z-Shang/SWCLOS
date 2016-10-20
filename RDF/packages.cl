@@ -74,8 +74,10 @@
   ;; documentation is supplied from OWL.RDF file.
   )
 
+;; note: the package "gx-user" is defined in "RDFS:gxutils.cl"
+
 (defpackage :gx
-  (:use :common-lisp :named-readtables
+  (:use :closer-common-lisp :named-readtables
         #+(and allegro-vesion>= (version>= 10)) :puri
         #-(and allegro-vesion>= (version>= 10)) :net.uri)
   (:shadow typep subtypep type-of)
