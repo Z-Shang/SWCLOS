@@ -71,12 +71,10 @@
 (defun subtypep (sub super &optional env)
   (c2cl:subtypep sub super env))
 (defun type-of (object)
-  (cl:type-of object))
+  (cl:type-of object)) ; cl:type-of is never re-defined in closer-mop
 
 ;;; Portable versions of private MOP APIs in Allegro CL
-(eval-when (:compile-toplevel :execute)
-  (declaim (inline standard-instance-p)))
-
+(declaim (inline standard-instance-p)
 (defun standard-instance-p (object)
   (subtypep (type-of object) 'standard-object))
 
