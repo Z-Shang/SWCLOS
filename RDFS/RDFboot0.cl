@@ -74,7 +74,7 @@
   (cl:type-of object)) ; cl:type-of is never re-defined in closer-mop
 
 ;;; Portable versions of private MOP APIs in Allegro CL
-(declaim (inline standard-instance-p)
+(declaim (inline standard-instance-p))
 (defun standard-instance-p (object)
   (subtypep (type-of object) 'standard-object))
 
