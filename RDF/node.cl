@@ -58,7 +58,7 @@
 
 (defmethod update-instance-for-different-class :after ((previous gnode) current &rest initargs)
   (declare (ignore initargs))
-  (cond ((cl:typep current 'destroyed-class)
+  (cond ((c2cl:typep current 'destroyed-class)
          (let ((old-class (class-of previous)))
            (setf (class-direct-instances old-class)
              (remove current (class-direct-instances old-class) :test #'eq))
@@ -73,7 +73,7 @@
              ))))
 
 (defun node-p (x)
-  (cl:typep x 'gnode))
+  (c2cl:typep x 'gnode))
 
 (defun bnode-p (node)
   (or (not (slot-value node 'name))

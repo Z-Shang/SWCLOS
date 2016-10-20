@@ -133,7 +133,7 @@ package slot and uri to symbol name mapping environment slot.")
   "retrieves a uri-namedspace on <prefix-uri> from <*NameSpaces*> by interning it."
   (declare (optimize (speed 3) (safety 1)))
   (setq prefix-uri (intern-uri (parse-iri prefix-uri) *NameSpaces*))
-  (when (cl:typep prefix-uri 'uri-namedspace) prefix-uri))
+  (when (c2cl:typep prefix-uri 'uri-namedspace) prefix-uri))
 
 (defun set-uri-namedspace-from-pkg (pkg)
   "supposing <pkg> has a documentation that is the same string as rendered <prefix-uri>, 
@@ -149,7 +149,7 @@ package slot and uri to symbol name mapping environment slot.")
   "returns a package associated to <prefix-uri>."
   (declare (optimize (speed 3) (safety 1)))
   (setq prefix-uri (intern-uri (parse-iri prefix-uri) *NameSpaces*))
-  (when (and (cl:typep prefix-uri 'uri-namedspace) (slot-boundp prefix-uri 'package))
+  (when (and (c2cl:typep prefix-uri 'uri-namedspace) (slot-boundp prefix-uri 'package))
     (uri-namedspace-package prefix-uri)))
 
 (defun uri2env (prefix-uri)

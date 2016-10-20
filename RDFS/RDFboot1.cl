@@ -136,7 +136,7 @@ rdfs:|Resource|.")
 ;;;
 ;;;; How to Compute a Type Value in Effective Slot Definition
 ;;;
-;;; Since the function of gx:subtypep in RDF is the same as that of cl:subtypep, the 
+;;; Since the function of gx:subtypep in RDF is the same as that of c2cl:subtypep, the 
 ;;; computation of type option in <compute-effective-slot-definition-initargs> for excl::std-class is 
 ;;; also useful for the effective slot definition for rdf properties. Note that the ACL original 
 ;;; algorithm for type value collection collects the type value in direct-slot-definitions at every 

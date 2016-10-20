@@ -36,12 +36,12 @@
 ;;; ----------------------------------------------------------------------------------
 ;;;
 ;;; The twisted relation between rdfs:Class and rdfsClass, that is, rdfs:Class is a super 
-;;; class and an instance of rdfsClass produces a trick of (cl:typep rdfs:Class rdfs:Class).
+;;; class and an instance of rdfsClass produces a trick of (c2cl:typep rdfs:Class rdfs:Class).
 ;;; Note that every method defined at rdfs:Class affects rdfs:Class itself. Therefore, the 
 ;;; world is closed by the membership loop of rdfs:Class just like cl:standard-class in CLOS.
 ;;;
 ;;; The twisted relation between rdfs:Resource and rdfs:Class yields semantics of RDFS, that is, 
-;;; (cl:typep rdfs:Resource rdfs:Class) and (cl:typep rdfs:Resource rdfs:Resource).
+;;; (c2cl:typep rdfs:Resource rdfs:Class) and (c2cl:typep rdfs:Resource rdfs:Resource).
 ;;;
 ;;; The method <class-direct-instances>, which maintains direct instances of a class, is 
 ;;; inherited to rdfs:Class and rdfsClass. So, subclasses of rdfs:Resource and rdfs:Class, 
@@ -67,9 +67,9 @@
 
 ;;; To be re-defined in GxType.cl
 (defun typep (obj type &optional env)
-  (cl:typep obj type env))
+  (c2cl:typep obj type env))
 (defun subtypep (sub super &optional env)
-  (cl:subtypep sub super env))
+  (c2cl:subtypep sub super env))
 (defun type-of (object)
   (cl:type-of object))
 

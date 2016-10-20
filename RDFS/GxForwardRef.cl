@@ -239,7 +239,7 @@
           ((error "Cant happen!")))))
 
 (defun reify (subject predicate object)
-  (when (not (cl:typep subject rdf:|Statement|))
+  (when (not (c2cl:typep subject rdf:|Statement|))
     (unless (loop for stat in (class-direct-instances rdf:|Statement|)
                 thereis (and (rdf-equalp subject (slot-value stat 'rdf:|subject|))
                              (rdf-equalp predicate (slot-value stat 'rdf:|predicate|))

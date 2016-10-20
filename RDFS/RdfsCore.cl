@@ -293,9 +293,9 @@
                                (not (eq role 'rdfs:|member|))
                                (let ((range (get-range-constraint-from role)))
                                  (or (and (atom range)
-                                          (cl:subtypep 'xsd:|anyURI| range)) ; Seiji 2008/08/06
+                                          (c2cl:subtypep 'xsd:|anyURI| range)) ; Seiji 2008/08/06
                                      (and (consp range)
-                                          (every #'(lambda (cls) (cl:subtypep 'xsd:|anyURI| cls)) range)))))
+                                          (every #'(lambda (cls) (c2cl:subtypep 'xsd:|anyURI| cls)) range)))))
                           ;(format t "~%Form ~S with role ~S" form role)
                           ;(format t "~%  Constraint ~S" (get-range-constraint-from role))
                           form)
@@ -455,7 +455,7 @@
                       (cond ((not (object? name))
                              (warn "Range entailX1 by ~S: ~S rdf:type ~S." role name (name range))
                              (addObject range `((:name ,name))))
-                            ((not (cl:typep (symbol-value name) range))
+                            ((not (c2cl:typep (symbol-value name) range))
                              (warn "Range entailX1 by ~S: ~S rdf:type ~S." role name (name range))
                              (change-class (symbol-value name) range))
                             (t (symbol-value name))))
@@ -463,7 +463,7 @@
                       (cond ((not (object? name))
                              (warn "Range entailX2 by ~S: ~S rdf:type ~S." role name (name range))
                              (addObject range `((:name ,name))))
-                            ((not (cl:typep (symbol-value name) range))
+                            ((not (c2cl:typep (symbol-value name) range))
                              (warn "Range entailX2 by ~S: ~S rdf:type ~S." role name (name range))
                              (change-class (symbol-value name) range))
                             (t (symbol-value name))))
@@ -471,7 +471,7 @@
                       ;;(error "Check it!")
                       (warn "Range entailX3 by ~S: ~S rdf:type ~S." role name (name range))
                       (addObject range `((:name ,name))))
-                     ((not (cl:typep (symbol-value name) range))
+                     ((not (c2cl:typep (symbol-value name) range))
                       (error "Check it!")
                       (warn "Range entailX3 by ~S: ~S rdf:type ~S." role name (name range))
                       (change-class (symbol-value name) range))
@@ -488,11 +488,11 @@
         (cond ((null range) obj)
               ((atom range)
                (cond ((eq obj rdfs:|Class|) obj)
-                     ((cl:typep obj range) obj)
+                     ((c2cl:typep obj range) obj)
                      (t (warn "Range entailX4 by ~S: ~S rdf:type ~S." role obj (name range))
                         (change-class obj range))))
               ((consp range)
-               (cond ((every #'(lambda (cls) (cl:typep obj cls)) range) obj)
+               (cond ((every #'(lambda (cls) (c2cl:typep obj cls)) range) obj)
                      (t (warn "Range entailX5 by ~S: ~S rdf:type ~S." role obj (name range))
                         (change-class obj range))))
               ((error "Cant happen!"))))
@@ -679,7 +679,7 @@
    to fix the meta class and abst classes for this object. Finally, calls <addClass> if the meta class or abst exists, else 
    calls <addInstance>. If optional <domains> is not supplied, the domain constrant is computed and it is used for ensuring 
    the metaclass and abst classes. To suppress domain computing, supply nil."
-  (when (cl:subtypep type 'rdfs:|Container|) ;type = rdf:Alt,rdf:Seq,rdf:Bag, etc.
+  (when (c2cl:subtypep type 'rdfs:|Container|) ;type = rdf:Alt,rdf:Seq,rdf:Bag, etc.
     (check-ordinal-properties slot-forms))
   (let ((name (second (assoc ':name slot-forms))))
     (setq slot-forms (remove (assoc ':name slot-forms) slot-forms :test #'eq))
@@ -942,9 +942,9 @@
              ;; :direct-superclasses and :direct-slots is added into old ones 
              ;; by shared-initialize :around (rdfs:|Class|)
              ;(format t "~%Adding Class by redefinition classes:~S~%   name:~S~%   absts:~S~%   slots:~S" classes name absts islots)
-             (cond ((every #'(lambda (cls) (cl:typep obj cls)) classes)
+             (cond ((every #'(lambda (cls) (c2cl:typep obj cls)) classes)
                     ;(format t "~%~S is already an instance of ~S." obj classes)
-                    (cond ((every #'(lambda (abst) (cl:subtypep obj abst)) absts)
+                    (cond ((every #'(lambda (abst) (c2cl:subtypep obj abst)) absts)
                            (cond ((every #'(lambda (slot)
                                              (and (slot-boundp obj (slot-role slot))
                                                   (owl-equalp (mkatom (slot-forms slot))
@@ -1111,7 +1111,7 @@
              ;; If name is a blank node ID, definitely it is bound to an default object.
              ;; Therefore the control always falls here, and the object is anonymous.
              (let ((mclasses (substitute rdfs:|Resource| |rdfs:Resource| (mclasses obj))))
-               (cond ((every #'(lambda (cls) (cl:typep obj cls)) classes)
+               (cond ((every #'(lambda (cls) (c2cl:typep obj cls)) classes)
                       (when initargs
                         (format t "~%Reinitializing ~S with ~S" obj initargs)
                         (apply #'reinitialize-instance obj initargs))
@@ -1120,9 +1120,9 @@
                       (let ((newcls (car classes)))
                         (cond ((eq newcls |rdfs:Resource|)
                                (when initargs (apply #'reinitialize-instance obj initargs)))
-                              ((every #'(lambda (old) (cl:subtypep old newcls)) mclasses)
+                              ((every #'(lambda (old) (c2cl:subtypep old newcls)) mclasses)
                                 ) ; nothing done
-                              ((every #'(lambda (old) (cl:subtypep newcls old)) mclasses)
+                              ((every #'(lambda (old) (c2cl:subtypep newcls old)) mclasses)
                                (format t "~%Changing a class of ~S to ~S." obj newcls)
                                (apply #'change-class obj newcls initargs))
                               (t (let ((shadow (make-shadow (class-of obj)
@@ -1133,7 +1133,7 @@
                       (when initargs (apply #'reinitialize-instance obj initargs))
                       obj)
                      ((null (set-difference classes mclasses
-                                            :test #'(lambda (x y) (cl:subtypep x y))))
+                                            :test #'(lambda (x y) (c2cl:subtypep x y))))
                       ;; refining from old classes to new classes
                       (apply #'change-class obj (car classes) initargs)
                       (when initargs (apply #'reinitialize-instance obj initargs))
@@ -1224,7 +1224,7 @@
                       (cond ((and (strict-class-p domain) (strict-class-p class)))
                             ((and (rdf-metaclass-p domain) (rdf-metaclass-p class)))
                             ((rdf-metaclass-p class)
-                             (unless (cl:subtypep class domain)
+                             (unless (c2cl:subtypep class domain)
                                (error "Classing error. ~S might have to be a strict class." class)))
                             ((strict-class-p class)
                              (error "Classing error. ~S might have to be a metaclass." class))
@@ -1278,8 +1278,8 @@
     (null (read-in-lang-env str))
     (xsd:|string| (read-in-lang-env str))
     (rdfs:|Class| 
-     (cond ((cl:subtypep type rdfs:|Literal|) (read-in-lang-env str))
-           ((cl:subtypep type rdfs:|Resource|) (read-in-lang-env str))
+     (cond ((c2cl:subtypep type rdfs:|Literal|) (read-in-lang-env str))
+           ((c2cl:subtypep type rdfs:|Resource|) (read-in-lang-env str))
            (t (error "~S is not yet prepared!" type))))
     (symbol 
      (ecase type
@@ -1287,7 +1287,7 @@
        ((xsd:|integer| xsd:|long| xsd:|int| xsd:|short| xsd:|byte| xsd:|nonNegativeInteger|  
                      xsd:|negativeInteger| xsd:|positiveInteger| xsd:|nonPositiveInteger|)
         (let ((value (read-from-string str)))
-          (assert (cl:typep value type))
+          (assert (c2cl:typep value type))
           value))
        (xsd:|anyURI| (iri str))
        (xsd:|decimal| (rational (read-from-string str)))
@@ -1295,7 +1295,7 @@
        (xsd:|double| (cl:float (read-from-string str) 1.0d0))
        (xsd:|boolean|
         (let ((value (read-from-string str)))
-          (assert (cl:typep value type))
+          (assert (c2cl:typep value type))
           value))))))
 
 (defun read-in-lang-env (str)
@@ -1472,7 +1472,7 @@
 
 (defun collect-owl-role-name-if (test obj)
   (loop for slotd in (class-slots (class-of obj))
-      when (and (cl:typep slotd 'gx::Property-effective-slot-definition)
+      when (and (c2cl:typep slotd 'gx::Property-effective-slot-definition)
                 (funcall test (symbol-value (name slotd))))
       collect (name slotd)))
 

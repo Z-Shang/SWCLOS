@@ -42,7 +42,7 @@
 
 (defun functional-property-p (obj)
   "Is this <obj> an instance of owl:FunctionalProperty?"
-  ;;this is the same as '(cl:typep <obj> owl:FunctionalProperty)'
+  ;;this is the same as '(c2cl:typep <obj> owl:FunctionalProperty)'
   (declare (optimize (speed 3) (safety 0)))
   (and (excl::standard-instance-p obj)
        (let ((class (class-of obj)))
@@ -79,7 +79,7 @@
 
 (defun inverse-functional-property-p (obj)
   "Is this <obj> an instance of owl:InverseFunctionalProperty?"
-  ;;this is the same as '(cl:typep <obj> owl:InverseFunctionalProperty)'
+  ;;this is the same as '(c2cl:typep <obj> owl:InverseFunctionalProperty)'
   (declare (optimize (speed 3) (safety 0)))
   (and (excl::standard-instance-p obj)
        (let ((class (class-of obj)))
@@ -171,9 +171,9 @@
                   (inverse-functional-property-equal-p
                    x y :test #'(lambda (a b) (definitely-%owl-same-p a b (cons (cons x y) pairs))))))
          t)
-        ((and (cl:typep x 'rdf:|inLang|) (cl:typep y 'rdf:|inLang|))
+        ((and (c2cl:typep x 'rdf:|inLang|) (c2cl:typep y 'rdf:|inLang|))
          (and (eq (lang x) (lang y)) (equal (content x) (content y))))
-        ((and (cl:typep x 'rdf:|XMLLiteral|) (cl:typep y 'rdf:|XMLLiteral|))
+        ((and (c2cl:typep x 'rdf:|XMLLiteral|) (c2cl:typep y 'rdf:|XMLLiteral|))
          (and (eq (class-of x) (class-of y)) (equal (value-of x) (value-of y))))))
 )
 
@@ -344,8 +344,8 @@
         ((and (numberp x) (numberp y))
          (if (= x y) nil t))                           ; 1 and 1.0
         ((and (datatype-p (class-of x)) (datatype-p (class-of y)))
-         (if (or (cl:subtypep (class-of x) (class-of y))
-                 (cl:subtypep (class-of y) (class-of x)))
+         (if (or (c2cl:subtypep (class-of x) (class-of y))
+                 (c2cl:subtypep (class-of y) (class-of x)))
              (if (equalp (value-of x) (value-of y))    ; equalp treats 1 and 1.0
                  nil t)
            t))   ; disjoint data type

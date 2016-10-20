@@ -41,7 +41,7 @@
 
 (defun dont-expand-p (resource)
   (and (not *force-recursive-p*)
-       (cl:typep resource rdfs:|Resource|)
+       (c2cl:typep resource rdfs:|Resource|)
        (or (and (slot-boundp resource 'rdf:|about|) (slot-value resource 'rdf:|about|))
            (and (name resource) (not (nodeID? (name resource)))))))
 
@@ -175,7 +175,7 @@
 
 (defun collection-p (resources)
   (and (consp resources) (cdr resources)
-       (not (cl:typep (car resources) 'rdf:|inLang|))
+       (not (c2cl:typep (car resources) 'rdf:|inLang|))
        ))
 
 (defun write-slot-subclassof (resource s)
@@ -238,7 +238,7 @@
                   (loop (let ((resource (pprint-pop)))
                           (cond ((datatype-p (class-of resource))
                                  (write-datatype= role resource s))
-                                ((cl:typep resource 'rdf:|inLang|)
+                                ((c2cl:typep resource 'rdf:|inLang|)
                                  (write-char #\< s)
                                  (write role :stream s)
                                  (princ " xml:lang=" s)
@@ -421,7 +421,7 @@
   "returns instance slots with slot form (role filler1 ...)"
   (loop for slot in (class-slots (class-of instance))
       with role and filler 
-      when (and (cl:typep slot 'Property-effective-slot-definition)
+      when (and (c2cl:typep slot 'Property-effective-slot-definition)
                 (slot-boundp instance (setq role (slot-definition-name slot)))
                 (slot-value instance role))
       collect (cond ((listp (setq filler (slot-value instance role)))

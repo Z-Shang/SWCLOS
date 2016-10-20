@@ -91,7 +91,7 @@
            (when val2 (return-from subsumed-p (values val1 val2)))))
         ((and (not (rdf-instance-p c))
               (not (rdf-instance-p d))
-              (cl:subtypep c d))
+              (c2cl:subtypep c d))
          (values t t))
         (t (values nil nil))))
 )
@@ -170,12 +170,12 @@
                 (remove-if #'owl-restriction-p dintersections))
          (or (null (setq drestrs (remove-if-not #'owl-restriction-p dintersections)))
              (%intersection-restriction-subsumed-p
-              (remove-if-not #'(lambda (cs) (cl:typep cs 'Property-effective-slot-definition))
+              (remove-if-not #'(lambda (cs) (c2cl:typep cs 'Property-effective-slot-definition))
                              (class-slots c))
               (remove-duplicates
                (mapcar #'(lambda (dr) (name (onproperty-of dr))) drestrs))
-              (remove-if-not #'(lambda (x) (cl:typep x (symbol-value 'owl:|cardinalityRestriction|))) drestrs)
-              (remove-if #'(lambda (x) (cl:typep x (symbol-value 'owl:|cardinalityRestriction|))) drestrs))))))
+              (remove-if-not #'(lambda (x) (c2cl:typep x (symbol-value 'owl:|cardinalityRestriction|))) drestrs)
+              (remove-if #'(lambda (x) (c2cl:typep x (symbol-value 'owl:|cardinalityRestriction|))) drestrs))))))
 (defun %intersection-restriction-subsumed-p (cslots dprops dcards dcnsts)
   "cslots are effective slots for c's instances, dprops are property names for restrictions as intersection at d.
    dcars are cardinality restrictions on d's properties. dcnsts are non-cardinality restrictions on d's properties."
@@ -244,9 +244,9 @@
                               (dmax (get-maxcard dcard))
                               (dmin (get-mincard dcard)))
                           ;(format t "~%dmax:~S~%dmin:~S" dmax dmin)
-                          (when (and dmax (cl:typep dmax rdf:|XMLLiteral|))
+                          (when (and dmax (c2cl:typep dmax rdf:|XMLLiteral|))
                             (setq dmax (value-of dmax)))
-                          (when (and dmin (cl:typep dmin rdf:|XMLLiteral|))
+                          (when (and dmin (c2cl:typep dmin rdf:|XMLLiteral|))
                             (setq dmin (value-of dmin)))
                           (when (and cmax dmax (> cmax dmax))
                             (return-from %intersection-restriction-subsumed-p (values nil t)))
@@ -326,11 +326,11 @@
                        ((or not) (error "Cant happen!"))
                        (otherwise styp))))
       (loop for conjunct in conjuncts
-          do (cond ((cl:typep conjunct 'forall)
+          do (cond ((c2cl:typep conjunct 'forall)
                     (pushnew (forall-filler conjunct) alls))
-                   ((cl:typep conjunct 'exists)
+                   ((c2cl:typep conjunct 'exists)
                     (pushnew (exists-filler conjunct) exists))
-                   ((cl:typep conjunct 'fills)
+                   ((c2cl:typep conjunct 'fills)
                     (pushnew (fills-filler conjunct) fillers))
                    (t (pushnew conjunct types)))
           finally (progn
@@ -345,10 +345,10 @@
   (declare (ignore min))
   "creates a model from universal <var> and restriction <conjuncts>.
    Note that all properties in <conjuncts> are is <role>."
-  (let ((fills      (remove-if-not #'(lambda (r) (cl:typep r 'owl:|hasValueRestriction|)) conjuncts))
-        (exists     (remove-if-not #'(lambda (r) (cl:typep r 'owl:|someValuesFromRestriction|)) conjuncts))
-        (universals (remove-if-not #'(lambda (r) (cl:typep r 'owl:|allValuesFromRestriction|)) conjuncts))
-        (types      (remove-if     #'(lambda (r) (cl:typep r 'owl:|Restriction|)) conjuncts)))
+  (let ((fills      (remove-if-not #'(lambda (r) (c2cl:typep r 'owl:|hasValueRestriction|)) conjuncts))
+        (exists     (remove-if-not #'(lambda (r) (c2cl:typep r 'owl:|someValuesFromRestriction|)) conjuncts))
+        (universals (remove-if-not #'(lambda (r) (c2cl:typep r 'owl:|allValuesFromRestriction|)) conjuncts))
+        (types      (remove-if     #'(lambda (r) (c2cl:typep r 'owl:|Restriction|)) conjuncts)))
     ;(format t "~%fills:~S exists:~S universals:~S types:~S" fills exists universals types)
     (let ((fillers (mapcar #'(lambda (fill) (slot-value fill 'owl:|hasValue|)) fills))
           (exists  (mapcar #'(lambda (exst) (slot-value exst 'owl:|someValuesFrom|)) exists))
@@ -694,7 +694,7 @@
 
 (defun transitive-property-p (obj)
   "Is this <obj> an instance of owl:|TransitiveProperty|?"
-  ;;this is same as '(cl:typep <obj> owl:|TransitiveProperty|)'
+  ;;this is same as '(c2cl:typep <obj> owl:|TransitiveProperty|)'
   (and (excl::standard-instance-p obj)
        (let ((class (class-of obj)))
          (cond ((eq class (find-class 'owl:|TransitiveProperty|)))

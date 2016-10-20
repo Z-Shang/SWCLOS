@@ -92,25 +92,25 @@ which work as the constraint for settable number of values."))
   "returns true if <slotd> is an instance of Property-direct-slot-definition."
   (declare (inline))
   (or (eql (class-name (class-of slotd)) 'gx::Property-direct-slot-definition)
-      (cl:typep slotd 'gx::Property-direct-slot-definition)))
+      (c2cl:typep slotd 'gx::Property-direct-slot-definition)))
 
 (defun property-effective-slotd-p (slotd)
   "returns true if <slotd> is an instance of Property-effective-slot-definition."
   (declare (inline))
   (or (eq (class-name (class-of slotd)) 'gx::Property-effective-slot-definition)
-      (cl:typep slotd 'gx::Property-effective-slot-definition)))
+      (c2cl:typep slotd 'gx::Property-effective-slot-definition)))
 
 (defun owl-property-direct-slotd-p (slotd)
   "returns true if <slotd> is an instance of OwlProperty-direct-slot-definition."
   (declare (inline))
   (or (eql (class-name (class-of slotd)) 'OwlProperty-direct-slot-definition)
-      (cl:typep slotd 'OwlProperty-direct-slot-definition)))
+      (c2cl:typep slotd 'OwlProperty-direct-slot-definition)))
 
 (defun owl-property-effective-slotd-p (slotd)
   "returns true if <slotd> is an instance of OwlProperty-effective-slot-definition."
   (declare (inline))
   (or (eq (class-name (class-of slotd)) 'OwlProperty-effective-slot-definition)
-      (cl:typep slotd 'OwlProperty-effective-slot-definition)))
+      (c2cl:typep slotd 'OwlProperty-effective-slot-definition)))
 
 (defun collect-prop-names-from (class)
   "collect direct and inherited property (slot) names on this class and returns a list of them."
@@ -175,8 +175,8 @@ which work as the constraint for settable number of values."))
                       ((and or not) nil)
                       (otherwise (setq range (cons 'and range)))))
                   (setf (slot-value slotd 'excl::type)
-                    (cond ((cl:subtypep type range) type)
-                          ((cl:subtypep range type) range)
+                    (cond ((c2cl:subtypep type range) type)
+                          ((c2cl:subtypep range type) range)
                           ((and (consp range) (eq (car range) 'and)
                                 (consp type)  (eq (car type) 'and))
                            `(and ,@(cdr range) ,@(cdr type)))
@@ -209,7 +209,7 @@ which work as the constraint for settable number of values."))
   (declare (optimize (speed 3) (safety 0)))
   (cond ((eq slot-names t) ; when first
          ;(assert (eq name (slot-definition-name slotd))) ; name is always name
-         (cond ((and (boundp name) (cl:typep (symbol-value name) 'rdf:|Property|)) ; instead of (property? name)
+         (cond ((and (boundp name) (c2cl:typep (symbol-value name) 'rdf:|Property|)) ; instead of (property? name)
                 (let ((prop (symbol-value name)))
                   (let ((slotds (slot-value prop 'slotds))
                         (subject-type (slot-definition-subject-type slotd)))
@@ -226,7 +226,7 @@ which work as the constraint for settable number of values."))
 (defun property-p (x)
   "returns true if <x> is an instance of rdf property."
   (declare (inline))
-  (cl:typep x 'rdf:|Property|))
+  (c2cl:typep x 'rdf:|Property|))
 
 (defun property? (name)
   "returns true if <name> is an rdf property name"
@@ -235,7 +235,7 @@ which work as the constraint for settable number of values."))
     ((rdfs:|subClassOf| rdfs:|label| rdfs:|comment| rdfs:|isDefinedBy| rdfs:|domain| rdfs:|range| rdfs:|subPropertyOf|)
      t)
     (otherwise 
-     (and (boundp name) (cl:typep (symbol-value name) 'rdf:|Property|)))))
+     (and (boundp name) (c2cl:typep (symbol-value name) 'rdf:|Property|)))))
 
 (defmethod name ((object standard-direct-slot-definition))
   "returns a name of <object>, if it is named, otherwise nil."

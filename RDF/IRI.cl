@@ -76,13 +76,13 @@ just like lisp symbol. The accessor <iri-value> allows to get and set the bound 
 
 (defun iri-p (x)
   "Is <x> an instance of iri?"
-  (cl:typep x 'iri))
+  (c2cl:typep x 'iri))
 
 #|
 (defmethod iri ((sym symbol))
   (cond ((cl:boundp sym)
          (let ((val (symbol-value sym)))
-           (cond ((cl:typep val 'node) (slot-value val 'iri))
+           (cond ((c2cl:typep val 'node) (slot-value val 'iri))
                  (t (error "~S is not in RDF universe." sym)))))
         (t (error "Not defined symbol ~S." sym))))
 
@@ -247,7 +247,7 @@ it must be escaped for gen-delims characters except #\: and #\@. In this version
   "change class <uri> of <thing> to <iri> and returns interned <thing>."
   (when (and (uri-host thing) (null (uri-path thing)))
     (setf (uri-path thing) "/"))
-  (unless (cl:typep thing 'iri)
+  (unless (c2cl:typep thing 'iri)
     (change-class thing 'iri))
   (intern-uri thing))
 
@@ -264,7 +264,7 @@ it must be escaped for gen-delims characters except #\: and #\@. In this version
   (let ((parsed (parse-uri thing :class 'iri)))
     (when (and (uri-host parsed) (null (uri-path parsed)))
       (setf (uri-path parsed) "/"))
-;;;    (unless (cl:typep parsed 'iri)
+;;;    (unless (c2cl:typep parsed 'iri)
 ;;;      (change-class parsed 'iri))
     (intern-uri parsed)
     ))

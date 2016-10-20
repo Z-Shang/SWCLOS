@@ -85,13 +85,13 @@
   "returns an association list of prefix name (package name) and uri on all ones in the system."
   (let (namespaces)
     (do-all-uris (x *NameSpaces* namespaces)
-      (when (cl:typep x 'uri-namedspace)
+      (when (c2cl:typep x 'uri-namedspace)
         (push x namespaces)))))
 
 (defun do-all-uri-namedspaces (fun)
   "invokes <fun> for all namedspaces. <fun> should be one parameter funcallable object."
   (do-all-uris (x *NameSpaces*)
-    (when (cl:typep x 'uri-namedspace)
+    (when (c2cl:typep x 'uri-namedspace)
       (funcall fun x))))
 
 (defgeneric list-all-entities-in ((namespace string) &optional uri?)
@@ -135,7 +135,7 @@ Note that it is not cared that symbols are bound to resource objects or not."))
          (not (slot-value resource 'name))))))
 #|
 (defun nodeID-p (resource)
-  (and (cl:typep resource rdfs:|Resource|)
+  (and (c2cl:typep resource rdfs:|Resource|)
        (gx::name resource)
        (symbol-package (gx::name resource))
        (string= "_" (package-name (symbol-package (gx::name resource))))))
@@ -151,7 +151,7 @@ Note that it is not cared that symbols are bound to resource objects or not."))
            ; unless (eq role 'rdfs:|label|)
             collect (cons role 
                           (loop for filler in fillers
-                              collect (cond ;((cl:typep filler 'rdf:|inLang|)
+                              collect (cond ;((c2cl:typep filler 'rdf:|inLang|)
                                             ; `(,(lang filler) ,(content filler)))
                                             ((typep filler 'xsd:|anySimpleType|) filler)
                                             ((typep filler rdfs:|Literal|) filler)
@@ -245,9 +245,9 @@ Note that it is not cared that symbols are bound to resource objects or not."))
    property object."
   ;(format t "~%Path-filler:~S ~S" mop path)
   (cond ((null mop) nil)
-        ((and (symbolp mop) (object? mop) (cl:typep (symbol-value mop) 'gx::shadowed-class))
+        ((and (symbolp mop) (object? mop) (c2cl:typep (symbol-value mop) 'gx::shadowed-class))
          (car (class-direct-superclasses (symbol-value mop))))
-        ((and (rsc-object-p mop) (cl:typep mop 'gx::shadowed-class))
+        ((and (rsc-object-p mop) (c2cl:typep mop 'gx::shadowed-class))
          (car (class-direct-superclasses mop)))
         ((null path) (mkatom mop))
         ((consp mop)
@@ -611,8 +611,8 @@ Note that it is not cared that symbols are bound to resource objects or not."))
                 (let ((type (slot-definition-type slotd)))
                   (setq found
                         (cond ((consp type)
-                               (find-if #'(lambda (ty) (cl:typep ty 'fills)) type))
-                              ((cl:typep type 'fills)
+                               (find-if #'(lambda (ty) (c2cl:typep ty 'fills)) type))
+                              ((c2cl:typep type 'fills)
                                type)))))
       do (return (fills-filler found))))
 

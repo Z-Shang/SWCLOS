@@ -710,7 +710,7 @@ from <value>. For example, if <datatype> is xsd:integer '010' as <value> is tran
          (xsd:|double| (make-instance type :value (float value 1.0d0)))
          (xsd:|decimal| (make-instance type :value (rational value)))
          (otherwise
-          (if (cl:typep value (name type)) (make-instance type :value value)
+          (if (c2cl:typep value (name type)) (make-instance type :value value)
             (make-instance type :value (coerce value (name type))))))))))
 
 (defun RDFdeclEndp? (stream)

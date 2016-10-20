@@ -270,8 +270,8 @@
 (defun domains-satisfied-p (instance domains)
   "Is every domain satisfied?"
   (every #'(lambda (d)
-             (or (cl:typep instance d)
-                 (and (eql d rdfs:|Class|) (cl:subtypep instance rdfs:|Resource|))))
+             (or (c2cl:typep instance d)
+                 (and (eql d rdfs:|Class|) (c2cl:subtypep instance rdfs:|Resource|))))
          domains))
 
 (defun domain-check-for-class (class domain)
@@ -284,8 +284,8 @@
       ((and or not) nil)
       (otherwise (setq domain (cons 'and domain)))))
   (cond ((null domain) class)
-        ((cl:subtypep class domain) class)
-        ((and (eql domain rdfs:|Class|) (cl:subtypep class rdfs:|Class|)) class)
+        ((c2cl:subtypep class domain) class)
+        ((and (eql domain rdfs:|Class|) (c2cl:subtypep class rdfs:|Class|)) class)
         (t (warn "Domain entail:class ~S to ~S." (class-name class) domain)
            domain)))
 
@@ -293,8 +293,8 @@
   "checks <instance> for <domain> constraint, if <instance> violates the constraint,
    entailment is invoked as much as possible."
   (cond ((null domain) instance)
-        ((cl:typep instance domain) instance)
-        ((and (eql domain rdfs:|Class|) (cl:subtypep instance rdfs:|Resource|)) instance)
+        ((c2cl:typep instance domain) instance)
+        ((and (eql domain rdfs:|Class|) (c2cl:subtypep instance rdfs:|Resource|)) instance)
         ((rsc-object-p instance)
          (cond ((rdf-class-p domain)
                 (warn "Domain entail4:change class of ~S to ~S." instance domain)
@@ -393,11 +393,11 @@
   "range is an atom."
   (when (eq value t)
     (return-from %slot-value-range-check
-      (cond ((cl:subtypep range 'xsd:|boolean|) value)
+      (cond ((c2cl:subtypep range 'xsd:|boolean|) value)
             ((and (symbolp range) (eq range 'xsd:|boolean|)) value)
             ((error "Cant happen:t for range ~S" range)))))
   (etypecase value
-    (null (cond ((cl:subtypep range 'xsd:|boolean|) value)
+    (null (cond ((c2cl:subtypep range 'xsd:|boolean|) value)
                 ((and (symbolp range) (eq range 'xsd:|boolean|)) value)
                 (t value))) ; pass null
     (cons (cond ((subtypep rdf:|List| range) value)
@@ -408,7 +408,7 @@
                          :content (cadr value)))
                  (assert (and range
                               (or (eql range 'xsd:|string|)
-                                  (cl:subtypep rdfs:|Literal| range))))
+                                  (c2cl:subtypep rdfs:|Literal| range))))
                  value)
                 (t (remove nil (loop for val in value collect (%slot-value-range-check role val range))))))
     (symbol ; maybe keyword
@@ -431,16 +431,16 @@
                   ((error "Cant happen!" 1 value range))))  ; by smh
            (t value)))
     (number (cond ((typep value range) value)
-                  ((cl:subtypep range 'xsd:|decimal|) value)
+                  ((c2cl:subtypep range 'xsd:|decimal|) value)
                   (t (error "Not Yet!"))))
     (string (cond ((typep value range) value)
-                  ((cl:subtypep range 'xsd:|decimal|)
+                  ((c2cl:subtypep range 'xsd:|decimal|)
                    (read-from-string value))
                   (t (error "Not Yet!"))))
     (rdf:|inLang| (cond ((typep value range) value) 
                       (t (error "Not Yet!"))))
     (uri (cond ((typep value range) value)               ; OK
-                       ((cl:subtypep range rdfs:|Resource|) value) ; range is owl:Ontology
+                       ((c2cl:subtypep range rdfs:|Resource|) value) ; range is owl:Ontology
                        ((typep (iri-value value) range) value)  ; check 
                        ((warn "*** INVALID SLOT VALUE1 ~S FOR ~S ***" value range)
                         value)))
@@ -480,18 +480,18 @@
      (format t "~%YYYYES!")
      (cond ((typep value range) value)              ; OK
            ((eq range 'rdfs:|Literal|) value)
-           ((or (cl:subtypep range 'xsd:|decimal|)
-                (cl:subtypep range 'xsd:|float|)
-                (cl:subtypep range 'xsd:|double|))
-            (cond ((and (numberp value) (cl:typep value range))
+           ((or (c2cl:subtypep range 'xsd:|decimal|)
+                (c2cl:subtypep range 'xsd:|float|)
+                (c2cl:subtypep range 'xsd:|double|))
+            (cond ((and (numberp value) (c2cl:typep value range))
                    value)
                   ((stringp value)
                    (setq value (read-from-string value))
-                   (cond ((cl:typep value range) value)
+                   (cond ((c2cl:typep value range) value)
                          ((error 'invalid-slot-value-for-range
                             :format-control "~S for range ~S"
                             :format-arguments (list value range)))))))
-           ((cl:subtypep range 'xsd:|string|) value)
+           ((c2cl:subtypep range 'xsd:|string|) value)
            (t (warn "*** INVALID SLOT VALUE2 ~S FOR ~S ***" value range) value)))
     ))
 

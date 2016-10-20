@@ -148,13 +148,13 @@ and instance of owl:Class."))
 (defun owl-class-p (obj)
   "Is this <obj> an instance of owl:Class?
    Note that owl:Class and owl:Restriction is not owl class."
-  ;;this is same as '(cl:typep <obj> owl:Class)'
+  ;;this is same as '(c2cl:typep <obj> owl:Class)'
   (declare (inline))
   (and (excl::standard-instance-p obj)
        (%owl-class-subtype-p (class-of obj))))
 (defun %owl-class-subtype-p (class)
   "If you are sure that <class> is a metaobject of CLOS, use this instead of 
-   (cl:subtypep <class> owl:Class)."
+   (c2cl:subtypep <class> owl:Class)."
   (declare (optimize (speed 3) (safety 0)))
   (cond ((eq class (load-time-value owl:|Class|)))
         ((class-finalized-p class)
@@ -201,14 +201,14 @@ and instance of owl:Class."))
 (defun owl-thing-p (obj)
   "Is this <obj> an instance of owl:Thing?
    Note that owl:Class and owl:Thing is not owl thing."
-  ;;this is same as '(cl:typep <obj> owl:Thing)'
+  ;;this is same as '(c2cl:typep <obj> owl:Thing)'
   (declare (inline))
   (and (excl::standard-instance-p obj)
        (%owl-thing-subclass-p (class-of obj))
        (not (eq (name obj) 'owl:|Nothing|))))
 (defun %owl-thing-subclass-p (class)
   "If you are sure that <class> is a metaobject of CLOS, use this instead of 
-  (cl:subtypep <class> owl:Thing)."
+  (c2cl:subtypep <class> owl:Thing)."
   (declare (optimize (speed 3) (safety 0)))
   (cond ((eq class (load-time-value owl:|Thing|)))
         ((class-finalized-p class)
@@ -257,7 +257,7 @@ and instance of owl:Class."))
                                       (slot-value instance 'rdfs:|domain|)))
          do (loop for slotd in (class-direct-slots domain)
                 when (eq (name instance) (slot-definition-name slotd))
-                do (unless (cl:typep slotd 'OwlProperty-direct-slot-definition)
+                do (unless (c2cl:typep slotd 'OwlProperty-direct-slot-definition)
                      (change-class slotd (find-class 'OwlProperty-direct-slot-definition))))))))
 
 ;;;
@@ -350,7 +350,7 @@ and instance of owl:Class."))
                 (format stream "   ~S" (slot-value obj 'owl:|maxCardinality|)))))
         (t (call-next-method))))
 
-(defun owl-cardinality-p (x) (cl:typep x owl:|cardinalityRestriction|))
+(defun owl-cardinality-p (x) (c2cl:typep x owl:|cardinalityRestriction|))
 
 ;;;
 ;;;; OneOf class
@@ -467,7 +467,7 @@ and instance of owl:Class."))
                (cond ((and minc slotd-minc) (setq minc (max slotd-minc minc)))
                      (slotd-minc (setq minc slotd-minc)))
                (when (and slotd-initfunc (property? slot-name) (find-class 'owl:|TransitiveProperty| nil))
-                 (cond ((cl:typep (symbol-value slot-name) (find-class 'owl:|TransitiveProperty|))
+                 (cond ((c2cl:typep (symbol-value slot-name) (find-class 'owl:|TransitiveProperty|))
                         (cond ((and initform slotd-initform)
                                (cond ((and (consp initform) (consp slotd-initform))
                                       (error "Not Yet!"))
@@ -548,7 +548,7 @@ and instance of owl:Class."))
                slotd-initform = (slot-definition-initform slotd)
              do
                (when (and slotd-initfunc (property? slot-name) (find-class 'owl:|TransitiveProperty| nil))
-                 (cond ((cl:typep (symbol-value slot-name) (find-class 'owl:|TransitiveProperty|))
+                 (cond ((c2cl:typep (symbol-value slot-name) (find-class 'owl:|TransitiveProperty|))
                         (cond ((and initform slotd-initform)
                                (cond ((and (consp initform) (consp slotd-initform))
                                       (error "Not Yet!"))
@@ -795,7 +795,7 @@ and instance of owl:Class."))
 
 (defmethod make-instance :around ((class (eql owl:|Class|)) &rest initargs)
   (cond ((notany #'(lambda (cls)
-                     (cl:subtypep cls (load-time-value owl:|Thing|)))
+                     (c2cl:subtypep cls (load-time-value owl:|Thing|)))
                  (getf initargs :direct-superclasses))
          (setf (getf initargs :direct-superclasses)
            (append (getf initargs :direct-superclasses)
@@ -941,12 +941,12 @@ and instance of owl:Class."))
 
 (defmethod change-class :after ((class rdfs:|Class|) (new-class (eql owl:|Class|))  &rest initargs)
   (declare (ignore initargs))
-  (unless (cl:subtypep class (load-time-value owl:|Thing|))
+  (unless (c2cl:subtypep class (load-time-value owl:|Thing|))
     (reinitialize-instance class :direct-superclasses `(,(load-time-value owl:|Thing|)))))
 
 (defmethod change-class :after ((class rdfs:|Class|) (new-class owl:|Class|)  &rest initargs)
   (declare (ignore initargs))
-  (unless (cl:subtypep class (load-time-value owl:|Thing|))
+  (unless (c2cl:subtypep class (load-time-value owl:|Thing|))
     (reinitialize-instance class :direct-superclasses `(,(load-time-value owl:|Thing|)))))
 
 ;; End of module

@@ -82,7 +82,7 @@
                (t nil)))                                    ; else different uri means different
         ((and (iri-p x) (iri-boundp x)) (owl-equalp (iri-value x) y))
         ((and (iri-p y) (iri-boundp y)) (owl-equalp x (iri-value y)))
-        ((and (cl:typep x 'rdf:|inLang|) (cl:typep y 'rdf:|inLang|))
+        ((and (c2cl:typep x 'rdf:|inLang|) (c2cl:typep y 'rdf:|inLang|))
          ;; see, http://www.w3.org/TR/2004/REC-rdf-concepts-20040210/#section-Graph-Literal
          (and (equalp (string (lang x)) (string (lang y))) (string= (content x) (content y))))
         ((and (consp x) (consp y))
@@ -151,18 +151,18 @@
                      ;; crs includes every user defined restriction and range constraint.
                      ;; x: predecessor, y: successor
                      (let ((types (remove-if #'(lambda (cn)
-                                                 (or (cl:typep cn 'forall)
-                                                     (cl:typep cn 'exists)
-                                                     (cl:typep cn 'fills)))
+                                                 (or (c2cl:typep cn 'forall)
+                                                     (c2cl:typep cn 'exists)
+                                                     (c2cl:typep cn 'fills)))
                                              crs))
                            (alls (loop for cn in crs
-                                     when (cl:typep cn 'forall)
+                                     when (c2cl:typep cn 'forall)
                                      collect (forall-filler cn)))
                            (exists (loop for cn in crs
-                                       when (cl:typep cn 'exists)
+                                       when (c2cl:typep cn 'exists)
                                        collect (exists-filler cn)))
                            (fillers (loop for cn in crs
-                                        when (cl:typep cn 'fills)
+                                        when (c2cl:typep cn 'fills)
                                         collect (fills-filler cn))))
                        (let ((models* (generate-models (or var (new-variable "gx")) prop cmax types alls exists fillers nil)))
                          (format t "~%models*:~S" models*)
@@ -494,7 +494,7 @@
 (defun %union-refining-p (c1 c2)
   (let ((unions nil))
     (when (and (owl-class-p c2) (setq unions (union-of c2)))
-      (cond ((some #'(lambda (u) (cl:subtypep c1 u))
+      (cond ((some #'(lambda (u) (c2cl:subtypep c1 u))
                    unions)
              (error "Not Yet!"))
             (t nil))
@@ -559,7 +559,7 @@
                     (warn "~S is refined to a subclass of ~S by defining ~S's intersection."
                       sib class class)
                     (reinitialize-instance sib :direct-superclasses new-supers)))
-                 ((every #'(lambda (sup) (cl:subtypep sib sup)) intersections)
+                 ((every #'(lambda (sup) (c2cl:subtypep sib sup)) intersections)
                   (let ((new-supers (refine-concept-by-intersection
                                      (most-specific-concepts-by-superclasses
                                       (cons sib (class-direct-superclasses class))))))
@@ -570,11 +570,11 @@
                     (reinitialize-instance class :direct-superclasses new-supers)))))))
 
 (defun intersection-p (class)
-  (and (cl:typep class owl:|Class|)
+  (and (c2cl:typep class owl:|Class|)
        (slot-boundp class 'owl:|intersectionOf|)))
 
 (defun intersection-of (class)
-  (and (cl:typep class owl:|Class|)
+  (and (c2cl:typep class owl:|Class|)
        (slot-boundp class 'owl:|intersectionOf|)
        (slot-value class 'owl:|intersectionOf|)))
 
@@ -598,7 +598,7 @@
   (cond ((null (cdr classes)) classes)
         (t (mapc #'(lambda (class)
                      (mapc #'(lambda (sub)
-                               (cond ((and (cl:typep sub owl:|Class|)
+                               (cond ((and (c2cl:typep sub owl:|Class|)
                                            (intersection-of sub)
                                            (every #'(lambda (inte) (member inte classes))
                                                   (intersection-of sub)))
@@ -627,7 +627,7 @@
         (change-class sub (load-time-value (find-class 'owl:|Class|))))
   ;; reinitialize supers of unions
   (loop for sub in (remove-if #'owl-restriction-p unions)
-      unless (cl:subtypep sub class)
+      unless (c2cl:subtypep sub class)
       do (reinitialize-instance
           sub
           :direct-superclasses (most-specific-concepts-by-clos-supers
@@ -707,9 +707,9 @@
                                                 &rest initargs)
   "ensures owl:Thing as superclasses in OWL universe. This routine is effective
    only if a user designates :direct-superclasses but no inheritance of owl:Thing."
-  (cond ((and (not (cl:typep previous owl:|Class|))     ; rdfsClass to owl:Class
+  (cond ((and (not (c2cl:typep previous owl:|Class|))     ; rdfsClass to owl:Class
               (getf initargs :direct-superclasses)    ; if supers but no owl:Thing
-              (some #'(lambda (obj) (cl:subtypep obj owl:|Thing|))
+              (some #'(lambda (obj) (c2cl:subtypep obj owl:|Thing|))
                     (getf initargs :direct-superclasses)))
          (setf (getf initargs :direct-superclasses)
            (cons owl:|Thing| (getf initargs :direct-superclasses)))
@@ -753,7 +753,7 @@
 (without-redefinition-warnings
 (defun symmetric-property-p (obj)
   "Is this <obj> an instance of owl:SymmetricProperty?"
-  ;;this is same as '(cl:typep <obj> owl:SymmetricProperty)'
+  ;;this is same as '(c2cl:typep <obj> owl:SymmetricProperty)'
   (and (excl::standard-instance-p obj)
        (let ((class (class-of obj)))
          (cond ((eq class (load-time-value owl:|SymmetricProperty|)))
@@ -903,8 +903,8 @@
          
          ;; if oneof exists in classes, check its type.
          #|
-         (let ((oneofclasses (remove-if-not #'(lambda (x) (cl:typep x 'OneOf)) (mclasses instance)))
-               (notoneofclasses (remove-if #'(lambda (x) (cl:typep x 'OneOf)) (mclasses instance))))
+         (let ((oneofclasses (remove-if-not #'(lambda (x) (c2cl:typep x 'OneOf)) (mclasses instance)))
+               (notoneofclasses (remove-if #'(lambda (x) (c2cl:typep x 'OneOf)) (mclasses instance))))
            (cond ((and oneofclasses (null notoneofclasses))
                   (let ((newMSCs (set-difference oneofclasses oneofclasses
                                                  :test #'(lambda (subsumer subsumee)
@@ -922,9 +922,9 @@
                               ((error "Not Yet!"))) ))))
                  ((null (cdr notoneofclasses))
                   (loop for oneofclass in oneofclasses with super = (car notoneofclasses)
-                      when (every #'(lambda (one) (cl:typep one super))
+                      when (every #'(lambda (one) (c2cl:typep one super))
                                   (slot-value oneofclass 'owl:|oneOf|))
-                      do (unless (cl:subtypep oneofclass super)
+                      do (unless (c2cl:subtypep oneofclass super)
                            (reinitialize-instance oneofclass :direct-superclasses `(,super)))))))
          |#
          ;; refine instance in OWL
@@ -1128,7 +1128,7 @@
 (without-redefinition-warnings 
 (defun owl-restriction-p (obj)
   "Is this <obj> an instance of owl:|Restriction|?"
-  ;;this is same as '(cl:typep <obj> owl:|Restriction|)'
+  ;;this is same as '(c2cl:typep <obj> owl:|Restriction|)'
   (let ((class (class-of obj)))
     (cond ((eq class (load-time-value owl:|Restriction|)))
           ((not (class-finalized-p class))
@@ -1380,7 +1380,7 @@
                           do (warn "oneOf + onProperty range entailment by ~S: ~S rdf:type ~S"
                                name one range)
                             (change-class one range)))
-                     ((and (not (cl:typep allvalues owl:|Restriction|))
+                     ((and (not (c2cl:typep allvalues owl:|Restriction|))
                            (not (subsumed-p allvalues range)))
                       (warn "onProperty range entailment by ~S: ~S rdfs:subClassOf ~S"
                         name allvalues range)
@@ -1503,7 +1503,7 @@
 ;;;
 (without-redefinition-warnings
 (defun %get-inverse-prop (prop)              ; See rdfp8ax, rdfp8bx
-  (when (cl:typep prop owl:|ObjectProperty|)
+  (when (c2cl:typep prop owl:|ObjectProperty|)
     (or (and (slot-boundp prop 'owl:|inverseOf|) (slot-value prop 'owl:|inverseOf|))
         (slot-value prop 'inverse-inverse-of))))
 )
@@ -1517,7 +1517,7 @@
   (cond ((getf initargs 'owl:|inverseOf|)
          (let ((inv (slot-value instance 'owl:|inverseOf|)))
            ; inv = ub:member
-           (assert (cl:typep inv owl:|ObjectProperty|))
+           (assert (c2cl:typep inv owl:|ObjectProperty|))
            (assert (or (null (slot-value inv 'inverse-inverse-of))
                        (eql instance (slot-value inv 'inverse-inverse-of))))
            ;(format t "~%REINITIALIZE ~S :inverse-inverse-of ~S" inv instance)
@@ -1779,9 +1779,9 @@
                                 (slot-value r 'owl:|cardinality|))
                                ((slot-boundp r 'owl:|minCardinality|)
                                 (slot-value r 'owl:|minCardinality|)))))
-               (when (and maxr (cl:typep maxr rdf:|XMLLiteral|))
+               (when (and maxr (c2cl:typep maxr rdf:|XMLLiteral|))
                  (setq maxr (value-of maxr)))
-               (when (and minr (cl:typep minr rdf:|XMLLiteral|))
+               (when (and minr (c2cl:typep minr rdf:|XMLLiteral|))
                  (setq minr (value-of minr)))
                (unless (and (or (null minr) (>= (length slotvalues) minr))
                             (or (null maxr) (<= (length slotvalues) maxr)))

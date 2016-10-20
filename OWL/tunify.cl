@@ -199,11 +199,11 @@
 
 (defun subtypep+ (c d cbindings)
   "is <c> a subtype of <d> with <cbindings>?
-   Note that <cl:subtypep> is used."
+   Note that <c2cl:subtypep> is used."
   (cond ((and (null c) (null d)) nil)
         ((and c (symbolp c)) (subtypep+ (symbol-value+ c cbindings) d cbindings))
         ((and d (symbolp d)) (subtypep+ c (symbol-value+ d cbindings) cbindings))
-        ((and c d (cl:subtypep c d)))))
+        ((and c d (c2cl:subtypep c d)))))
 
 (defun disjoint-class-p+ (c d cbindings)
   (cond ((equal c d) nil)
