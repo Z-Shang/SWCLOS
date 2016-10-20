@@ -19,9 +19,7 @@
 
 (cl:defpackage :xsd
   (:nicknames :xs)
-  (:use ; supressing using common lisp package
-        #+(and allegro-vesion>= (version>= 10)) :puri
-        #-(and allegro-vesion>= (version>= 10)) :net.uri)
+  (:use :puri)
   (:export "string" "boolean" "decimal" "float" "double" "dataTime" "time" "date"
            "gYearMonth" "gYear" "gMonthDay" "gDay" "gMonth" "hexBinary" "base64Binary"
            "anyURI" "normallizedString" "token" "language" "NMTOKEN" "Name" "NCName"
@@ -77,8 +75,6 @@
 ;; note: the package "gx-user" is defined in "RDFS:gxutils.cl"
 
 (defpackage :gx
-  (:use :common-lisp :named-readtables ; TODO: using closer-common-lisp has more compilation issues
-        #+(and allegro-vesion>= (version>= 10)) :puri
-        #-(and allegro-vesion>= (version>= 10)) :net.uri)
+  (:use :closer-common-lisp :named-readtables :puri)
   (:shadow typep subtypep type-of)
   (:documentation "http://www.TopOntologies.com/tools/SWCLOS#"))

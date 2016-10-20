@@ -419,13 +419,13 @@
 
 (defun collect-instance-slots (instance)
   "returns instance slots with slot form (role filler1 ...)"
-  (loop for slot in (closer-mop:class-slots (class-of instance))
+  (loop for slot in (class-slots (class-of instance))
       with role and filler 
       when (and (cl:typep slot 'Property-effective-slot-definition)
-                (slot-boundp instance (setq role (closer-mop:slot-definition-name slot)))
+                (slot-boundp instance (setq role (slot-definition-name slot)))
                 (slot-value instance role))
       collect (cond ((listp (setq filler (slot-value instance role)))
-                     (cons (closer-mop:slot-definition-name slot) filler))
+                     (cons (slot-definition-name slot) filler))
                     (t (list role filler)))))
 
 (defun write-rdf-all-entities-in (package &optional (stream-or-file *standard-output*))

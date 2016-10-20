@@ -78,8 +78,8 @@ gx::Property-direct-slot-definition in RDFS module and set to
 OwlProperty-direct-slot-definition in OWL module.")
 )
 (eval-when (:execute :load-toplevel :compile-toplevel)
-  (closer-mop:finalize-inheritance (find-class *default-slot-definition-class*))
-  (closer-mop:finalize-inheritance (find-class 'OwlProperty-effective-slot-definition))
+  (finalize-inheritance (find-class *default-slot-definition-class*))
+  (finalize-inheritance (find-class 'OwlProperty-effective-slot-definition))
   )
 
 ;;;
@@ -157,13 +157,13 @@ and instance of owl:Class."))
    (cl:subtypep <class> owl:Class)."
   (declare (optimize (speed 3) (safety 0)))
   (cond ((eq class (load-time-value owl:|Class|)))
-        ((closer-mop:class-finalized-p class)
+        ((class-finalized-p class)
          (and (member (load-time-value owl:|Class|)
-                         (closer-mop:class-precedence-list class)
+                         (class-precedence-list class)
                          :test #'eq)
               t))
         ((labels ((walk-partial-cpl (c)
-                    (let ((supers (closer-mop:class-direct-superclasses c)))
+                    (let ((supers (class-direct-superclasses c)))
                       (when (member (load-time-value (find-class 'owl:|Class|))
                                        supers
                                        :test #'eq)
@@ -211,13 +211,13 @@ and instance of owl:Class."))
   (cl:subtypep <class> owl:Thing)."
   (declare (optimize (speed 3) (safety 0)))
   (cond ((eq class (load-time-value owl:|Thing|)))
-        ((closer-mop:class-finalized-p class)
+        ((class-finalized-p class)
          (and (member (load-time-value owl:|Thing|)
-                         (closer-mop:class-precedence-list class)
+                         (class-precedence-list class)
                          :test #'eq)
               t))
         ((labels ((walk-partial-cpl (c)
-                    (let ((supers (closer-mop:class-direct-superclasses c)))
+                    (let ((supers (class-direct-superclasses c)))
                       (when (member (load-time-value owl:|Thing|)
                                        supers
                                        :test #'eq)
@@ -255,8 +255,8 @@ and instance of owl:Class."))
     (owl:|ObjectProperty|
      (loop for domain in (mklist (and (slot-boundp instance 'rdfs:|domain|)
                                       (slot-value instance 'rdfs:|domain|)))
-         do (loop for slotd in (closer-mop:class-direct-slots domain)
-                when (eq (name instance) (closer-mop:slot-definition-name slotd))
+         do (loop for slotd in (class-direct-slots domain)
+                when (eq (name instance) (slot-definition-name slotd))
                 do (unless (cl:typep slotd 'OwlProperty-direct-slot-definition)
                      (change-class slotd (find-class 'OwlProperty-direct-slot-definition))))))))
 
@@ -441,7 +441,7 @@ and instance of owl:Class."))
               ((error "Cant happen!")))
         (setf (getf initargs ':type) type)))
     (%compute-effective-slot-definition-initargs 
-     class (class-name class) (closer-mop:slot-definition-name (car direct-slotds)) direct-slotds initargs)))
+     class (class-name class) (slot-definition-name (car direct-slotds)) direct-slotds initargs)))
 (defun %compute-effective-slot-definition-initargs (class class-name slot-name direct-slotds initargs)
   (declare (optimize (speed 3) (safety 0)))
   (cond ((member-if #'owl-property-direct-slotd-p direct-slotds)
@@ -454,8 +454,8 @@ and instance of owl:Class."))
                slotd-minc = (and (slot-exists-p slotd 'mincardinality)
                                  (slot-definition-mincardinality slotd))
              and
-               slotd-initfunc = (closer-mop:slot-definition-initfunction slotd) and
-               slotd-initform = (closer-mop:slot-definition-initform slotd)
+               slotd-initfunc = (slot-definition-initfunction slotd) and
+               slotd-initform = (slot-definition-initform slotd)
              do
                ;; get minimum maxc over slotds
                ;(describe slotd)
@@ -526,7 +526,7 @@ and instance of owl:Class."))
                        (setf (getf initargs ':initfunction)
                          (cond ((consp initfunc)
                                 (eval `(named-function
-                                        (closer-mop:slot-definition-initfunction 
+                                        (slot-definition-initfunction 
                                          ,class-name ,(gentemp (string slot-name)))
                                         (lambda () (mapcar #'funcall ',initfunc)))))
                                (t initfunc)))
@@ -544,8 +544,8 @@ and instance of owl:Class."))
          (loop for slotd in direct-slotds
              with initform and initfunc
              as 
-               slotd-initfunc = (closer-mop:slot-definition-initfunction slotd) and
-               slotd-initform = (closer-mop:slot-definition-initform slotd)
+               slotd-initfunc = (slot-definition-initfunction slotd) and
+               slotd-initform = (slot-definition-initform slotd)
              do
                (when (and slotd-initfunc (property? slot-name) (find-class 'owl:|TransitiveProperty| nil))
                  (cond ((cl:typep (symbol-value slot-name) (find-class 'owl:|TransitiveProperty|))
@@ -607,7 +607,7 @@ and instance of owl:Class."))
                        (setf (getf initargs ':initfunction)
                          (cond ((consp initfunc)
                                 (eval `(named-function
-                                        (closer-mop:slot-definition-initfunction 
+                                        (slot-definition-initfunction 
                                          ,class-name ,(gentemp (string slot-name)))
                                         (lambda () (mapcar #'funcall ',initfunc)))))
                                (t initfunc)))
@@ -620,7 +620,7 @@ and instance of owl:Class."))
 ;;; If <initargs> in making an effective-slot-definition includes :maxcardinality or 
 ;;; :mincardinality keyword, the slot-definition must be OwlProperty-direct-slot-definition.
 (without-redefinition-warnings
-(defmethod closer-mop:effective-slot-definition-class ((class rdfs:|Class|) &rest initargs)
+(defmethod effective-slot-definition-class ((class rdfs:|Class|) &rest initargs)
   "This method calls next method if there is no :maxcardinality keyword in <initargs>."
   (cond ((member :maxcardinality initargs)
          (find-class 'OwlProperty-effective-slot-definition))
@@ -631,8 +631,8 @@ and instance of owl:Class."))
 (defun type-option-check-with-cardinality (instance filler slotd oldval)
   (unless slotd ; when slot is an ordinal slot.
     (return-from type-option-check-with-cardinality nil))
-  (let ((type (closer-mop:slot-definition-type slotd))
-        (name (closer-mop:slot-definition-name slotd))
+  (let ((type (slot-definition-type slotd))
+        (name (slot-definition-name slotd))
         (maxc (and (slot-exists-p slotd 'maxcardinality)
                    (slot-value slotd 'maxcardinality)))
         (minc (and (slot-exists-p slotd 'mincardinality)
@@ -700,12 +700,12 @@ and instance of owl:Class."))
                                   (error 'forall-condition-unsatisfiable
                                     :format-control "~S of ~S is disjoint to ~S in ~S."
                                     :format-arguments (list (type-of filler) filler (forall-filler type)
-                                                            (closer-mop:class-direct-subclasses (slot-subject-type type)))))
+                                                            (class-direct-subclasses (slot-subject-type type)))))
                                  ((disjoint-p (class-of filler) (forall-filler type))
                                   (error 'forall-condition-unsatisfiable
                                     :format-control "~S of ~S is disjoint to ~S in ~S."
                                     :format-arguments (list (type-of filler) filler (forall-filler type)
-                                                            (closer-mop:class-direct-subclasses (slot-subject-type type)))))
+                                                            (class-direct-subclasses (slot-subject-type type)))))
                                  (t ;; shadowing
                                   (warn "owl:allValuesFrom entail of ~S: change class of ~S to ~S." R filler (forall-filler type))
                                   (change-class filler (forall-filler type)))))
@@ -844,7 +844,7 @@ and instance of owl:Class."))
 ;;; For OWL Full, an owl class also inherit owl:|Thing|
 (addClass `(,(class-of owl:|Class|)) 'owl:|Class| `(,owl:|Thing|) ())
 #|
-(apply #'closer-mop:ensure-class-using-class (find-class 'shadowed-class) 'shadowed-class
+(apply #'ensure-class-using-class (find-class 'shadowed-class) 'shadowed-class
        :direct-superclasses `(,owl:|Class|)
        :metaclass (class-of (find-class 'shadowed-class))
        ())
@@ -875,7 +875,7 @@ and instance of owl:Class."))
                                  (remove 'owl:|minCardinality|
                                          (remove 'owl:|maxCardinality|
                                                  (remove 'owl:|cardinality|
-                                                         (closer-mop:class-direct-slots owl:|Restriction|)
+                                                         (class-direct-slots owl:|Restriction|)
                                                          :key #'name)
                                                  :key #'name)
                                          :key #'name)
@@ -883,7 +883,7 @@ and instance of owl:Class."))
                          :key #'name)
                  :key #'name)))
     (slot-makunbound owl:|Restriction| 'excl::direct-slots)
-    (setf (closer-mop:class-direct-slots owl:|Restriction|) slots)
+    (setf (class-direct-slots owl:|Restriction|) slots)
     )
   )
 
@@ -932,10 +932,10 @@ and instance of owl:Class."))
 #+ignore
 (defmethod change-class :before ((from cl:class) (to cl:class) &rest initargs) ;bug3166
   (declare (ignore initargs))		;bug3166
-  (unless (closer-mop:class-finalized-p to)	;bug3254
-    (closer-mop:finalize-inheritance to))
-  (format nil "~S" (closer-mop:class-prototype to))    ; this is magic code.
-  (unless (excl::validate-metaclass-change from (closer-mop:class-prototype to))
+  (unless (class-finalized-p to)	;bug3254
+    (finalize-inheritance to))
+  (format nil "~S" (class-prototype to))    ; this is magic code.
+  (unless (excl::validate-metaclass-change from (class-prototype to))
     (excl::.program-error "validate-metaclass-change forbids changing the class of ~s to ~s"
                           from to)))
 

@@ -190,7 +190,7 @@
 ;;; Class Precedence List
 ;;;
 
-;(defmethod closer-mop:compute-class-precedence-list :after ((root class))
+;(defmethod compute-class-precedence-list :after ((root class))
 ;  )
 ;;;
 ;;;; Shared-initialize for Property
@@ -380,8 +380,8 @@ of this <instance> property."
   (cond ((and (symbolp domain) (object? domain))
          (associated-p role (symbol-value domain)))
         ((rsc-object-p domain)
-         (if (member role (closer-mop:class-direct-slots domain)
-                        :key #'closer-mop:slot-definition-name)
+         (if (member role (class-direct-slots domain)
+                        :key #'slot-definition-name)
              t nil))))
 #|
 (defun delete-direct-slots-from-domain (instance slot-names &rest initargs)
@@ -397,10 +397,10 @@ of this <instance> property."
     (loop for domain in deletes
         when (and (rsc-object-p domain)
                   (associated-p instance domain))
-        do (let ((direct-slotds (closer-mop:class-direct-slots domain)))
+        do (let ((direct-slotds (class-direct-slots domain)))
              (slot-unbound domain 'excl::direct-slots)
-             (setf (closer-mop:class-direct-slots domain)
-               (remove (name instance) direct-slotds :key #'closer-mop:slot-
+             (setf (class-direct-slots domain)
+               (remove (name instance) direct-slotds :key #'slot-
                   (range (get-range instance))
                   (prop-forms
                    (cond (range
@@ -442,13 +442,13 @@ of this <instance> property."
                                       (not (slot-boundp instance initarg)))    ; or no slot value
                                   (list initarg val))
                                  ((and (rdf-class-p instance)
-                                       (not (closer-mop:class-finalized-p instance)))
+                                       (not (class-finalized-p instance)))
                                   (list initarg val))
                                  (t (list initarg
                                           (compute-slot-value val
                                                               (slot-value instance initarg)
-                                                              (find initarg (closer-mop:class-slots (class-of instance))
-                                                                    :key #'closer-mop:slot-definition-name)
+                                                              (find initarg (class-slots (class-of instance))
+                                                                    :key #'slot-definition-name)
                                                               instance)))))))
            (if (equal args initargs) (call-next-method)
              (apply #'call-next-method instance slot-names args))))
@@ -484,7 +484,7 @@ of this <instance> property."
          (call-next-method))
         (t ;; when reinitializing with supers or slot definitions
          ;(format t "~%SHARED-INITIALIZE:AROUND(rdfs:Class) reinitialize ~S~%  new slots ~S~%  with ~S" class slot-names initargs)
-         (let ((oldsupers (closer-mop:class-direct-superclasses class))
+         (let ((oldsupers (class-direct-superclasses class))
                (newsupers (getf initargs :direct-superclasses)))
            (when newsupers
              (setq newsupers (make-this-supers class (append oldsupers newsupers)))
@@ -496,7 +496,7 @@ of this <instance> property."
            (cond ((null (getf initargs :direct-slots))
                   (remf initargs :direct-slots)
                   (apply #'call-next-method class slot-names initargs)) ; no need of maintenance for direct slots
-                 (t (let ((old-args (make-initargs-from-slotds (closer-mop:class-direct-slots class)))
+                 (t (let ((old-args (make-initargs-from-slotds (class-direct-slots class)))
                           (new-args (getf initargs :direct-slots)))
                       ;(format t "~%oldargs:~S" old-args)
                       ;(format t "~%newargs:~S" new-args)
@@ -520,23 +520,23 @@ of this <instance> property."
 (defun make-initargs-from-slotds (slotds)
   (mapcar #'make-initarg-from-slotd slotds))
 (defun make-initarg-from-slotd (slotd)
-  (loop for facetd in (closer-mop:class-slots (class-of slotd)) with name
-      when (and (slot-boundp slotd (setq name (closer-mop:slot-definition-name facetd)))
-                (cond ((eq name 'excl::initform) (closer-mop:slot-definition-initform slotd))
-                      ((eq name 'excl::initfunction) (closer-mop:slot-definition-initfunction slotd))
+  (loop for facetd in (class-slots (class-of slotd)) with name
+      when (and (slot-boundp slotd (setq name (slot-definition-name facetd)))
+                (cond ((eq name 'excl::initform) (slot-definition-initform slotd))
+                      ((eq name 'excl::initfunction) (slot-definition-initfunction slotd))
                       ((eq name 'excl::readers) (slot-value slotd name))
                       ((eq name 'excl::writers) (slot-value slotd name))
                       ((eq name 'common-lisp:type) (not (eq t (slot-value slotd name))))
                       ((eq name 'documentation) (slot-value slotd name))
                       ((eq name 'excl::fixed-index) nil)
                       (t t)))
-      append (cond ((eq name 'name) `(:name ,(closer-mop:slot-definition-name slotd)))
-                   ((eq name 'excl::initargs) `(:initargs ,(closer-mop:slot-definition-initargs slotd)))
-                   ((eq name 'excl::initform) `(:initform ,(closer-mop:slot-definition-initform slotd)))
-                   ((eq name 'excl::initfunction) `(:initfunction ,(closer-mop:slot-definition-initfunction slotd)))
+      append (cond ((eq name 'name) `(:name ,(slot-definition-name slotd)))
+                   ((eq name 'excl::initargs) `(:initargs ,(slot-definition-initargs slotd)))
+                   ((eq name 'excl::initform) `(:initform ,(slot-definition-initform slotd)))
+                   ((eq name 'excl::initfunction) `(:initfunction ,(slot-definition-initfunction slotd)))
                    ((eq name 'excl::readers) `(:readers ,(slot-value slotd name)))
                    ((eq name 'excl::writers) `(:writers ,(slot-value slotd name)))
-                   ((eq name 'common-lisp:type) `(:type ,(closer-mop:slot-definition-type slotd)))
+                   ((eq name 'common-lisp:type) `(:type ,(slot-definition-type slotd)))
                    ((eq name 'excl::allocation) `(:allocation ,(excl::slotd-allocation slotd)))
                    ((eq name 'documentation) `(:documentation ,(slot-value slotd name)))
                    (t `(,(car (slot-value facetd 'excl::initargs)) ,(slot-value slotd name))))))
@@ -580,7 +580,7 @@ of this <instance> property."
   (cond ((eq slot-names t)) ; nothing done
         ((null direct-superclasses-p)) ; nothing done
         ((null direct-superclasses))   ; nothing done
-        ((set-eq direct-superclasses (closer-mop:class-direct-subclasses class))
+        ((set-eq direct-superclasses (class-direct-subclasses class))
          (error 'cyclic-super/subclasses-error
            :format-control "~S and ~S should be rewrite as equivalent"
            :format-arguments `(,class ,direct-superclasses)))))
@@ -599,7 +599,7 @@ of this <instance> property."
                do (type-option-check-with-cardinality
                    instance
                    filler
-                   (find role (closer-mop:class-slots class) :key #'closer-mop:slot-definition-name)
+                   (find role (class-slots class) :key #'slot-definition-name)
                    nil)))
           ((null slot-names)  ; reinitialize
            (loop for (role filler) on initargs by #'cddr
@@ -616,7 +616,7 @@ of this <instance> property."
                          (t (type-option-check-with-cardinality
                              instance
                              filler
-                             (find role (closer-mop:class-slots class) :key #'closer-mop:slot-definition-name)
+                             (find role (class-slots class) :key #'slot-definition-name)
                              oldval)))))))))
 (defun shared-initialize-before-in-OWL (instance slot-names initargs)
   (declare (ignore instance slot-names initargs))
@@ -626,8 +626,8 @@ of this <instance> property."
   "See also owlkernel module."
   (unless slotd ; when slot is an ordinal slot.
     (return-from type-option-check-with-cardinality nil))
-  (let ((type (closer-mop:slot-definition-type slotd))
-        (name (closer-mop:slot-definition-name slotd)))
+  (let ((type (slot-definition-type slotd))
+        (name (slot-definition-name slotd)))
     (typecase type
       (null nil)
       (cons (case (op type)
@@ -694,16 +694,16 @@ of this <instance> property."
   (declare (ignore slot-names))
   "checks C subclassof D and D subclassof C, that implies equality.
 Checks the residual mclasses of all instances of <class>."
-  (when (set-equalp (closer-mop:class-direct-superclasses class)
-                    (closer-mop:class-direct-subclasses class))
+  (when (set-equalp (class-direct-superclasses class)
+                    (class-direct-subclasses class))
     (error 'cyclic-super/subclasses-error
       :format-control "~S and ~S should be rewrite as equivalent"
-      :format-arguments `(,class ,(closer-mop:class-direct-superclasses class))))
+      :format-arguments `(,class ,(class-direct-superclasses class))))
   ;(format t "~%SharedInitialize:after(~S ~S ~S)" class slot-names initargs)
   (let ((supers (getf initargs :direct-superclasses)))
     (when supers             ; direct-superclasses are changed then propagate the effects
-      (loop for sub in (closer-mop:class-direct-subclasses class) ; there are some subclasses
-          as sub-supers = (closer-mop:class-direct-superclasses sub)
+      (loop for sub in (class-direct-subclasses class) ; there are some subclasses
+          as sub-supers = (class-direct-superclasses sub)
           do (let ((new-sub-supers (make-this-supers sub sub-supers)))
                (unless (set-equalp sub-supers new-sub-supers)
                  ;(format t "~%Propagated superclass change of ~S:~%  ~S -> ~S" sub sub-supers new-sub-supers)
@@ -712,19 +712,19 @@ Checks the residual mclasses of all instances of <class>."
   (let ((supers (mklist (getf initargs 'rdfs:|subClassOf|))))
     (when supers
       ;; there might be a shadow class that is unshadowable in subclasses
-      (loop for sub in (closer-mop:class-direct-subclasses class)
+      (loop for sub in (class-direct-subclasses class)
           do (update-instance-for-unshadowing sub class supers))))
   )
 
 (defun check-shadowed-class-and-propagate-to-subs (class)
   (when (shadowed-class-p class)
     (error "DEBUG!")
-    (let ((new-supers (most-specific-concepts-by-superclasses (closer-mop:class-direct-superclasses class))))
+    (let ((new-supers (most-specific-concepts-by-superclasses (class-direct-superclasses class))))
       (format t "~%NewSupers:~S for ~S" new-supers class)
       (when (length=1 new-supers)
         (loop for ins in (class-direct-instances class)
             do (change-class ins (car new-supers))))))
-  (loop for sub in (closer-mop:class-direct-subclasses class)
+  (loop for sub in (class-direct-subclasses class)
       do (check-shadowed-class-and-propagate-to-subs sub)))
 
 (defun update-instance-for-unshadowing (shadow? class supers)
@@ -732,8 +732,8 @@ Checks the residual mclasses of all instances of <class>."
   (when (shadowed-class-p shadow?)
     ;; after reinitialize-instance the cpl is adjusted coherently.
     ;; then you cannot use most-specific-concepts routine
-    ;(format t "~%Supers:~S~%ShadowsSupers:~S" supers (closer-mop:class-direct-superclasses shadow?))
-    (let* ((shadows-supers (closer-mop:class-direct-superclasses shadow?))
+    ;(format t "~%Supers:~S~%ShadowsSupers:~S" supers (class-direct-superclasses shadow?))
+    (let* ((shadows-supers (class-direct-superclasses shadow?))
            (revised-supers (set-difference shadows-supers supers)))
       (when (length=1 revised-supers)
         (assert (eq class (car revised-supers)))
@@ -742,23 +742,23 @@ Checks the residual mclasses of all instances of <class>."
             do ;(format t "~%Changing shadows instance ~S to ~S for unshadowing" ins class)
               (change-class ins class) ; upgrade instance
               ;; then is it possible to propagate unshadowing?
-              (loop for sub in (closer-mop:class-direct-subclasses shadow?)
+              (loop for sub in (class-direct-subclasses shadow?)
                   do (update-instance-for-unshadowing sub shadow? revised-supers)))))))
 
 #|
 ;; propagate the change of superclasses of this class to subclasses
 (defmethod shared-initialize :after ((class rdfs:|Class|) slot-names &rest initargs)
-  (assert (not (eq (car (closer-mop:class-direct-superclasses class)) class)))
+  (assert (not (eq (car (class-direct-superclasses class)) class)))
   (cond ((and (null slot-names) (null initargs))  ; when metaclass changed
          )
         ((and (consp slot-names) (null initargs)) ; when metaclass redefined, propagated
          )
         (t                                        ; first or redefinition
          (unless (datatype-p class)
-           (loop for sub in (closer-mop:class-direct-subclasses class)
+           (loop for sub in (class-direct-subclasses class)
                unless (datatype-p sub)
                  ;; update the sub's supers
-               do (let* ((oldsupers (closer-mop:class-direct-superclasses sub))
+               do (let* ((oldsupers (class-direct-superclasses sub))
                          (newsupers (most-specific-concepts-by-superclasses oldsupers)))
                     (unless (set-equalp newsupers oldsupers)
                       (reinitialize-instance sub :direct-superclasses newsupers))))))))
@@ -820,7 +820,7 @@ Checks the residual mclasses of all instances of <class>."
 
 ;(defmethod change-class :before ((instance rdfs:|Class|) (new-class rdfs:|Class|)  &rest initargs)
 ;  (declare (ignore initargs))
-;  (unless (closer-mop:class-finalized-p instance) (closer-mop:finalize-inheritance instance)))
+;  (unless (class-finalized-p instance) (finalize-inheritance instance)))
 
 (defmethod change-class :before ((instance rdfs:|Resource|) (new-class standard-class)
                                  &rest initargs)
@@ -834,15 +834,15 @@ Checks the residual mclasses of all instances of <class>."
    then add the slot definitions into <new-class>."
   ;(format t "~%CHANGE-CLASS:before(~S ~S ~S)" instance new-class initargs)
   (unless (and (cl:subtypep (class-of instance) new-class) (null initargs))
-    (unless (closer-mop:class-finalized-p new-class) (closer-mop:finalize-inheritance new-class))
-    (let* ((new-class-slotds (closer-mop:class-slots new-class))
+    (unless (class-finalized-p new-class) (finalize-inheritance new-class))
+    (let* ((new-class-slotds (class-slots new-class))
            (old-class (class-of instance))
-           (old-class-slotds (closer-mop:class-slots old-class))
+           (old-class-slotds (class-slots old-class))
            (added (loop for slotd in old-class-slotds with role
                       when (and (property-effective-slotd-p slotd)
-                                (slot-boundp instance (setq role (closer-mop:slot-definition-name slotd)))
+                                (slot-boundp instance (setq role (slot-definition-name slotd)))
                                 (slot-value instance role)
-                                (not (find role new-class-slotds :key #'closer-mop:slot-definition-name :test #'eq)))
+                                (not (find role new-class-slotds :key #'slot-definition-name :test #'eq)))
                       collect (make-initarg-from-slotd slotd))))
       (when added
         (reinitialize-instance new-class :direct-slots added)))))
@@ -860,8 +860,8 @@ Checks the residual mclasses of all instances of <class>."
            (apply #'call-next-method instance old-class initargs))
           ((and (cl:typep old-class 'shadowed-class) (cl:typep new-class 'shadowed-class))
            ;(format t "~&Changing the shadow class of ~S to another shadow class ~S with initargs ~S" instance new-class initargs)
-           (let ((old-supers (closer-mop:class-direct-superclasses old-class))
-                 (new-supers (closer-mop:class-direct-superclasses new-class)))
+           (let ((old-supers (class-direct-superclasses old-class))
+                 (new-supers (class-direct-superclasses new-class)))
              (cond ((subsetp old-supers new-supers)
                     (apply #'call-next-method instance new-class initargs))
                    ((subsetp new-supers old-supers)
@@ -872,7 +872,7 @@ Checks the residual mclasses of all instances of <class>."
            (let ((shadow (make-shadow old-class (cons new-class (mclasses instance)))))
              (apply #'call-next-method instance shadow initargs)))
           ((cl:typep new-class 'shadowed-class)
-           (let ((shadow (make-shadow new-class (append (closer-mop:class-direct-superclasses new-class) (mclasses instance)))))
+           (let ((shadow (make-shadow new-class (append (class-direct-superclasses new-class) (mclasses instance)))))
              (apply #'call-next-method instance shadow initargs)))
           ;((cl:typep new-class 'shadowed-class)
           ; (warn "Attempting to refine ~S to ~S" instance new-class) ; by smh
@@ -902,17 +902,17 @@ Checks the residual mclasses of all instances of <class>."
   (let ((old-class (class-of instance)))
     ;(format t "~%   old-class:~S direct-instances:~S" old-class (class-direct-instances old-class))
     (when (null (class-direct-instances old-class))
-      (loop for slotd in (closer-mop:class-direct-slots old-class)
-          do (let ((name (closer-mop:slot-definition-name slotd)))
-               (let ((eslotd (find name (closer-mop:class-slots old-class)
-                                   :key #'closer-mop:slot-definition-name)))
+      (loop for slotd in (class-direct-slots old-class)
+          do (let ((name (slot-definition-name slotd)))
+               (let ((eslotd (find name (class-slots old-class)
+                                   :key #'slot-definition-name)))
                  (when (and (cl:typep eslotd 'Property-effective-slot-definition)
                             (slot-boundp eslotd 'subject-type)
                             (eq old-class (slot-definition-subject-type eslotd)))
                    (cond ((eq old-class |rdfs:Resource|)
                           (error "Bingo!")
-                          (setf (closer-mop:class-direct-slots old-class)
-                            (remove slotd (closer-mop:class-direct-slots old-class)))
+                          (setf (class-direct-slots old-class)
+                            (remove slotd (class-direct-slots old-class)))
                           (let* ((prop (symbol-value name))
                                  (slotd (find old-class (slot-value prop 'slotds)
                                               :key #'slot-definition-subject-type)))
@@ -936,7 +936,7 @@ Checks the residual mclasses of all instances of <class>."
 ;; Range checking is carried out.
 (defun compute-slot-value (value oldval slotd instance)
   (declare (optimize (speed 3) (safety 0)))
-  (let ((prop (closer-mop:slot-definition-name slotd)))
+  (let ((prop (slot-definition-name slotd)))
     (flet ((ignore-slot-value
             ()
             (warn "Ignored:~S for ~S in ~S." value prop instance)
@@ -947,7 +947,7 @@ Checks the residual mclasses of all instances of <class>."
                   (t (warn "Ignored:~S ~S ~S." instance prop value)
                      oldval))))
       (when value
-        (setq value (slot-value-range-check prop value (closer-mop:slot-definition-type slotd)))
+        (setq value (slot-value-range-check prop value (slot-definition-type slotd)))
         (assert value))
       (cond ((null oldval) (slot-value-with-cardinality-check)) ; value
             ((equal value oldval) oldval) ; no message and return oldval
@@ -982,18 +982,18 @@ Checks the residual mclasses of all instances of <class>."
       )))
 #|
 ;; This method is needed for method inheritance.
-(defmethod (setf closer-mop:slot-value-using-class)
+(defmethod (setf slot-value-using-class)
     (value (class rdfs:|Class|) (object rdfs:|Resource|) slotd)
   (declare (ignore value slotd))
   ;(format t "~%Setf Slot-value-using-class4 with ~S ~S ~S" value object slotd)
   (call-next-method))
 
-(defmethod (setf closer-mop:slot-value-using-class)
+(defmethod (setf slot-value-using-class)
     (value (class rdfs:|Class|) (object rdfs:|Resource|) 
            (slotd gx::Property-effective-slot-definition))
   (declare (optimize (speed 3) (safety 0)))
   ;(format t "~%Setf Slot-value-using-class in IR with ~S ~S ~S" value object slotd)
-  (let ((slot-name (closer-mop:slot-definition-name slotd))
+  (let ((slot-name (slot-definition-name slotd))
         (filler nil))
     (flet ((ignore-slot-value ()
                               (warn "Ignored:~S ~S ~S." object slot-name value)
@@ -1004,7 +1004,7 @@ Checks the residual mclasses of all instances of <class>."
                                                       (t (warn "Ignored:~S ~S ~S." object slot-name value)
                                                          (slot-value object slot-name)))))
         (when value
-          (setq value (slot-value-range-check slot-name value (closer-mop:slot-definition-type slotd)))
+          (setq value (slot-value-range-check slot-name value (slot-definition-type slotd)))
           (assert value))
         (cond ((not (slot-boundp object slot-name))
                (slot-value-with-cardinality-check))
@@ -1050,7 +1050,7 @@ Checks the residual mclasses of all instances of <class>."
   (declare (optimize (speed 3) (safety 0)))
   (remove-duplicates
    (append (class-direct-instances class)
-           (loop for sub in (closer-mop:class-direct-subclasses class)
+           (loop for sub in (class-direct-subclasses class)
                append (cond ((eq sub (find-class 'rdfsClass)) nil)
                             (t (collect-all-instances-of sub)))))))
 #|
@@ -1059,10 +1059,10 @@ Checks the residual mclasses of all instances of <class>."
 |#
 (defun delete-slot (class slot-name)
   (setf (slot-value class 'prototype) nil)
-  (let ((direct-slots (closer-mop:class-direct-slots class)))
-    (when (find slot-name direct-slots :key #'closer-mop:slot-definition-name)
-      (setf (closer-mop:class-direct-slots class)
-        (delete slot-name direct-slots :key #'closer-mop:slot-definition-name))
+  (let ((direct-slots (class-direct-slots class)))
+    (when (find slot-name direct-slots :key #'slot-definition-name)
+      (setf (class-direct-slots class)
+        (delete slot-name direct-slots :key #'slot-definition-name))
 
       (excl::fix-slot-accessors class direct-slots 'add)))
   )

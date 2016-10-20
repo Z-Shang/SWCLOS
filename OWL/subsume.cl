@@ -161,7 +161,7 @@
                   dintersections)))
     (%intersection-subsumed-p c (remove-duplicates unfolded :test #'rdf-equalp))))
 (defun %intersection-subsumed-p (c dintersections)
-  (unless (closer-mop:class-finalized-p c) (closer-mop:finalize-inheritance c))
+  (unless (class-finalized-p c) (finalize-inheritance c))
   (let ((cpl (clos:class-precedence-list c))
         (drestrs nil))
     (and (every #'(lambda (dcls) 
@@ -171,7 +171,7 @@
          (or (null (setq drestrs (remove-if-not #'owl-restriction-p dintersections)))
              (%intersection-restriction-subsumed-p
               (remove-if-not #'(lambda (cs) (cl:typep cs 'Property-effective-slot-definition))
-                             (closer-mop:class-slots c))
+                             (class-slots c))
               (remove-duplicates
                (mapcar #'(lambda (dr) (name (onproperty-of dr))) drestrs))
               (remove-if-not #'(lambda (x) (cl:typep x (symbol-value 'owl:|cardinalityRestriction|))) drestrs)
@@ -196,7 +196,7 @@
                             (and (slot-boundp x 'owl:|minCardinality|) (slot-value x 'owl:|minCardinality|))))))
              (let ((dcnst (remove-if-not #'onproperty-p dcnsts))
                    (dcard (remove-if-not #'onproperty-p dcards))
-                   (cslot (find prop cslots :key #'closer-mop:slot-definition-name :test #'(lambda (p1 p2) (or (equal p1 p2))))) ; or subproperty? but not yet
+                   (cslot (find prop cslots :key #'slot-definition-name :test #'(lambda (p1 p2) (or (equal p1 p2))))) ; or subproperty? but not yet
                    (var (new-variable "gx")))
                (format t "~%For property ~S in D," prop)
                (format t "~%  cslot:~S ~%  dcnst:~S~%  dcard:~S" cslot dcnst dcard )
@@ -314,7 +314,7 @@
 
 (defun generate-models-for-susumee-from-slot (var role cmax cmin slotd models)
   "<var> is a <role>-predecessor. "
-  (let ((styp (mklist (closer-mop:slot-definition-type slotd))))
+  (let ((styp (mklist (slot-definition-type slotd))))
     ;(format t "~%styp: ~S cmax: ~S cmin: ~S" styp cmax cmin)
     ;; styp includes all user defined restrictions and range constraints on this var and role.
     (let ((types nil)
@@ -698,13 +698,13 @@
   (and (excl::standard-instance-p obj)
        (let ((class (class-of obj)))
          (cond ((eq class (find-class 'owl:|TransitiveProperty|)))
-               ((closer-mop:class-finalized-p class)
+               ((class-finalized-p class)
                 (and (member (find-class 'owl:|TransitiveProperty|)
-                                (closer-mop:class-precedence-list class)
+                                (class-precedence-list class)
                                 :test #'eq)
                      t))
                ((labels ((walk-partial-cpl (c)
-                                           (let ((supers (closer-mop:class-direct-superclasses c)))
+                                           (let ((supers (class-direct-superclasses c)))
                                              (when (member
                                                     (find-class 'owl:|TransitiveProperty|)
                                                     supers :test #'eq)

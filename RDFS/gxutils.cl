@@ -200,7 +200,7 @@ Note that it is not cared that symbols are bound to resource objects or not."))
   "mop-specs <mop>
    returns a list of direct specials of <mop>."
   (cond ((typep mop 'rdfs:|Class|)
-         (closer-mop:class-direct-subclasses mop))
+         (class-direct-subclasses mop))
         (t nil)))
 
 (defun tree->list (mop fn visited)
@@ -246,9 +246,9 @@ Note that it is not cared that symbols are bound to resource objects or not."))
   ;(format t "~%Path-filler:~S ~S" mop path)
   (cond ((null mop) nil)
         ((and (symbolp mop) (object? mop) (cl:typep (symbol-value mop) 'gx::shadowed-class))
-         (car (closer-mop:class-direct-superclasses (symbol-value mop))))
+         (car (class-direct-superclasses (symbol-value mop))))
         ((and (rsc-object-p mop) (cl:typep mop 'gx::shadowed-class))
-         (car (closer-mop:class-direct-superclasses mop)))
+         (car (class-direct-superclasses mop)))
         ((null path) (mkatom mop))
         ((consp mop)
          (loop for m in mop with result
@@ -298,22 +298,22 @@ Note that it is not cared that symbols are bound to resource objects or not."))
               (slot-value mop (name (car roles))))
          (setf (apply #'-> (slot-value mop (name (car roles))) (cdr roles)) value))
         (t ;slot exists but unbound with multiple roles
-         (let ((slotd (find (name (car roles)) (closer-mop:class-slots (class-of mop))
-                            :key #'closer-mop:slot-definition-name)))
+         (let ((slotd (find (name (car roles)) (class-slots (class-of mop))
+                            :key #'slot-definition-name)))
            (format t "~%SLOTD=~S" slotd)
            (when slotd
              (setf (slot-value mop (name (car roles)))
-               (%setfvalue value (closer-mop:slot-definition-type slotd) (cdr roles))))))))
+               (%setfvalue value (slot-definition-type slotd) (cdr roles))))))))
 
 (defun %setfvalue (value type roles)
   (cond ((null roles) value)
-        (t (unless (closer-mop:class-finalized-p (symbol-value type))
-             (closer-mop:finalize-inheritance (symbol-value type)))
-           (let ((slotd (find (name (car roles)) (closer-mop:class-slots (symbol-value type))
-                              :key #'closer-mop:slot-definition-name)))
+        (t (unless (class-finalized-p (symbol-value type))
+             (finalize-inheritance (symbol-value type)))
+           (let ((slotd (find (name (car roles)) (class-slots (symbol-value type))
+                              :key #'slot-definition-name)))
              (format t "~%slotd=~S" slotd)
              (when slotd
-               (let ((filler (%setfvalue value (closer-mop:slot-definition-type slotd) (cdr roles))))
+               (let ((filler (%setfvalue value (slot-definition-type slotd) (cdr roles))))
                  (addObject (symbol-value type) `((,(name (car roles)) ,filler)))))))))
 
 ;;
@@ -324,7 +324,7 @@ Note that it is not cared that symbols are bound to resource objects or not."))
   (collect-direct-subtypes (symbol-value class)))
 
 (defmethod collect-direct-subtypes ((class rdfs:|Class|))
-  (closer-mop:class-direct-subclasses class))
+  (class-direct-subclasses class))
 
 (defmethod collect-all-subtypes ((class symbol))
   (collect-all-subtypes (symbol-value class)))
@@ -332,7 +332,7 @@ Note that it is not cared that symbols are bound to resource objects or not."))
 (defmethod collect-all-subtypes ((class rdfs:|Class|))
   (remove-duplicates 
    (append (collect-direct-subtypes class)
-           (loop for sub in (closer-mop:class-direct-subclasses class)
+           (loop for sub in (class-direct-subclasses class)
                append (cond ((eq sub (find-class 'rdfsClass)) (list rdfs:|Class|))
                             (t (collect-all-subtypes sub)))))))
 
@@ -359,7 +359,7 @@ Note that it is not cared that symbols are bound to resource objects or not."))
                           (return-from generator (pop pending-instances)))
                         (when (null pending-classes) (return-from generator nil))
                         (let ((next-class (pop pending-classes)))
-                          (setf pending-classes (append (closer-mop:class-direct-subclasses next-class) pending-classes)
+                          (setf pending-classes (append (class-direct-subclasses next-class) pending-classes)
                             pending-instances (class-direct-instances next-class))))))
       #'generator)))
 
@@ -369,7 +369,7 @@ Note that it is not cared that symbols are bound to resource objects or not."))
   (cond ((eq class rdfs:|Resource|) (list class))
         ((eq class |rdfs:Resource|) (list class))
         (t (let ((supers (reduce #'union
-                                 (mapcar #'collect-all-supers (closer-mop:class-direct-superclasses class)))))
+                                 (mapcar #'collect-all-supers (class-direct-superclasses class)))))
              (pushnew class supers)))))
 
 (defmethod collect-all-extensions-of ((property symbol))
@@ -465,7 +465,7 @@ Note that it is not cared that symbols are bound to resource objects or not."))
     (rdf:|XMLLiteral| (list root))
     (otherwise
      (append (cons root (class-direct-instances root))
-             (loop for sub in (closer-mop:class-direct-subclasses root)
+             (loop for sub in (class-direct-subclasses root)
                  append (%%list-all-resources sub))))))
 )
 
@@ -480,7 +480,7 @@ Note that it is not cared that symbols are bound to resource objects or not."))
     (otherwise
      (when (or with-system-rsc-object-p (not (member root *system-resources*)))
        (append (cons root (class-direct-instances root))
-               (loop for sub in (closer-mop:class-direct-subclasses root)
+               (loop for sub in (class-direct-subclasses root)
                    append (%list-all-resources sub with-system-rsc-object-p)))))))
 
 (defun list-all-statements ()
@@ -502,7 +502,7 @@ Note that it is not cared that symbols are bound to resource objects or not."))
                          (and (rsc-object-p domain) (subtypep subject domain))))
               collect ins)
           (mapcan #'(lambda (sub) (collect-domain-properties subject sub))
-            (closer-mop:class-direct-subclasses prop))))
+            (class-direct-subclasses prop))))
 
 (defun collect-range-properties (object &optional (prop rdf:|Property|))
   "collect all properties under <prop> that have <object> as range."
@@ -512,7 +512,7 @@ Note that it is not cared that symbols are bound to resource objects or not."))
                          (and (rsc-object-p range) (subtypep object range))))
               collect ins)
           (mapcan #'(lambda (sub) (collect-range-properties object sub))
-            (closer-mop:class-direct-subclasses prop))))
+            (class-direct-subclasses prop))))
 
 ;;;
 ;;;; DIG interface
@@ -566,7 +566,7 @@ Note that it is not cared that symbols are bound to resource objects or not."))
                                  (append (remove-if-not #'(lambda (obj) (or (anonymous-p obj)
                                                                             (eql (symbol-package (name obj)) pkg)))
                                                         (class-direct-instances cls))
-                                         (loop for sub in (closer-mop:class-direct-subclasses cls)
+                                         (loop for sub in (class-direct-subclasses cls)
                                              append (%all-individuals sub))))))
       (%all-individuals (load-time-value (find-class 'rdfs:|Resource|))))))
 
@@ -606,9 +606,9 @@ Note that it is not cared that symbols are bound to resource objects or not."))
 
 (defun %get-hasfiller-inherited (class role)
   (declare (optimize (speed 3) (safety 0)))
-  (loop for slotd in (closer-mop:class-slots class) with found
+  (loop for slotd in (class-slots class) with found
       when (and (eq (name slotd) role)
-                (let ((type (closer-mop:slot-definition-type slotd)))
+                (let ((type (slot-definition-type slotd)))
                   (setq found
                         (cond ((consp type)
                                (find-if #'(lambda (ty) (cl:typep ty 'fills)) type))
@@ -644,8 +644,8 @@ Note that it is not cared that symbols are bound to resource objects or not."))
                 (setf (slot-value object pname)
                   (compute-slot-value value
                                       (slot-value object pname)
-                                      (find pname (closer-mop:class-slots (class-of object))
-                                            :key #'closer-mop:slot-definition-name)
+                                      (find pname (class-slots (class-of object))
+                                            :key #'slot-definition-name)
                                       object))
               (setf (slot-value object pname) value))
           (setf (slot-value object pname) value))
