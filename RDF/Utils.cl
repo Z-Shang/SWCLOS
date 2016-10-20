@@ -283,6 +283,12 @@ but optimized for vectors."
 	finally
 	  (return (subseq string-buffer 0 (fill-pointer string-buffer)))))
 
+;;; a portable excl:find-external-format based on flexi-streams
+(declaim (inline find-external-format))
+(defun find-external-format (code)
+  (cond ((eq code :default) :utf-8)
+	(t code)))
+
 ;; End of module
 ;; --------------------------------------------------------------------
 ;;;
