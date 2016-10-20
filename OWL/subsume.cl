@@ -282,6 +282,14 @@
           (cbars (remove-duplicates (mapcar #'car cbindings))))
       (and dmax (<= (length (union vars cbars)) dmax)))))
 
+(defun satisfy-min-cardinality (dmin model)
+  (format t "~%satisfy-min-cardinality(~S ~S)" dmin model)
+  (destructuring-bind (bindings cbindings . roles) model
+    (format t "~%bindings:~S~%cbindings:~S~%roles:~S" bindings cbindings roles)
+    (let ((vars (remove-duplicates (mapcar #'car bindings)))
+          (cbars (remove-duplicates (mapcar #'car cbindings))))
+      (and dmin (<= dmin (length (union vars cbars)))))))
+
 #|
 (trace %intersection-subsumed-p %intersection-restriction-subsumed-p satisfy-max-cardinality)
 (subsumed-p vin:Margaux vin:Merlot)
@@ -503,8 +511,8 @@
                     (reduce-atoms cmax bindings cbindings atoms))
                    (t (list (cons bindings (cons cbindings atoms)))))))
 
-(defun reduce-atoms (cmax bindings cbindings atoms)
-  (format t "~%cmax:~S~%bindings:~S~%cbindings:~S~%atoms:~S" cmax bindings cbindings atoms)
+(defun reduce-atoms (cmax bindings cbindings atoms &aux models)
+  #+debug (format t "~%cmax:~S~%bindings:~S~%cbindings:~S~%atoms:~S" cmax bindings cbindings atoms)
   (when (<= (length atoms) cmax)
     (return-from reduce-atoms (list (cons bindings (cons cbindings atoms)))))
   (setq models
@@ -846,7 +854,7 @@
                     finally
                       (return (values nil known))))
                ((and (eq (op type1) 'and) (eq (op type2) 'and))
-                (%intersection12-subsumed-p (args type1) (args type2)))
+                (%intersection12-subsumed-p nil (args type1) (args type2)))
                ((and (eq (car type1) 'or) (eq (car type2) 'or))
                 (loop for t1 in (cdr type1)
                     do (multiple-value-bind (val1 val2) (subsumed-p t1 type2)
