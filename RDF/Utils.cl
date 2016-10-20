@@ -305,6 +305,18 @@ but optimized for vectors."
   #-(or allegro lispworks sbcl)
   `(progn ,@body))
 
+;;; a portable excl:without-package-locks
+(defmacro without-package-locks (&body body)
+  `(#+allegro excl:without-package-locks
+    #+cmu ext:without-package-locks
+    #+sbcl sb-ext:without-package-locks
+    #+lispworks let
+    #+lispworks ((lw:*handle-warn-on-redefinition* :warn)
+		 (hcl:*packages-for-warn-on-redefinition* nil))
+    #+clisp ext:without-package-lock #+clisp ()
+    #-(or allegro lispworks sbcl clisp cmu) progn
+    ,@body))
+
 ;; End of module
 ;; --------------------------------------------------------------------
 ;;;

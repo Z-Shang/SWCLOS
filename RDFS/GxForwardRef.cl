@@ -29,7 +29,7 @@
 ;; class-names as concepts in ontologies. Or, you may add any conventional CLOS slots 
 ;; designating slot-name by keyword, after loading SWCLOS. 
 
-(excl:without-package-locks
+(without-package-locks
     #|
 (defmethod change-class :after ((instance standard-object) (new-class rdfs:|Resource|) &rest initargs)
   (declare (ignore initargs))
@@ -50,7 +50,7 @@
     (setf (symbol-value name) class)))
 )
 #|
-(excl:without-package-locks
+(without-package-locks
 (defmethod mop:finalize-inheritance :before ((class rdfs:|Class|))
   (let* ((classes (collect-superclasses* class))
          (forward-referenced-classes

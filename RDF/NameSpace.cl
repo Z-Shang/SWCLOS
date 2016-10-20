@@ -514,54 +514,6 @@ package slot and uri to symbol name mapping environment slot.")
     (make-symbol (render-uri ontouri nil))
     ))
 
-;
-;; Advice Package-name-to package function for Allegro Reader
-;
-#+never
-(eval-when (:execute :load-toplevel :compile-toplevel)
-  (setf (symbol-function '%.reader-error)
-    (symbol-function 'excl::.reader-error))
-  )
-#+never
-(define-condition package-not-found-in-reader-error (reader-error) ())
-#+never
-(define-condition symbol-not-found-in-reader-error (reader-error) ())
-#+never
-(define-condition symbol-not-external-in-reader-error (reader-error) ())
-
-#+never
-(eval-when (:execute :load-toplevel :compile-toplevel)
-  (excl:without-package-locks
-      (defun excl::.reader-error (stream format &rest args)
-        (cond ((string= (car args) "Package ~S not found.")
-               (cerror "Create it?"
-                       'package-not-found-in-reader-error
-                       :stream stream
-                       :format-control format :format-arguments args)
-               (make-package (car (second args)))
-               )
-              ((string= (car args) "Symbol ~S not found in the ~A package.")
-               (error 'symbol-not-found-in-reader-error
-                       :stream stream
-                       :format-control format :format-arguments args)
-               )
-              ((string= (car args) "~
-The symbol ~s is not external in the ~a package.")
-               (cerror "Export it?"
-                       'symbol-not-external-in-reader-error
-                       :stream stream
-                       :format-control format :format-arguments args)
-               (let ((pkg (find-package (second (second args)))))
-                 (export (find-symbol (car (second args)) pkg) pkg)
-                 (find-symbol (car (second args)) pkg))
-               )
-              (t (error 'reader-error :stream stream
-                   :format-control format :format-arguments args)))
-        
-        )
-    )
-  )
-
 (defun find-package-from-namespace (namespace)
   (find namespace (list-all-packages) :test #'string= :key #'(lambda (pkg) (documentation pkg t))))
   
