@@ -766,7 +766,7 @@
             (setq type1 (->nnf type1))
             (case (op type1)
               (and (error "Check and debug!")
-                   (%intersection1-subsumed-p var (args type1) type2))
+                   (%intersection1-subsumed-p nil (args type1) type2)) ; old: var
               (or ;; => (and (subsumed-p t11 type2) (subsumed-p t12 type2) ...)
                (cond ((every #'(lambda (csub) (subsumed-p csub type2)) (args type1))
                       (values t t))
