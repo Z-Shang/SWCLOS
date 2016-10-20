@@ -21,7 +21,8 @@
 
 (in-package :gx)
 
-(export '(read-NTriple-file addTriple-from-file))
+(eval-when (:compile-toplevel :load-toplevel :execute)
+  (export '(read-NTriple-file addTriple-from-file)))
 
 ;;
 ;; Name space is mapped to a lisp package.

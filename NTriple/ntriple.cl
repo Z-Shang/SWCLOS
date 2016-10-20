@@ -23,8 +23,9 @@
 
 (in-package :gx)
 
-(export '(defTriple addTriple /. ./ get-triple
-           superclasses-of subclasses-of))
+(eval-when (:compile-toplevel :load-toplevel :execute)
+  (export '(defTriple addTriple /. ./ get-triple
+	    superclasses-of subclasses-of)))
 
 ;;;
 ;;;; defTriple

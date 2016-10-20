@@ -29,11 +29,12 @@
 
 (in-package :gx)
 
-(export '(iri iri-p iri-value set-uri-namedspace set-uri-namedspace-from-pkg get-uri-namedspace
-           uri-namedspace uri2package uri2env uri2symbol irregular-name&pkg export-as-QName 
-           *base-uri* *default-namespace* symbol2uri name-ontology nodeID? nodeID2symbol 
-           *uri2symbol-name-mapping-fun* *uri2symbol-package-mapping-fun*
-          find-package-from-namespace))
+(eval-when (:compile-toplevel :load-toplevel :execute)
+  (export '(iri iri-p iri-value set-uri-namedspace set-uri-namedspace-from-pkg get-uri-namedspace
+	    uri-namedspace uri2package uri2env uri2symbol irregular-name&pkg export-as-QName 
+            *base-uri* *default-namespace* symbol2uri name-ontology nodeID? nodeID2symbol 
+	    *uri2symbol-name-mapping-fun* *uri2symbol-package-mapping-fun*
+	    find-package-from-namespace)))
 
 ;;;
 ;;;; URI in SWCLOS and Turtle System

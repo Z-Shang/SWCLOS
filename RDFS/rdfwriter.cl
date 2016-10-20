@@ -29,8 +29,9 @@
 
 (in-package :gx)
 
-(export '(write-resource write-xml *force-recursive-p*
-          write-rdf-all-entities-in write-xml-all-entities-in))
+(eval-when (:compile-toplevel :load-toplevel :execute)
+  (export '(write-resource write-xml *force-recursive-p*
+	    write-rdf-all-entities-in write-xml-all-entities-in)))
 
 ;;;
 ;;;; RDF Writer

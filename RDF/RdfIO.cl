@@ -27,8 +27,9 @@
 
 (in-package :gx)
 
-(export '(*line-number* *line-pos* *pos* expose-buf skipbl read-pattern-p skip-pattern 
-           match-pattern-p peeknext-char getnext-char get-line))
+(eval-when (:compile-toplevel :load-toplevel :execute)
+  (export '(*line-number* *line-pos* *pos* expose-buf skipbl read-pattern-p skip-pattern 
+	    match-pattern-p peeknext-char getnext-char get-line)))
 
 ;;;
 ;;; The line number of input stream is counted and used in error messages.

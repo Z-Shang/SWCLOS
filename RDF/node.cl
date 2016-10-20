@@ -7,7 +7,8 @@
 
 (in-package :gx)
 
-(export '(name mclasses))
+(eval-when (:compile-toplevel :load-toplevel :execute)
+  (export '(name mclasses)))
 
 ;;;; gnode & rdf-node
 ;;; rdf-node will be a superclass of rdfs:Class. 

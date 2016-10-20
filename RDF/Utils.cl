@@ -6,7 +6,8 @@
 
 (in-package :gx)
 
-(export '(mappend squash length=1 splice-seq-on null-string-p match))
+(eval-when (:compile-toplevel :load-toplevel :execute)
+  (export '(mappend squash length=1 splice-seq-on null-string-p match)))
 
 ;;.............................................................................................
 ;;

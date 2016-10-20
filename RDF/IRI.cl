@@ -5,7 +5,8 @@
 
 (in-package :gx)
 
-(export '(iri boundp bound-value iri-escape-for-symbol-name))
+(eval-when (:compile-toplevel :load-toplevel :execute)
+  (export '(iri boundp bound-value iri-escape-for-symbol-name)))
 
 ;;;
 ;;;; IRI in SWCLOS system

@@ -25,15 +25,15 @@
 
 (in-package :gx)
 
-(export '(rsc-object-p rdf-class-p rdf-metaclass-p strict-class-p rdf-instance-p datatype-p 
-           object? class? metaclass? datatype? resource?
-           rdf-subtypep subsumed-p rdf-equalp value-of 
-           subproperty name
-           collect-all-subs disjoint-p
-           most-specific-concepts
-           *nonUNA* *autoepistemic-local-closed-world*
-           owl-same-p owl-thing-p
-           most-abstract-concepts))
+(eval-when (:compile-toplevel :load-toplevel :execute)
+  (export '(rsc-object-p rdf-class-p rdf-metaclass-p strict-class-p rdf-instance-p datatype-p 
+	    object? class? metaclass? datatype? resource?
+	    rdf-subtypep subsumed-p rdf-equalp value-of 
+	    subproperty name
+	    collect-all-subs disjoint-p
+	    most-specific-concepts
+	    *nonUNA* *autoepistemic-local-closed-world*
+	    most-abstract-concepts)))
 
 (eval-when (:execute :load-toplevel :compile-toplevel)
   (setf (uri-namedspace-package (set-uri-namedspace "http://www.w3.org/2001/XMLSchema#"))

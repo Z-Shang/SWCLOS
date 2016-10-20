@@ -899,8 +899,6 @@ A subclass of this class is a metaclass.")
                                        (t x))))
              (cl:subtypep (normal-type type1) (normal-type type2))))))
 
-(export 'subtypep)
-
 (defun subsumed-p (type1 type2)
   "This is a hook for OWL. It is same as <rdf-subtypep> in RDFS."
   (setq type1 (rdf-resolve type1))
@@ -1542,8 +1540,6 @@ A subclass of this class is a metaclass.")
                      ((shadowed-class-p (class-of x)) (mapcar #'name (mclasses x)))
                      (t (cl:type-of x))))))
 
-(export 'type-of)
-
 ;;;
 ;;;; Type Predicate
 ;;;
@@ -1706,8 +1702,6 @@ A subclass of this class is a metaclass.")
                               (values nil nil))))))))
     (otherwise  (%typep object type))
     ))
-
-(export 'typep)
 
 (defun %typep (object type)
   "<object> and <type> is an object in RDF universe."

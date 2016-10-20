@@ -63,8 +63,9 @@
 
 (in-package :gx)
 
-(export '(owl-same-p disjoint-p  
-          owl-class-p owl-thing-p owl-oneof-p))
+(eval-when (:compile-toplevel :load-toplevel :execute)
+  (export '(owl-same-p disjoint-p  
+	    owl-class-p owl-thing-p owl-oneof-p)))
 
 ;;;
 ;;;; OWL Property Slot Definition

@@ -35,11 +35,12 @@
 
 (in-package :gx)
 
-(export '(*NameSpaces* *default-namespace* *base-uri* set-uri-namedspace
-           name uri2symbol line |Description|-p |Description|-tag |Description|-att&vals |Description|-elements
-           parse-rdf lang content
-           parse-XMLDecl read-AttValue read-plane-text
-           read-as-datatype ^^))
+(eval-when (:compile-toplevel :load-toplevel :execute)
+  (export '(*NameSpaces* *default-namespace* *base-uri* set-uri-namedspace
+	    name uri2symbol line |Description|-p |Description|-tag |Description|-att&vals |Description|-elements
+	    parse-rdf lang content
+	    parse-XMLDecl read-AttValue read-plane-text
+	    read-as-datatype ^^)))
 
 (define-condition rdf-parse-error (error)
   ()

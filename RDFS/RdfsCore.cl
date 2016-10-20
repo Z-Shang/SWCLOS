@@ -28,8 +28,9 @@
 
 (in-package :gx)
 
-(export '(add-Object add-Form add-Instance add-Class def-Resource def-Property def-Concept 
-           def-Individual subproperty-p add-Rdf-Xml))
+(eval-when (:compile-toplevel :load-toplevel :execute)
+  (export '(add-Object add-Form add-Instance add-Class def-Resource def-Property def-Concept 
+	    def-Individual subproperty-p add-Rdf-Xml)))
 
 (declaim (inline create-slot slot-role slot-forms slot-filler get-filler))
 

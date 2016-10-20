@@ -22,7 +22,8 @@
 
 (in-package :gx)
 
-(export '(subproperty superproperty-of @))
+(eval-when (:compile-toplevel :load-toplevel :execute)
+  (export '(superproperty-of @)))
 
 (eval-when (:execute :load-toplevel :compile-toplevel)
   (setf (uri-namedspace-package (set-uri-namedspace "http://www.w3.org/2001/XMLSchema#"))

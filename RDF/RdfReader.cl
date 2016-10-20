@@ -23,7 +23,8 @@
 
 (in-package :gx)
 
-(export '(read-rdf-file lang-tag-char-p read-lang-tag read-type-tag))
+(eval-when (:compile-toplevel :load-toplevel :execute)
+  (export '(read-rdf-file lang-tag-char-p read-lang-tag read-type-tag)))
 
 ;;
 ;; Description structure to S-expression form

@@ -20,17 +20,18 @@
 
 (in-package :gx)
 
-(export '(print-all-entity-uris do-all-entity-uris list-all-entity-uris
-          print-all-entity-iris do-all-entity-iris list-all-entity-iris
-          list-all-uri-namedspaces named-p anonymous-p nodeID-p dph dah
-          get-form list-all-statements get-slots))
+(eval-when (:compile-toplevel :load-toplevel :execute)
+  (export '(print-all-entity-uris do-all-entity-uris list-all-entity-uris
+	    print-all-entity-iris do-all-entity-iris list-all-entity-iris
+	    list-all-uri-namedspaces named-p anonymous-p nodeID-p dph dah
+	    get-form list-all-statements get-slots
 
-(export '(-> collect-direct-instances-of collect-all-instances-of collect-all-extensions-of
-           all-instances-generator all-extensions-of-generator ; by smh
-           collect-all-supers collect-all-subtypes
-           all-concept-names all-role-names all-individuals
-           get-value put-value list-all-entities-in list-all-resources
-           *autoepistemic-local-closed-world*))
+	    -> collect-direct-instances-of collect-all-instances-of collect-all-extensions-of
+	    all-instances-generator all-extensions-of-generator ; by smh
+	    collect-all-supers collect-all-subtypes
+	    all-concept-names all-role-names all-individuals
+	    get-value put-value list-all-entities-in list-all-resources
+	    *autoepistemic-local-closed-world*)))
 
 (defpackage :gx-user
   (:use :common-lisp :gx)

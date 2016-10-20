@@ -48,8 +48,6 @@
 
 (in-package :gx)
 
-(export 'subproperty)
-
 (eval-when (:execute :load-toplevel :compile-toplevel)
   (setf (uri-namedspace-package (set-uri-namedspace "http://www.w3.org/2001/XMLSchema#"))
     (find-package :xsd))

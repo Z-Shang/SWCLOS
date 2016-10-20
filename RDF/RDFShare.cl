@@ -28,11 +28,12 @@
 
 (in-package :gx)
 
-(export '(*entity-decls* NameStartChar-p NameChar-p NCNameStartChar-p NCNameChar-p
-           make-unique-nodeID
-           parse-iri read-Eq
-           get-uri-namedspace uri-namedspace
-           comment-p))
+(eval-when (:compile-toplevel :load-toplevel :execute)
+  (export '(*entity-decls* NameStartChar-p NameChar-p NCNameStartChar-p NCNameChar-p
+	    make-unique-nodeID
+	    parse-iri read-Eq
+	    get-uri-namedspace uri-namedspace
+	    comment-p)))
 
 (declaim (inline %read-Name %read-NCName %read-Nmtoken %read-EncName 
                  NameStartChar-p NCNameStartChar-p NameChar-p NCNameChar-p EncName-p CDStart-p

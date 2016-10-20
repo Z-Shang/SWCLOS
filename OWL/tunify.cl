@@ -15,7 +15,8 @@
 
 (in-package :gx)
 
-(export '(+no-bindings+ subst-bindings unify))
+(eval-when (:compile-toplevel :load-toplevel :execute)
+  (export '(+no-bindings+ subst-bindings unify)))
 
 (defconstant +fail+ nil
   "Indicates unification failure")

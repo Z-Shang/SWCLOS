@@ -55,9 +55,10 @@
 
 (in-package :gx)
 
-(export '(|rdfs:Resource| metaRDFSclass rdfsClass *reify-p*
-          nodeID? nodeID2symbol mclasses))
-(export '(property? subPropertyOf class-direct-instances))
+(eval-when (:compile-toplevel :load-toplevel :execute)
+  (export '(|rdfs:Resource| metaRDFSclass rdfsClass *reify-p*
+	    nodeID? nodeID2symbol mclasses
+	    property? subPropertyOf class-direct-instances)))
 
 (eval-when (:compile-toplevel :load-toplevel :execute)
   (defmethod validate-superclass ((class rdf-node)

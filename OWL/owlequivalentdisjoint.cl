@@ -22,8 +22,6 @@
 
 (in-package :gx)
 
-(export 'owl-same-p)
-
 ;;;
 ;;;; Equivalency as Class
 ;;;

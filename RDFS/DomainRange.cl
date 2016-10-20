@@ -27,8 +27,9 @@
 
 (in-package :gx)
 
-(export '(domain-value get-domain collect-domains domainp rangep range-value get-range collect-ranges
-           *autoepistemic-local-closed-world*))
+(eval-when (:compile-toplevel :load-toplevel :execute)
+  (export '(domain-value get-domain collect-domains domainp rangep range-value get-range collect-ranges
+	    *autoepistemic-local-closed-world*)))
 
 (eval-when (:execute :load-toplevel :compile-toplevel)
   (setf (uri-namedspace-package (set-uri-namedspace "http://www.w3.org/2001/XMLSchema#"))

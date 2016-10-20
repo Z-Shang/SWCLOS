@@ -12,7 +12,8 @@
 
 (in-package :gx)
 
-(export 'subsumed-p)
+(eval-when (:compile-toplevel :load-toplevel :execute)
+  (export 'subsumed-p))
 
 ;;;
 ;;;; Subsumption 

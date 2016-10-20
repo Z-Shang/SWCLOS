@@ -22,12 +22,13 @@
 ;;; ==================================================================================
 
 (eval-when (:execute :load-toplevel :compile-toplevel)
-  (defpackage :gx
-    (:export get-triple-uri write-triple write-nt))
   (require :gxutils)
   )
 
 (in-package :gx)
+
+(eval-when (:compile-toplevel :load-toplevel :execute)
+  (export '(get-triple-uri write-triple write-nt)))
 
 ;;
 ;; N-Triples Writer

@@ -21,7 +21,8 @@
 
 (in-package :gx)
 
-(export '(quiet-warning-handler with-quiet-warnings))
+(eval-when (:compile-toplevel :load-toplevel :execute)
+  (export '(quiet-warning-handler with-quiet-warnings)))
 
 ;; These coding is from ANSI Common Lisp manual.
 (defvar *all-quiet* nil)

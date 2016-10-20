@@ -12,7 +12,8 @@
 
 (in-package :gx)
 
-(export 'variable?)
+(eval-when (:compile-toplevel :load-toplevel :execute)
+  (export 'variable?))
 
 ;;.............................................................................................
 ;;

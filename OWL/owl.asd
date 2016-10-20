@@ -81,8 +81,8 @@
    (:file "owlequivalentdisjoint" :depends-on ())
    (:file "NNF"                   :depends-on ())
    (:file "tunify"                :depends-on ())
-   (:file "subsume"               :depends-on ())
-   (:file "OWL"                   :depends-on ())
+   (:file "subsume"               :depends-on ("NNF" "tunify"))
+   (:file "OWL"                   :depends-on ("subsume"))
    )
 )
 
