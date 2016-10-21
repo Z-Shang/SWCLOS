@@ -85,7 +85,7 @@
       (declare (ignore stream) (optimize (speed 3) (safety 1)))
       (xpush char)
       (decf *pos*)
-      (when (char= char #xA) (decf *line-number*))
+      (when (char= char (code-char #xA)) (decf *line-number*))
       char)
     (defun putback-pattern (pattern stream)
       (declare (ignore stream) (optimize (speed 3) (safety 1)))

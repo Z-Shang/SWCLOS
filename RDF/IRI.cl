@@ -271,7 +271,7 @@ it must be escaped for gen-delims characters except #\: and #\@. In this version
 
 (defmethod iri ((thing t))
   "signals an error."
-  (error "Cannot coerce ~S to a gx:iri"))
+  (error "Cannot coerce ~S to a gx:iri" thing))
 
 ;;;
 ;;; To list all iris for resource, call <list-all-entity-uris>. See gxutils module.

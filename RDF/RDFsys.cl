@@ -29,7 +29,8 @@
   (:module :rdfshare     "RDFShare"     (:load-before-compile :rdfspackages :rdfio :namespace))
   (:module :rdfparser    "RdfParser"    (:load-before-compile :rdfspackages :namespace :rdfshare))
   (:module :rdfform      "RdfReader"    (:load-before-compile :rdfspackages :rdfparser))
-  (:module :rdfnode      "node"         (:load-before-compile :rdfspackages :iri))
+  (:module :rdfnode0     "node0"        (:load-before-compile :rdfspackages :iri))
+  (:module :rdfnode      "node "        (:load-before-compile :rdfspackages :rdfnode0))
   )
 
 (format t "~%;;To recompile, execute these forms:~%~s~%"

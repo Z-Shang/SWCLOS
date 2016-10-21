@@ -108,7 +108,7 @@
 ;;;
 ;;; Delay mechanism is copied from ``On Lisp'' by Paul Graham.
 
-(defconstant unforced (gensym))
+(defvar unforced (gensym))
 
 (defstruct delay forced closure)
 
