@@ -101,7 +101,6 @@ rdfs:|Resource|.")
   "If <initargs> include non-keyword indicators for slot initarg or include a property name as slot name, 
     then returns Property-direct-slot-definition or OwlProperty-direct-slot-definition metaobject."
   ;; this code is shared by OWL.
-  (declare (optimize (speed 3) (safety 0)))
   (if (keywordp (car (getf initargs :initargs))) (call-next-method)
     (case (getf initargs :name)
       ((rdf:|about| rdf:|ID| xml:lang) (call-next-method))
@@ -194,7 +193,7 @@ rdfs:|Resource|.")
 #+lispworks
 (defmethod clos::compute-effective-slot-definition-initargs ((class rdfs:|Class|) name direct-slotds)
   "see above"
-  (declare (optimize (speed 3) (safety 0)) (ignore name))
+  (declare (ignore name))
   (let ((initargs (call-next-method)))
     (cond ((member-if #'property-direct-slotd-p direct-slotds)
            ;; if a slotd is property slotd, add subject-type option.
@@ -207,7 +206,6 @@ rdfs:|Resource|.")
 
 (defmethod effective-slot-definition-class ((class rdfs:|Class|) &rest initargs)
   "see above"
-  (declare (optimize (speed 3) (safety 0)))
   (cond ((member :subject-type initargs)
          (find-class 'Property-effective-slot-definition))
         (t (call-next-method))))
