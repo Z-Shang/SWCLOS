@@ -44,7 +44,8 @@
   (:module :RDFShare     "RDF/RDFShare"     (:load-before-compile :packages :RdfIO :NameSpace))
   (:module :RdfParser    "RDF/RdfParser"    (:load-before-compile :packages :NameSpace :RDFShare))
   (:module :RdfReader    "RDF/RdfReader"    (:load-before-compile :packages :RdfParser))
-  (:module :node         "RDF/node"         )
+  (:module :rdfnode0     "RDF/node0"        (:load-before-compile :IRI :packages))
+  (:module :rdfnode      "RDF/node"         (:load-before-compile :rdfnode0))
   )
 
 (excl:defsystem :RDFS (:pretty-name "RDFS subsystem of SWCLOS"
