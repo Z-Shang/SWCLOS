@@ -79,7 +79,7 @@
   #+allegro
   (excl::standard-instance-p object)
   #-allegro
-  (c2cl:subtypep (c2cl:type-of object) 'standard-object))
+  (c2cl:typep object 'standard-object))
 
 ;;;
 ;;;; First of all, 
