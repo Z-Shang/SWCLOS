@@ -146,11 +146,16 @@
   ;(format t "~%~S is destroyed ..." class)
   (change-class class (find-class 'destroyed-class))
   (loop for super in (class-direct-superclasses class)
-	do (setf (class-direct-subclasses super) ; (slot-value super 'excl::direct-subclasses)
+	do (setf #-allegro (class-direct-subclasses super)
+		 #+allegro (slot-value super 'excl::direct-subclasses)
 		 (remove class (class-direct-subclasses super))))
-  ;;(setf (slot-value class 'excl::direct-superclasses) nil)
+  #+allegro
+  (setf (slot-value class 'excl::direct-superclasses) nil)
+  #-allegro
   (setf (class-direct-superclasses class) nil)
-  ;;(setf (slot-value class 'excl::class-precedence-list) nil)
+  #+allegro
+  (setf (slot-value class 'excl::class-precedence-list) nil)
+  #-ALLEGRO
   (setf (class-precedence-list class) nil)
   ;;(setf (slot-value class 'excl::slots) nil)
   (setf (class-slots class) nil)

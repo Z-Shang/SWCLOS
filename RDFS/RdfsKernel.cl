@@ -561,16 +561,16 @@ of this <instance> property."
 		    `(:initform ,(slot-definition-initform slotd)))
 		   ((symbol-equal name 'initfunction)
 		    `(:initfunction ,(slot-definition-initfunction slotd))
-		    nil)
+		    ) ; old: nil
 		   ((symbol-equal name 'readers)
 		    `(:readers ,(slot-definition-readers slotd)))
 		   ((symbol-equal name 'writers)
 		    `(:writers ,(slot-definition-writers slotd)))
 		   ((eq name 'common-lisp:type)
 		    `(:type ,(slot-definition-type slotd)))
-                   ((symbol-equal name 'allocation)
+		   ((symbol-equal name 'allocation)
 		    `(:allocation ,(slot-definition-allocation slotd))
-		    nil)
+		    ) ; old: nil
 		   ((eq name 'documentation)
 		    `(:documentation ,(slot-value slotd name)))
 		   (t
