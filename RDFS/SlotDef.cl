@@ -57,26 +57,26 @@
 ;;; this inverse link from these slot-definitions using slot-value function. Note that all slot 
 ;;; definitions on a property is booked into the property resource objects.
 
-(defparameter *default-slot-definition-class* 'gx::Property-direct-slot-definition
+(defparameter *default-slot-definition-class* 'Property-direct-slot-definition
   "Symbol 'Property-direct-slot-definition' is set to this parameter in RDF. This value is overwritten 
 by OWL module. This value directs the default class for slot definition. See 
 <direct-slot-definition-class> method in RDFboot module.")
 
-(defclass gx::Property-direct-slot-definition (standard-direct-slot-definition)
+(defclass Property-direct-slot-definition (standard-direct-slot-definition)
   ((subject-type :initarg :subject-type :accessor slot-definition-subject-type))
   (:documentation "defines a subject-type option."))
-(defclass gx::Property-effective-slot-definition (standard-effective-slot-definition)
+(defclass Property-effective-slot-definition (standard-effective-slot-definition)
   ((subject-type :initarg :subject-type :accessor slot-definition-subject-type))
   (:documentation "An instance of this class has a subject-type option in which a class of 
 subject in triple is stored."))
 
-(defclass OwlProperty-direct-slot-definition (gx::Property-direct-slot-definition)
+(defclass OwlProperty-direct-slot-definition (Property-direct-slot-definition)
   ((maxcardinality :initarg :maxcardinality :initform () 
                    :accessor slot-definition-maxcardinality)
    (mincardinality :initarg :mincardinality :initform () 
                    :accessor slot-definition-mincardinality))
   (:documentation "defines a max and min cardinality options."))
-(defclass OwlProperty-effective-slot-definition (gx::Property-effective-slot-definition)
+(defclass OwlProperty-effective-slot-definition (Property-effective-slot-definition)
   ((maxcardinality :initarg :maxcardinality :initform () 
                    :accessor slot-definition-maxcardinality)
    (mincardinality :initarg :mincardinality :initform () 
@@ -91,14 +91,14 @@ which work as the constraint for settable number of values."))
 (defun property-direct-slotd-p (slotd)
   "returns true if <slotd> is an instance of Property-direct-slot-definition."
   (declare (inline))
-  (or (eql (class-name (class-of slotd)) 'gx::Property-direct-slot-definition)
-      (c2cl:typep slotd 'gx::Property-direct-slot-definition)))
+  (or (eql (class-name (class-of slotd)) 'Property-direct-slot-definition)
+      (c2cl:typep slotd 'Property-direct-slot-definition)))
 
 (defun property-effective-slotd-p (slotd)
   "returns true if <slotd> is an instance of Property-effective-slot-definition."
   (declare (inline))
-  (or (eq (class-name (class-of slotd)) 'gx::Property-effective-slot-definition)
-      (c2cl:typep slotd 'gx::Property-effective-slot-definition)))
+  (or (eq (class-name (class-of slotd)) 'Property-effective-slot-definition)
+      (c2cl:typep slotd 'Property-effective-slot-definition)))
 
 (defun owl-property-direct-slotd-p (slotd)
   "returns true if <slotd> is an instance of OwlProperty-direct-slot-definition."
@@ -152,7 +152,7 @@ which work as the constraint for settable number of values."))
 ;; See also <slot-definition-type> before method in GxType module.
 |#
 #|
-(defmethod shared-initialize :after ((slotd gx::Property-direct-slot-definition) slot-names
+(defmethod shared-initialize :after ((slotd Property-direct-slot-definition) slot-names
                                       &key (name nil) (type t typep))
   "The <type> value is set in the primary method of this method.
    However, this after method makes sure the most specific concepts are set among given value <type> 
@@ -201,7 +201,7 @@ which work as the constraint for settable number of values."))
 ;;; is stored into slotd slot of the property. The following method do it.
 
 ;; This is also invoked for OwlProperty-direct-slot-definition
-(defmethod shared-initialize :after ((slotd gx::Property-effective-slot-definition)  slot-names
+(defmethod shared-initialize :after ((slotd Property-effective-slot-definition)  slot-names
                                       &key (name nil))
   "When the first definition of <slotd>, updates the value of slotds slot in the property. Namely, 
    the old relevant slotd in slotds of the property is removed, and this <slotd> is added into 
@@ -248,7 +248,7 @@ which work as the constraint for settable number of values."))
 ;;;
 ;;;; Slot Definition for owl:oneOf 
 ;;;
-;;; Note that the slot definition for owl:oneOf is an instance of <gx::Property-effective-slot-definition>
+;;; Note that the slot definition for owl:oneOf is an instance of <Property-effective-slot-definition>
 ;;; rather than <OwlProperty-direct-slot-definition>. It depends on method <direct-slot-definition-class> 
 ;;; and rdfs:Class.
 

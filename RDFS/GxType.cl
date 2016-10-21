@@ -1266,7 +1266,7 @@ A subclass of this class is a metaclass.")
                           (substitute resource rsc classes)))))
           (t (most-specific-concepts-for-slotd-type-1 classes)))))
 #|
-(defmethod slot-definition-type :before ((slotd gx::Property-direct-slot-definition))
+(defmethod slot-definition-type :before ((slotd Property-direct-slot-definition))
   "daemon for type in slotd, because it can be refined after the first creation."
   (declare (optimize (speed 3) (safety 0)))
   (let ((type (slot-value slotd 'excl::type)))
@@ -1290,7 +1290,7 @@ A subclass of this class is a metaclass.")
               ((and (c2cl:subtypep type MSCs) (c2cl:subtypep MSCs type)) type)
               (t (setf (slot-value slotd 'excl::type) (mkatom MSCs))))))))
 
-(defmethod slot-definition-type :before ((slotd gx::Property-effective-slot-definition))
+(defmethod slot-definition-type :before ((slotd Property-effective-slot-definition))
   "daemon for type in slotd, because it can be refined after the first creation."
   (declare (optimize (speed 3) (safety 0)))
   (let ((type (slot-value slotd 'excl::type)))

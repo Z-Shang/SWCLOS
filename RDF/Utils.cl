@@ -317,6 +317,10 @@ but optimized for vectors."
     #-(or allegro lispworks sbcl clisp cmu) progn
     ,@body))
 
+(declare (inline symbol-equal))
+(defun symbol-equal (sym1 sym2)
+  (string-equal (symbol-name sym1) (symbol-name sym2)))
+
 ;; End of module
 ;; --------------------------------------------------------------------
 ;;;

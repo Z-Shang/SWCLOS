@@ -1472,7 +1472,7 @@
 
 (defun collect-owl-role-name-if (test obj)
   (loop for slotd in (class-slots (class-of obj))
-      when (and (c2cl:typep slotd 'gx::Property-effective-slot-definition)
+      when (and (c2cl:typep slotd 'Property-effective-slot-definition)
                 (funcall test (symbol-value (name slotd))))
       collect (name slotd)))
 

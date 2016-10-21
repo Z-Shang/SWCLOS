@@ -115,16 +115,16 @@ rdfs:|Resource|.")
                  owl:|equivalentProperty| owl:|equivalentClass| 
                  owl:|complementOf| owl:|disjointWith|
                  owl:|inverseOf|)           ; Note owl:|inverseOf| is an instance of rdf:Property
-       (find-class 'gx::Property-direct-slot-definition))
+       (find-class 'Property-direct-slot-definition))
       (otherwise
        (cond ((property? (getf initargs :name))
               (let* ((prop (symbol-value (getf initargs :name)))
                      (domains (and (slot-boundp prop 'rdfs:|domain|) (slot-value prop 'rdfs:|domain|))))
                 (cond ((and (consp domains)
                             (member 'owl:|Restriction| domains :key #'name))
-                       (find-class 'gx::Property-direct-slot-definition))
+                       (find-class 'Property-direct-slot-definition))
                       ((and domains (eq (class-name domains) 'owl:|Restriction|)
-                       (find-class 'gx::Property-direct-slot-definition)))
+                       (find-class 'Property-direct-slot-definition)))
                       ((and (find-class 'owl:|ObjectProperty| nil) (cl:typep prop 'owl:|ObjectProperty|))
                        (find-class 'OwlProperty-direct-slot-definition))
                       (t (find-class *default-slot-definition-class*)))))
@@ -209,7 +209,7 @@ rdfs:|Resource|.")
   "see above"
   (declare (optimize (speed 3) (safety 0)))
   (cond ((member :subject-type initargs)
-         (find-class 'gx::Property-effective-slot-definition))
+         (find-class 'Property-effective-slot-definition))
         (t (call-next-method))))
 
 ;;;; Hierarchy and Relation around Property
