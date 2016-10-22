@@ -24,35 +24,32 @@
                  :device (pathname-device *load-truename*)
                  :directory (pathname-directory *load-truename*)))
 
-(setf (logical-pathname-translations "SWCLOS")
-    `(("**;*.*"
-       ,(make-pathname
-         :host (pathname-host *swclos-directory*)
-         :device (pathname-device *swclos-directory*)
-         :directory (append (pathname-directory *swclos-directory*)
-                            (list :wild-inferiors))
-         :name :wild
-         :type :wild
-         ))))
+(eval-when (:execute)
+  (setf (logical-pathname-translations "SWCLOS")
+        `(("**;*.*"
+           ,(make-pathname
+              :host (pathname-host *swclos-directory*)
+              :device (pathname-device *swclos-directory*)
+              :directory (append (pathname-directory *swclos-directory*)
+                                 (list :wild-inferiors))
+              :name :wild
+              :type :wild)))))
 
-(unless (asdf:find-system "swclos.owl" nil)
-  (defvar *owl-directory*
-    (merge-pathnames
-      (make-pathname
-        :directory (append (pathname-directory *swclos-directory*)
-                           (list "OWL")))
-      *swclos-directory*))
+(defvar *owl-directory*
+  (merge-pathnames (make-pathname :directory (append (pathname-directory *swclos-directory*)
+                                                     (list "OWL")))
+                   *swclos-directory*))
+
+(eval-when (:execute)
   (setf (logical-pathname-translations "OWL")
-      `(("**;*.*"
-         ,(make-pathname
-           :host (pathname-host *owl-directory*)
-           :device (pathname-device *owl-directory*)
-           :directory (append (pathname-directory *owl-directory*)
-                              (list :wild-inferiors))
-           :name :wild
-           :type :wild
-           ))))
-  (load "OWL:owl.asd"))
+        `(("**;*.*"
+           ,(make-pathname
+              :host (pathname-host *owl-directory*)
+              :device (pathname-device *owl-directory*)
+              :directory (append (pathname-directory *owl-directory*)
+                                 (list :wild-inferiors))
+              :name :wild
+              :type :wild)))))
 
 (defsystem :swclos
     :name "SWCLOS"
@@ -62,13 +59,50 @@
   :licence "SWCLOS"
   :description "SWCLOS is an OWL Full processor on top of CLOS."
   :long-description "This code is written at Galaxy Express Corporation, Japan, for the realization of the MEXT IT Program in Japan, and is maintained by Seiji Koide."
-  :depends-on (puri flexi-streams closer-mop named-readtables
-	       "swclos.owl")
-  :in-order-to ((compile-op (load-op "swclos.owl"))  
-                (load-op (load-op "swclos.owl")))
+  :depends-on (puri flexi-streams closer-mop named-readtables)
   :default-component-class cl-source-file.cl
   :components
-  ((:module "ntriple"
+  ((:module "RDF"
+            :components
+            ((:file "packages")
+             (:file "Utils"        :depends-on ("packages"))
+             (:file "RdfIO"        :depends-on ("packages"))
+             (:file "IRI"          :depends-on ("packages"))
+             (:file "Xml"          :depends-on ("packages"))
+             (:file "rdferror"     :depends-on ("packages" "Utils"))
+             (:file "NameSpace"    :depends-on ("packages" "IRI"))
+             (:file "Literal"      :depends-on ("packages" "Utils" "Xml"))
+             (:file "RDFShare"     :depends-on ("packages" "RdfIO" "NameSpace"))
+             (:file "RdfParser"    :depends-on ("packages" "NameSpace" "RDFShare"))
+             (:file "RdfReader"    :depends-on ("packages" "RdfParser"))
+             (:file "node0"        :depends-on ("packages" "IRI"))
+             (:file "node"         :depends-on ("node0"))))
+   (:module "RDFS" :depends-on ("RDF")
+            :components
+            ((:file "SlotDef")
+             (:file "RDFboot0"     :depends-on ("SlotDef"))
+             (:file "RDFboot1"     :depends-on ("RDFboot0"))
+             (:file "RDFboot"      :depends-on ("RDFboot1"))
+             (:file "DomainRange"  :depends-on ("RDFboot"))
+             (:file "RdfsKernel"   :depends-on ("SlotDef" "RDFboot"))
+             (:file "GxType0"      :depends-on ("SlotDef" "RDFboot"))
+             (:file "GxType"       :depends-on ("GxType0"))
+             (:file "RdfsObjects"  :depends-on ("RDFboot" "GxType"))
+             (:file "GxForwardRef" :depends-on ("GxType" "RdfsObjects" "DomainRange" "RdfsKernel"))
+             (:file "RdfsCore"     :depends-on ("DomainRange" "RdfsObjects" "RdfsKernel"))
+             (:file "gxutils"      :depends-on ("RdfsCore"))
+             (:file "rdfwriter"    :depends-on ("gxutils" "GxForwardRef"))))
+   (:module "OWL" :depends-on ("RDFS")
+            :components
+            ((:file "owlerror")
+             (:file "owlkernel")
+             (:file "owlsamedifferent")
+             (:file "owlequivalentdisjoint")
+             (:file "NNF")
+             (:file "tunify")
+             (:file "subsume"      :depends-on ("NNF" "tunify"))
+             (:file "OWL"          :depends-on ("subsume"))))
+   (:module "ntriple" :depends-on ("RDF" "RDFS" "OWL")
             :components
             ((:file "Ntriple")
              (:file "NTparser")
@@ -78,14 +112,8 @@
 (format t "~%=========== System Description ================")
 (describe (asdf:find-system :swclos))
 (format t "===============================================~%")
-(format t "~%;;To compile, execute these forms:~%~s or~%~s or~%~s or~%~s"
-  '(asdf:operate 'asdf:compile-op :swclos.rdf)
-  '(asdf:operate 'asdf:compile-op :swclos.rdfs)
-  '(asdf:operate 'asdf:compile-op :swclos.owl)
+(format t "~%;;To compile, execute these forms:~%~s"
   '(asdf:operate 'asdf:compile-op :swclos))
 
-(format t "~%;;To load, execute these forms:~%~s or~%~s or~%~s or~%~s"
-  '(asdf:operate 'asdf:load-op :swclos.rdf)
-  '(asdf:operate 'asdf:load-op :swclos.rdfs)
-  '(asdf:operate 'asdf:load-op :swclos.owl)
+(format t "~%;;To load, execute these forms:~%~s"
   '(asdf:operate 'asdf:load-op :swclos))
