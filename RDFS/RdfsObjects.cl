@@ -217,7 +217,6 @@
 (reinitialize-instance rdfs:|label| 
                        'rdf:|type| rdf:|Property|
                        'rdfs:|label| "label"
-                       'rdf:|type| rdf:|Property|
                        'rdfs:|comment| "A human-readable name for the subject."
                        'rdf:|about| "http://www.w3.org/2000/01/rdf-schema#label"
                        'rdfs:|isDefinedBy| (iri "http://www.w3.org/2000/01/rdf-schema#")
@@ -230,7 +229,6 @@
 (reinitialize-instance rdfs:|domain|
                        'rdf:|type| rdf:|Property|
                        'rdfs:|label| "domain"
-                       'rdf:|type| rdf:|Property|
                        'rdfs:|comment| "A domain of the subject property."
                        'rdf:|about| "http://www.w3.org/2000/01/rdf-schema#domain"
                        'rdfs:|isDefinedBy| (iri "http://www.w3.org/2000/01/rdf-schema#")
@@ -243,7 +241,6 @@
 (reinitialize-instance rdfs:|range|
                        'rdf:|type| rdf:|Property|
                        'rdfs:|label| "range"
-                       'rdf:|type| rdf:|Property|
                        'rdfs:|comment| "A range of the subject property."
                        'rdf:|about| "http://www.w3.org/2000/01/rdf-schema#range"
                        'rdfs:|isDefinedBy| (iri "http://www.w3.org/2000/01/rdf-schema#")
@@ -256,7 +253,6 @@
 (reinitialize-instance rdfs:|comment|
                        'rdf:|type| rdf:|Property|
                        'rdfs:|label| "comment"
-                       'rdf:|type| rdf:|Property|
                        'rdfs:|comment| "A description of the subject resource."
                        'rdf:|about| "http://www.w3.org/2000/01/rdf-schema#comment"
                        'rdfs:|isDefinedBy| (iri "http://www.w3.org/2000/01/rdf-schema#")
@@ -269,7 +265,6 @@
 (reinitialize-instance rdfs:|subClassOf|
                        'rdf:|type| rdf:|Property|
                        'rdfs:|label| "subClassOf"
-                       'rdf:|type| rdf:|Property|
                        'rdfs:|comment| "The subject is a subclass of a class."
                        'rdf:|about| "http://www.w3.org/2000/01/rdf-schema#subClassOf"
                        'rdfs:|isDefinedBy| (iri "http://www.w3.org/2000/01/rdf-schema#")
@@ -282,7 +277,6 @@
 (reinitialize-instance rdfs:|subPropertyOf|
                        'rdf:|type| rdf:|Property|
                        'rdfs:|label| "subPropertyOf"
-                       'rdf:|type| rdf:|Property|
                        'rdfs:|comment| "The subject is a subproperty of a property."
                        'rdf:|about| "http://www.w3.org/2000/01/rdf-schema#subPropertyOf"
                        'rdfs:|isDefinedBy| (iri "http://www.w3.org/2000/01/rdf-schema#")
@@ -292,7 +286,7 @@
                    (iri (slot-value (symbol-value 'rdfs:|subPropertyOf|) 'rdf:|about|))))
   (symbol-value 'rdfs:|subPropertyOf|))
 
-(defparameter rdfs:|seeAlso|
+(defvar rdfs:|seeAlso|
   (make-instance 'rdf:|Property|
     :name 'rdfs:|seeAlso|
     'rdf:|type| rdf:|Property|
@@ -321,7 +315,7 @@
                    (iri (slot-value (symbol-value 'rdfs:|isDefinedBy|) 'rdf:|about|))))
   (symbol-value 'rdfs:|isDefinedBy|))
 
-(defparameter rdf:|type|
+(defvar rdf:|type|
   (make-instance 'rdf:|Property|
     :name 'rdf:|type|
     'rdf:|type| rdf:|Property|
@@ -337,7 +331,7 @@
   (symbol-value 'rdf:|type|))
 
 ;===========================================================================================
-(defparameter rdf:|predicate|
+(defvar rdf:|predicate|
   (make-instance 'rdf:|Property|
     :name 'rdf:|predicate|
     'rdf:|type| rdf:|Property|
@@ -351,7 +345,7 @@
                    (iri (slot-value (symbol-value 'rdf:|predicate|) 'rdf:|about|))))
   (symbol-value 'rdf:|predicate|))
 
-(defparameter rdf:|subject|
+(defvar rdf:|subject|
   (make-instance 'rdf:|Property|
     :name 'rdf:|subject|
     'rdf:|type| rdf:|Property|
@@ -365,7 +359,7 @@
                    (iri (slot-value (symbol-value 'rdf:|subject|) 'rdf:|about|))))
   (symbol-value 'rdf:|subject|))
 
-(defparameter rdf:|object|
+(defvar rdf:|object|
   (make-instance 'rdf:|Property|
     :name 'rdf:|object|
     'rdf:|type| rdf:|Property|
@@ -379,7 +373,7 @@
                    (iri (slot-value (symbol-value 'rdf:|object|) 'rdf:|about|))))
   (symbol-value 'rdf:|object|))
 
-(defparameter rdf:|Statement|
+(defvar rdf:|Statement|
   (defclass rdf:|Statement| (rdfs:|Resource|)
     ((name :initarg :name :initform ())
      (rdf:|subject| :initarg :subject :accessor rdf:|subject|)
@@ -480,7 +474,7 @@ An RDF statement is the statement made by a token of an RDF triple.")
 ;;; Note that excl:sub-subtypep works well on the following datatype classes
 ;;;
 
-(defparameter xsd:|anySimpleType|
+(defvar xsd:|anySimpleType|
   (ensure-class-using-class () 'xsd:|anySimpleType| 
                                 :direct-superclasses '(rdf:|XMLLiteral|)
                                 :form '(cl:or xsd:|boolean| xsd:|anyURI| xsd:|string| xsd:|float| xsd:|double| xsd:|decimal|)
@@ -496,7 +490,7 @@ An RDF statement is the statement made by a token of an RDF triple.")
                    (iri (slot-value (symbol-value 'xsd:|anySimpleType|) 'rdf:|about|))))
   (symbol-value 'xsd:|anySimpleType|))
 
-(defparameter xsd:|decimal|
+(defvar xsd:|decimal|
   (ensure-class-using-class () 'xsd:|decimal| 
                                 :direct-superclasses '(xsd:|anySimpleType|)
                                 :form 'cl:rational
@@ -512,7 +506,7 @@ An RDF statement is the statement made by a token of an RDF triple.")
                    (iri (slot-value (symbol-value 'xsd:|decimal|) 'rdf:|about|))))
   (symbol-value 'xsd:|decimal|))
 
-(defparameter xsd:|integer|
+(defvar xsd:|integer|
   (ensure-class-using-class () 'xsd:|integer| 
                                 :direct-superclasses '(xsd:|decimal|)
                                 :form 'cl:integer
@@ -529,7 +523,7 @@ An RDF statement is the statement made by a token of an RDF triple.")
                    (iri (slot-value (symbol-value 'xsd:|integer|) 'rdf:|about|))))
   (symbol-value 'xsd:|integer|))
 
-(defparameter xsd:|nonPositiveInteger|
+(defvar xsd:|nonPositiveInteger|
   (ensure-class-using-class () 'xsd:|nonPositiveInteger| 
                                 :direct-superclasses '(xsd:|integer|)
                                 :form '(cl:integer cl:* 0)
@@ -545,7 +539,7 @@ An RDF statement is the statement made by a token of an RDF triple.")
                    (iri (slot-value (symbol-value 'xsd:|nonPositiveInteger|) 'rdf:|about|))))
   (symbol-value 'xsd:|nonPositiveInteger|))
 
-(defparameter xsd:|negativeInteger|
+(defvar xsd:|negativeInteger|
   (ensure-class-using-class () 'xsd:|negativeInteger| 
                                 :direct-superclasses '(xsd:|nonPositiveInteger|)
                                 :form '(cl:integer cl:* -1)
@@ -561,7 +555,7 @@ An RDF statement is the statement made by a token of an RDF triple.")
                    (iri (slot-value (symbol-value 'xsd:|negativeInteger|) 'rdf:|about|))))
   (symbol-value 'xsd:|negativeInteger|))
 
-(defparameter xsd:|long|
+(defvar xsd:|long|
   (ensure-class-using-class () 'xsd:|long| 
                                 :direct-superclasses '(xsd:|integer|)
                                 :form '(cl:signed-byte 64)
@@ -577,7 +571,7 @@ An RDF statement is the statement made by a token of an RDF triple.")
                    (iri (slot-value (symbol-value 'xsd:|long|) 'rdf:|about|))))
   (symbol-value 'xsd:|long|))
 
-(defparameter xsd:|int|
+(defvar xsd:|int|
   (ensure-class-using-class () 'xsd:|int| 
                                 :direct-superclasses '(xsd:|long|)
                                 :form '(cl:signed-byte 32)
@@ -593,7 +587,7 @@ An RDF statement is the statement made by a token of an RDF triple.")
                    (iri (slot-value (symbol-value 'xsd:|int|) 'rdf:|about|))))
   (symbol-value 'xsd:|int|))
 
-(defparameter xsd:|short|
+(defvar xsd:|short|
   (ensure-class-using-class () 'xsd:|short| 
                                 :direct-superclasses '(xsd:|int|)
                                 :metaclass 'rdfs:|Datatype|)
@@ -608,7 +602,7 @@ An RDF statement is the statement made by a token of an RDF triple.")
                    (iri (slot-value (symbol-value 'xsd:|short|) 'rdf:|about|))))
   (symbol-value 'xsd:|short|))
 
-(defparameter xsd:|byte|
+(defvar xsd:|byte|
   (ensure-class-using-class () 'xsd:|byte| 
                                 :direct-superclasses '(xsd:|short|)
                                 :form '(cl:signed-byte 8)
@@ -624,7 +618,7 @@ An RDF statement is the statement made by a token of an RDF triple.")
                    (iri (slot-value (symbol-value 'xsd:|byte|) 'rdf:|about|))))
   (symbol-value 'xsd:|byte|))
 
-(defparameter xsd:|nonNegativeInteger|
+(defvar xsd:|nonNegativeInteger|
   (ensure-class-using-class () 'xsd:|nonNegativeInteger| 
                                 :direct-superclasses '(xsd:|integer|)
                                 :form '(cl:integer 0 cl:*)
@@ -640,7 +634,7 @@ An RDF statement is the statement made by a token of an RDF triple.")
                    (iri (slot-value (symbol-value 'xsd:|nonNegativeInteger|) 'rdf:|about|))))
   (symbol-value 'xsd:|nonNegativeInteger|))
 
-(defparameter xsd:|positiveInteger|
+(defvar xsd:|positiveInteger|
   (ensure-class-using-class () 'xsd:|positiveInteger| 
                                 :direct-superclasses '(xsd:|nonNegativeInteger|)
                                 :form '(cl:integer 1 cl:*)
@@ -656,7 +650,7 @@ An RDF statement is the statement made by a token of an RDF triple.")
                    (iri (slot-value (symbol-value 'xsd:|positiveInteger|) 'rdf:|about|))))
   (symbol-value 'xsd:|positiveInteger|))
 
-(defparameter xsd:|unsignedLong|
+(defvar xsd:|unsignedLong|
   (ensure-class-using-class () 'xsd:|unsignedLong| 
                                 :direct-superclasses '(xsd:|nonNegativeInteger|)
                                 :form '(cl:unsigned-byte 64)
@@ -672,7 +666,7 @@ An RDF statement is the statement made by a token of an RDF triple.")
                    (iri (slot-value (symbol-value 'xsd:|unsignedLong|) 'rdf:|about|))))
   (symbol-value 'xsd:|unsignedLong|))
 
-(defparameter xsd:|unsignedInt|
+(defvar xsd:|unsignedInt|
   (ensure-class-using-class () 'xsd:|unsignedInt| 
                                 :direct-superclasses '(xsd:|unsignedLong|)
                                 :form '(cl:unsigned-byte 32)
@@ -688,7 +682,7 @@ An RDF statement is the statement made by a token of an RDF triple.")
                    (iri (slot-value (symbol-value 'xsd:|unsignedInt|) 'rdf:|about|))))
   (symbol-value 'xsd:|unsignedInt|))
 
-(defparameter xsd:|unsignedShort|
+(defvar xsd:|unsignedShort|
   (ensure-class-using-class () 'xsd:|unsignedShort| 
                                 :direct-superclasses '(xsd:|unsignedInt|)
                                 :form '(cl:unsigned-byte 16)
@@ -704,7 +698,7 @@ An RDF statement is the statement made by a token of an RDF triple.")
                    (iri (slot-value (symbol-value 'xsd:|unsignedShort|) 'rdf:|about|))))
   (symbol-value 'xsd:|unsignedShort|))
 
-(defparameter xsd:|unsignedByte|
+(defvar xsd:|unsignedByte|
   (ensure-class-using-class () 'xsd:|unsignedByte| 
                                 :direct-superclasses '(xsd:|unsignedShort|)
                                 :form '(cl:unsigned-byte 8)
@@ -720,13 +714,13 @@ An RDF statement is the statement made by a token of an RDF triple.")
                    (iri (slot-value (symbol-value 'xsd:|unsignedByte|) 'rdf:|about|))))
   (symbol-value 'xsd:|unsignedByte|))
 
-(defparameter xsd:|string|
+(defvar xsd:|string|
   (ensure-class-using-class () 'xsd:|string| 
                                 :direct-superclasses '(xsd:|anySimpleType|)
                                 :form 'cl:string
                                 :metaclass 'rdfs:|Datatype|)
   "xsd:|string| class object")
-(reinitialize-instance (symbol-value 'xsd:|string|)
+(reinitialize-instance xsd:|string|
                        'rdf:|type| rdfs:|Datatype|
                        'rdfs:|label| "string"
                        'rdf:|about| "http://www.w3.org/2001/XMLSchema#string"
@@ -736,7 +730,7 @@ An RDF statement is the statement made by a token of an RDF triple.")
                    (iri (slot-value (symbol-value 'xsd:|string|) 'rdf:|about|))))
   (symbol-value 'xsd:|string|))
 
-(defparameter xsd:|float|
+(defvar xsd:|float|
   (ensure-class-using-class () 'xsd:|float| 
                                 :direct-superclasses '(xsd:|anySimpleType|)
                                 :form 'cl:single-float
@@ -752,7 +746,7 @@ An RDF statement is the statement made by a token of an RDF triple.")
                    (iri (slot-value (symbol-value 'xsd:|float|) 'rdf:|about|))))
   (symbol-value 'xsd:|float|))
 
-(defparameter xsd:|double|
+(defvar xsd:|double|
   (ensure-class-using-class () 'xsd:|double| 
                                 :direct-superclasses '(xsd:|anySimpleType|)
                                 :form 'cl:double-float
@@ -768,7 +762,7 @@ An RDF statement is the statement made by a token of an RDF triple.")
                    (iri (slot-value (symbol-value 'xsd:|double|) 'rdf:|about|))))
   (symbol-value 'xsd:|double|))
 
-(defparameter xsd:|anyURI|
+(defvar xsd:|anyURI|
   (ensure-class-using-class () 'xsd:|anyURI| 
                                 :direct-superclasses '(xsd:|anySimpleType|)
                                 :form 'uri
@@ -784,7 +778,7 @@ An RDF statement is the statement made by a token of an RDF triple.")
                    (iri (slot-value (symbol-value 'xsd:|anyURI|) 'rdf:|about|))))
   (symbol-value 'xsd:|anyURI|))
 
-(defparameter xsd:|boolean|
+(defvar xsd:|boolean|
   (ensure-class-using-class () 'xsd:|boolean| 
                                 :direct-superclasses '(xsd:|anySimpleType|)
                                 :form '(cl:member xsd:|true| xsd:|false|)
@@ -800,14 +794,14 @@ An RDF statement is the statement made by a token of an RDF triple.")
                    (iri (slot-value (symbol-value 'xsd:|boolean|) 'rdf:|about|))))
   (symbol-value 'xsd:|boolean|))
 
-(defparameter xsd:|true|
+(defvar xsd:|true|
   (make-instance 'xsd:|boolean| :value t)
   "xsd:|boolean| instance")
-(defparameter xsd:|false|
+(defvar xsd:|false|
   (make-instance 'xsd:|boolean| :value nil)
   "xsd:|boolean| instance")
 
-(defparameter xsd:|duration|
+(defvar xsd:|duration|
   (ensure-class-using-class
    () 'xsd:|duration| 
    :direct-superclasses '(xsd:|anySimpleType|)
@@ -867,7 +861,7 @@ An RDF statement is the statement made by a token of an RDF triple.")
                    (iri (slot-value (symbol-value 'rdf:|List|) 'rdf:|about|))))
   (symbol-value 'rdf:|List|))
 
-(defparameter rdf:|nil|
+(defvar rdf:|nil|
   (make-instance 'rdf:|List|
     :name 'rdf:|nil|
     'rdfs:|label| "nil"
@@ -881,7 +875,7 @@ more items in it.")
                    (iri (slot-value (symbol-value 'rdf:|nil|) 'rdf:|about|))))
   (symbol-value 'rdf:|nil|))
 
-(defparameter rdf:|first|
+(defvar rdf:|first|
   (make-instance 'rdf:|Property|
     :name 'rdf:|first|
     'rdf:|type| rdf:|Property|
@@ -896,7 +890,7 @@ more items in it.")
                    (iri (slot-value (symbol-value 'rdf:|first|) 'rdf:|about|))))
   (symbol-value 'rdf:|first|))
 
-(defparameter rdf:|rest|
+(defvar rdf:|rest|
   (make-instance 'rdf:|Property|
     :name 'rdf:|rest|
     'rdf:|type| rdf:|Property|
@@ -916,7 +910,7 @@ more items in it.")
 ;; rdf:|value|
 ;;
 
-(defparameter rdf:|value|
+(defvar rdf:|value|
   (make-instance 'rdf:|Property|
     :name 'rdf:|value|
     'rdf:|type| rdf:|Property|
@@ -936,7 +930,7 @@ more items in it.")
 ;;;; Containers in RDF
 ;;; rdfs:|Container|, rdfs:|member|, rdfs:|ContainerMembershipProperty|, 
 
-(defparameter rdfs:|Container|
+(defvar rdfs:|Container|
   (defclass rdfs:|Container| (rdfs:|Resource|)
     ()
     (:metaclass rdfs:|Class|))
@@ -952,7 +946,7 @@ more items in it.")
                    (iri (slot-value (symbol-value 'rdfs:|Container|) 'rdf:|about|))))
   (symbol-value 'rdfs:|Container|))
 
-(defparameter rdfs:|member|
+(defvar rdfs:|member|
   (make-instance 'rdf:|Property|
     :name 'rdfs:|member|
     'rdf:|type| rdf:|Property|
@@ -967,7 +961,7 @@ more items in it.")
                    (iri (slot-value (symbol-value 'rdfs:|member|) 'rdf:|about|))))
   (symbol-value 'rdfs:|member|))
 
-(defparameter rdfs:|ContainerMembershipProperty|
+(defvar rdfs:|ContainerMembershipProperty|
   (defclass rdfs:|ContainerMembershipProperty| (rdf:|Property|)
     ()
     (:metaclass rdfs:|Class|))
