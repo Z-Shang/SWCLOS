@@ -121,7 +121,7 @@
 ;;; (defIndividual foo)                                     -> #<|rdfs:Resource| foo>
 ;;; (defIndividual bar)                                     -> #<|rdfs:Resource| bar>
 ;;; (rdf-equalp foo bar)                                              -> false
-;;; (let ((gx::*nonUNA* t)) (rdf-equalp foo bar))                     -> false
+;;; (let ((*nonUNA* t)) (rdf-equalp foo bar))                     -> false
 ;;; ----------------------------------------------------------------------------------
 ;;; However, if uris are bound to anonymous object, this predicate changes the result, 
 ;;; because SWCLOS retrieves the bound values by resolution, and compares two anonymous 
@@ -144,7 +144,6 @@
 
 (defun %rdf-equalp (x y)
   "this is not revolve version of rdf-equalp."
-  (declare (optimize (speed 3) (safety 0)))
   (cond ((equal x y))                      ; cl:strings, symbols, objects, and iri. If both are equal, then equal.
         ((and (numberp x) (numberp y))     ; in case of cl:number, 
          (= x y))                          ; = tests in value space, e.g., 1 and 1.0 is equal
@@ -172,7 +171,6 @@
   "returns true if <x> and <y> is equal in the semantics of RDF(S). 
    This function resolves syntactical difference among symbol, uri, and object identification.
    This function uses <rdf-graph-equalp> internally."
-  (declare (optimize (speed 3) (safety 0)))
   (cond ((%rdf-equalp x y))                                    ; same kind objects, cl:strings, cl:number, symbols, objects, and iri.
         ((and (symbolp x) (object? x) (symbolp y) (object? y))
          (rdf-equalp (symbol-value x) (symbol-value y)))
@@ -252,7 +250,6 @@ of rest member values are compared. For rdf:Seq, two member values are compared 
 cases, each value is compared with each slot name."
   ;; graph should be asyclic.
   ;; if graph structure is deeply nested, you had better memoize.
-  (declare (optimize (speed 3) (safety 0)))
   (when (equal x y) (return-from rdf-graph-equalp (values t t)))
   (cond ((and (c2cl:typep x 'rdfs:|Container|) (c2cl:typep y 'rdfs:|Container|))
          (let ((xfillers (collect-container-members x))
@@ -314,7 +311,6 @@ cases, each value is compared with each slot name."
 
 (defun owl-equalp-for-refining (x y)
   "<x> and <y> must be clos objects but may be anonymous."
-  (declare (optimize (speed 3) (safety 0)))
   (cond ((eql x y))
         ((and (datatype-p (class-of x)) (datatype-p (class-of y)))
          (and (eq (class-of x) (class-of y))
@@ -332,7 +328,6 @@ cases, each value is compared with each slot name."
         ))
 
 (defun rdf-graph-different-p (x y)
-  (declare (optimize (speed 3) (safety 0)))
   (when (equal x y) (return-from rdf-graph-different-p (values nil t)))
   (cond ((and (c2cl:typep x 'rdfs:|Container|) (c2cl:typep y 'rdfs:|Container|))
          (error "Not Yet!")
@@ -475,7 +470,6 @@ cases, each value is compared with each slot name."
 |#
 (defun disjoint-p (c d)
   "returns true if <c> and <d> are disjoint in OWL."
-  (declare (optimize (speed 3) (safety 0)))
   (cond ((eq c d) (values nil t))
         ((eq c rdfs:|Resource|) (values nil t))         ; in RDF universe
         ((eq d rdfs:|Resource|) (values nil t))
@@ -531,7 +525,8 @@ cases, each value is compared with each slot name."
                ;; implicit disjointness of datatype
                ((and (%clos-subtype-p c xsd:|anySimpleType|)
                      (%clos-subtype-p d xsd:|anySimpleType|))
-                (loop for csub in (cons c (collect-all-subs c)) with dsubs = (cons d (collect-all-subs d))
+                (loop with dsubs = (cons d (collect-all-subs d))
+		      for csub in (cons c (collect-all-subs c))
                     do (loop for dsub in dsubs
                            when (or (%clos-subtype-p csub dsub) (%clos-subtype-p dsub csub))
                            do (return-from %disjoint-p (values nil t))))
@@ -540,7 +535,7 @@ cases, each value is compared with each slot name."
                (t (values nil nil))))
         ((and (rdf-instance-p c) (rdf-instance-p d))
          ;; for transitive property, instances have subsumption
-         (if gx::*autoepistemic-local-closed-world*
+         (if *autoepistemic-local-closed-world*
              (cond ((or (subsumed-p c d) (subsumed-p d c))
                     (values nil t))
                    (t (values t t)))
@@ -603,7 +598,6 @@ cases, each value is compared with each slot name."
   "returns true if CLOS metaobject <c1> eql <c2> or <c1> is a subtype of <c2> 
    using the class precedence list (cpl) of <c1>. This is more efficient than (<subtypep> <c1> <c2>)
    when <c1> and <c2> are CLOS objects."
-  (declare (optimize (speed 3) (safety 0)))
   (cond ((eql c1 c2))
         ((eql c2 *the-class-t*))
         ((and (eql (class-of c1) rdfs:|Class|)
@@ -627,7 +621,6 @@ cases, each value is compared with each slot name."
 
 (defun %resource-subtype-p (class)
   "same as (<subtypep> <class> <rdfs:Resource>) in CLOS, but more efficient."
-  (declare (optimize (speed 3) (safety 0)))
   (cond ((eq class rdfs:|Resource|))
         ((eq class |rdfs:Resource|))
         ((class-finalized-p class)
@@ -644,7 +637,6 @@ cases, each value is compared with each slot name."
 
 (defun %rdf-class-subtype-p (class)
   "same as (<subtypep> <class> <rdfs:Class>) in CLOS, but more efficient."
-  (declare (optimize (speed 3) (safety 0)))
   (cond ((eq class rdfs:|Class|))
         ((class-finalized-p class)
          (cond ((member rdfs:|Class| (class-precedence-list class) :test #'eq) t)
@@ -738,7 +730,6 @@ A subclass of this class is a metaclass.")
    If unknown, this function returns nil."
   ;; Note that equivalent-classes and same individuals are not included (c1 c2).
   ;; If returns true, then c2 will disappear in slotd type option.
-  (declare (optimize (speed 3) (safety 0)))
   (cond ((eq c1 t) nil)          ; then c2 remains
         ((eq c2 t) t)               ; then c2 disappears
         ((equal c1 c2) nil)      ; accept list structure
@@ -789,7 +780,6 @@ A subclass of this class is a metaclass.")
 #+never
 (defun %strict-subtype-p-for-slotd-type (c1 c2)
   "<c1> and <c2> are a term from slotd type option."
-  (declare (optimize (speed 3) (safety 0)))
   (cond ((and (owl-class-p c1) (owl-class-p c2))
          (if (or (owl-equivalent-p c1 c2)
                  (owl-same-p c1 c2))
@@ -993,9 +983,9 @@ A subclass of this class is a metaclass.")
   (setq type1 (rdf-resolve type1))
   (setq type2 (rdf-resolve type2))
   (%rdf-subtypep type1 type2))
+
 (defun %rdf-subtypep (type1 type2)
   "same as rdf-subtypep but <type1> and <type2> must be an RDF object or cons."
-  (declare (optimize (speed 3) (safety 0)))
   (cond ((and (atom type1) (atom type2))
          (cond ((eq type1 type2) (values t t))
                ((and (rdf-class-p type1) (rdf-class-p type2))
@@ -1017,7 +1007,8 @@ A subclass of this class is a metaclass.")
                             ;; if unknown (nil nil) immediately return with unknown
                             (when (null val1) (return-from %rdf-subtypep (values nil val2)))))
                    (values t t))
-              (or (loop for t2 in (args type2) with known = t ; C < (A v B)  <=>  (C < A) v (C < B)
+              (or (loop with known = t
+			for t2 in (args type2) ; C < (A v B)  <=>  (C < A) v (C < B)
                       do (multiple-value-bind (val1 val2) (%rdf-subtypep type1 t2)
                            ;; if true then immediately return with true
                            (when val1 (return-from %rdf-subtypep (values t t)))
@@ -1040,7 +1031,8 @@ A subclass of this class is a metaclass.")
             (setq type1 (->nnf type1))
             (ecase (op type1)
               (and ;; => (or (%rdf-subtypep t11 type2) (%rdf-subtypep t12 type2) ...)
-               (loop for t1 in (args type1) with known = t
+               (loop with known = t
+		     for t1 in (args type1)
                    do (multiple-value-bind (val1 val2) (%rdf-subtypep t1 type2)
                         (when val1 (return-from %rdf-subtypep (values t t)))
                         (setq known (and known val2)))
@@ -1080,7 +1072,8 @@ A subclass of this class is a metaclass.")
                 (values t t))
                ((and (eq (op type1) 'not) (eq (op type2) 'or)) ; C < (A v B)  <=>  (C < A) v (C < B)
                 ;; (%rdf-subtypep type1 (or t1 t2 ...))
-                (loop for t2 in (args type2) with known = t
+                (loop with known = t
+		      for t2 in (args type2)
                     do (multiple-value-bind (val1 val2) (%rdf-subtypep type1 t2)
                          (when val1 (return-from %rdf-subtypep (values t t)))
                          (setq known (and known val2)))
@@ -1095,7 +1088,8 @@ A subclass of this class is a metaclass.")
                 (values t t))
                ((and (eq (car type1) 'and) (eq (car type2) 'not)) ; (A ^ B) < C  <=>  (A < C) v (B < C)
                 ;; (%rdf-subtypep (and t1 t2 ...) type2)
-                (loop for t1 in (cdr type1) with known = t
+                (loop with known = t
+		      for t1 in (cdr type1)
                     do (multiple-value-bind (val1 val2) (%rdf-subtypep t1 type2)
                          (when val1 (return-from %rdf-subtypep (values t t)))
                          (setq known (and known val2)))
@@ -1111,7 +1105,8 @@ A subclass of this class is a metaclass.")
                 (values t t))
                ((and (eq (op type1) 'and) (eq (op type2) 'or))
                 ;; (A ^ B) < (C v D) <=>  (A < C) v (A < D)  v  (B < C) v (B < D) 
-                (loop for t1 in (args type1) with known = t
+                (loop with known = t
+		      for t1 in (args type1)
                     do (loop for t2 in (args type2)
                            do (multiple-value-bind (val1 val2) (%rdf-subtypep t1 t2)
                                 (when val1 (return-from %rdf-subtypep (values t t)))
@@ -1119,7 +1114,8 @@ A subclass of this class is a metaclass.")
                     finally
                       (return (values nil known))))
                ((and (eq (op type1) 'and) (eq (op type2) 'and))
-                (loop for t1 in (args type1) with known = t
+                (loop with known = t
+		      for t1 in (args type1)
                     do (multiple-value-bind (val1 val2) (%rdf-subtypep t1 type2)
                          (when val1 (return-from %rdf-subtypep (values t t)))
                          (setq known (and known val2)))
@@ -1154,7 +1150,6 @@ A subclass of this class is a metaclass.")
    as <rdf-equalp> in RDF(S) module. Then, OWL module overwrites them. 
    This function allows <|rdfs:Resource|>, a temporal alternative of rdfs:Resource, and can accepts
    cons concepts as class. This function is taken from Memory Organization Package by Schank."
-  (declare (optimize (speed 3) (safety 0)))
   (when classes
     (flet ((most-specific-concepts-1 (classes)
                                      (let ((l (remove-duplicates classes
@@ -1182,7 +1177,6 @@ A subclass of this class is a metaclass.")
 (defun most-abstract-concepts (classes)
   "returns the most abstract concepts in RDF(S) semantics, or classes minus duplicates and subclasses
    of other classes in <classes>."
-  (declare (optimize (speed 3) (safety 0)))
   (flet ((most-abstract-concepts-1 (classes)
                                    (let ((l (remove-duplicates classes
                                                                :test #'(lambda (x y)
@@ -1211,7 +1205,6 @@ A subclass of this class is a metaclass.")
 
 (defun most-specific-concepts-by-superclasses (classes)
   "same as <most-specific-concepts> but uses <clos-strict-supertype-p> instead of <strict-abstp>."
-  (declare (optimize (speed 3) (safety 0)))
   (when (= 1 (length classes)) (error "Bingo!"))
   (flet ((most-specific-concepts-by-superclasses-1 (classes)
            (let ((l (remove-duplicates classes
@@ -1232,7 +1225,6 @@ A subclass of this class is a metaclass.")
 
 (defun most-specific-concepts-by-clos-supers (classes)
   "same as <most-specific-concepts> but uses <clos-strict-supertype-p> instead of <strict-abstp>."
-  (declare (optimize (speed 3) (safety 0)))
   (flet ((most-specific-concepts-by-clos-supers-1 (classes)
            (let ((l (remove-duplicates classes
                                        :test #'(lambda (x y)
@@ -1251,7 +1243,6 @@ A subclass of this class is a metaclass.")
 (defun most-specific-concepts-for-slotd-type (classes)
   "same as <most-specific-concepts> but understand forall, exists, and has in addition to subtypep.
    This is used for slot type reduction. If subtype relation is unknown, then the two remains in the list."
-  (declare (optimize (speed 3) (safety 0)))
   (flet ((most-specific-concepts-for-slotd-type-1 (classes)
            (let ((l (remove-duplicates classes
                                        :test #'(lambda (x y)
@@ -1268,7 +1259,6 @@ A subclass of this class is a metaclass.")
 #|
 (defmethod slot-definition-type :before ((slotd Property-direct-slot-definition))
   "daemon for type in slotd, because it can be refined after the first creation."
-  (declare (optimize (speed 3) (safety 0)))
   (let ((type (slot-value slotd 'excl::type)))
     (when (and (consp type)
                (case (car type)
@@ -1292,7 +1282,6 @@ A subclass of this class is a metaclass.")
 
 (defmethod slot-definition-type :before ((slotd Property-effective-slot-definition))
   "daemon for type in slotd, because it can be refined after the first creation."
-  (declare (optimize (speed 3) (safety 0)))
   (let ((type (slot-value slotd 'excl::type)))
     (when (and (consp type)
                (case (car type)
@@ -1315,27 +1304,23 @@ A subclass of this class is a metaclass.")
 
 (defun rsc-object-p (x)
   "returns true if <x> is an RDF(S) metaclass, class, instance object, and xsd typed data, and not lisp data."
-  ;(declare (optimize (speed 3) (safety 0)))
   (and (standard-instance-p x)
        (not (eq x (load-time-value (find-class 'gnode))))  ; not gnode
        (%resource-subtype-p (class-of x))))
 
 (defun owl-thing-p (obj)
   "Hook"
-  (declare (inline))
   (declare (ignore obj))
   nil)
 
 (defun rdf-class-p (x)
   "returns true if <x> is an RDF(S) metaclass and class object."
-  (declare (optimize (speed 3) (safety 0)))
   (and (standard-instance-p x)
        (cond ((eq x (load-time-value (find-class 'rdfs:|Class|)))) ; rdfs:Class
              ((%rdf-class-subtype-p (class-of x))))))
 
 (defun rdf-metaclass-p (x)
   "returns true if <x> is an RDF(S) metaclass resource object."
-  (declare (optimize (speed 3) (safety 0)))
   (and (standard-instance-p x)
        (cond ((eq x (load-time-value (find-class 'rdfs:|Class|)))) ; rdfs:Class
              ((and (%rdf-class-subtype-p (class-of x))
@@ -1344,7 +1329,6 @@ A subclass of this class is a metaclass.")
 
 (defun strict-class-p (x)
   "returns true if <x> is an RDF(S) class but not a metaclass."
-  (declare (optimize (speed 3) (safety 0)))
   (and (standard-instance-p x)
        (%rdf-class-subtype-p (class-of x))
        (not (%rdf-class-subtype-p x))))
@@ -1352,7 +1336,6 @@ A subclass of this class is a metaclass.")
 (defun rdf-instance-p (x)
   "returns true if <x> is an instance of rdfs:Resource but not rdfs:Class.
    This returns true if <x> is a lisp string, a list number, a uri."
-  (declare (optimize (speed 3) (safety 0)))
   (or (%instance-p x)
       (typecase x
         (cl:string t)
@@ -1363,10 +1346,10 @@ A subclass of this class is a metaclass.")
          (when (and (boundp x) (not (eq x (symbol-value x))))
            (%instance-p (symbol-value x))))
         (cons nil))))
+
 (defun %instance-p (x)
   "when <x> is a CLOS object, if <x> is an instance of rdfs:|Resource| but not rdfs:|Class|, this returns true, 
    otherwise nil." 
-  (declare (optimize (speed 3) (safety 0)))
   (and (standard-instance-p x)
        (%resource-subtype-p (class-of x))
        (not (%rdf-class-subtype-p (class-of x)))
@@ -1391,7 +1374,6 @@ A subclass of this class is a metaclass.")
 
 (defun %rdf-property-subtype-p (class)
   "returns true if <x> is an instance of rdf:Property. <x> must be a CLOS object."
-  (declare (optimize (speed 3) (safety 0)))
   (cond ((eq class (load-time-value (find-class 'rdf:|Property|))))
         ((not (class-finalized-p class))
          (labels ((walk-partial-cpl (c)
@@ -1440,7 +1422,8 @@ A subclass of this class is a metaclass.")
 (defun initarg= (initarg1 initarg2)
   (and (initarg-include-p initarg1 initarg2) (initarg-include-p initarg2 initarg1)))
 (defun initarg-include-p (initarg1 initarg2)
-  (loop for (role filler) on initarg1 by #'cddr with found
+  (loop with found
+	for (role filler) on initarg1 by #'cddr
       do (setq found (getf initarg2 role :unbound))
       always (equal filler found)))
 
@@ -1646,7 +1629,6 @@ A subclass of this class is a metaclass.")
   "extended typep function for Semantic Web. This function resolves the difference among 
    URI, QName, and object for parameters. Namely, if a parameter is URI or symbol, then 
    the related CLOS object is taken to test it."
-  (declare (optimize (speed 3) (safety 0)))
   (when (eq type t) (return-from typep (values t t)))
   (when (null type) (return-from typep (values nil t)))
   (when (null object) (return-from typep (values t t)))
@@ -1680,7 +1662,8 @@ A subclass of this class is a metaclass.")
             (otherwise (setq type (->nnf (cons 'and type)))))
           (if (atom type) (typep object type)   ; (and/or x) turns x through nnf
             (ecase (op type)
-              (and (loop for ty in (args type) with known = t
+              (and (loop with known = t
+			 for ty in (args type)
                        do (multiple-value-bind (v1 v2) (typep object ty)
                             (when (not v1)
                               (cond (v2 ; definite false
@@ -1690,7 +1673,8 @@ A subclass of this class is a metaclass.")
                          ;; otherwise continue loop
                        finally (return (cond (known (values t t))
                                              (t (values nil nil))))))
-              (or (loop for ty in (args type) with known = t
+              (or (loop with known = t
+			for ty in (args type)
                       do (multiple-value-bind (v1 v2) (typep object ty)
                            (when v1 ; no <t, nil>, always <t, t>
                              (return-from typep (values t t)))
@@ -1705,7 +1689,6 @@ A subclass of this class is a metaclass.")
 
 (defun %typep (object type)
   "<object> and <type> is an object in RDF universe."
-  (declare (optimize (speed 3) (safety 0)))
   (when (eq type |rdfs:Resource|) (setq type rdfs:|Resource|))
   (when (and (c2cl:typep object 'cl:string) (c2cl:subtypep (symbol-value 'rdfs:|Literal|) type))
     (return-from %typep (values t t)))
@@ -1749,7 +1732,6 @@ A subclass of this class is a metaclass.")
 (defun %typep-for-MSCs (object type)
   "<type> is a CLOS object including rdfs:|Literal| including datatypes (instances of rdf:Datatype).
    Note that this subfunction is invoked with <type> that is a CLOS class."
-  (declare (optimize (speed 3) (safety 0)))
   (assert (standard-instance-p object))
   (assert (standard-instance-p type))
   (when (eq type |rdfs:Resource|) (setq type rdfs:|Resource|))
@@ -1770,6 +1752,7 @@ A subclass of this class is a metaclass.")
 
 (defun %owl-disjoint-p (c1 c2)
   "this is defined in owlequivalentdisjoint module."
+  (declare (ignore c1 c2))
   nil)
 
 (defun disjoint-pairs-p (classes)

@@ -143,25 +143,22 @@
           (destroy old-class))))))
 
 (defun destroy (class)
-  ;(format t "~%~S is destroyed ..." class)
   (change-class class (find-class 'destroyed-class))
   (loop for super in (class-direct-superclasses class)
 	do (setf #-allegro (class-direct-subclasses super)
 		 #+allegro (slot-value super 'excl::direct-subclasses)
 		 (remove class (class-direct-subclasses super))))
   #+allegro
-  (setf (slot-value class 'excl::direct-superclasses) nil)
+  (progn
+    (setf (slot-value class 'excl::direct-superclasses) nil)
+    (setf (slot-value class 'excl::class-precedence-list) nil)
+    (setf (slot-value class 'excl::slots) nil)
+    (setf (slot-value class 'excl::wrapper) nil))
   #-allegro
-  (setf (class-direct-superclasses class) nil)
-  #+allegro
-  (setf (slot-value class 'excl::class-precedence-list) nil)
-  #-ALLEGRO
-  (setf (class-precedence-list class) nil)
-  ;;(setf (slot-value class 'excl::slots) nil)
-  (setf (class-slots class) nil)
-  #+allegro
-  (setf (slot-value class 'excl::wrapper) nil)
-  )
+  (progn ; Allegro CL's MOP doesn't have SETF methods for these APIs:
+    (setf (class-direct-superclasses class) nil)
+    (setf (class-precedence-list class) nil)
+    (setf (class-slots class) nil)))
 
 (defun most-specific-concepts-for-refining (classes)
   "This function is used for class refining for an instance. So, we treat only rigid classes.
