@@ -60,11 +60,6 @@
 	    nodeID? nodeID2symbol mclasses
 	    property? subPropertyOf class-direct-instances)))
 
-(eval-when (:compile-toplevel :load-toplevel :execute)
-  (defmethod validate-superclass ((class rdf-node)
-				  (superclass standard-class))
-    t))
-
 ;;; To be re-defined in GxType.cl
 (defun typep (obj type &optional env)
   (c2cl:typep obj type env))

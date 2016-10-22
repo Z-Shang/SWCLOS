@@ -46,6 +46,7 @@ rdfs:|Resource|."))
 (defparameter rdfs:|Class|
   (find-class 'rdfs:|Class|)
   "This is rdfs:|Class| and it is a class of all classes in RDF(S) universe.")
+
 (defparameter rdfs:|Resource|
   (find-class 'rdfs:|Resource|)
   "rdfs:|Resource| is the top class in the RDF universe, but subclass of gnode actually.")

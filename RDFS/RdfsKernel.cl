@@ -129,7 +129,7 @@
 ;;;   - domain checking and range checking to every related extensions.
 ;;;
 ;;; The rule rdfs8 indicates the default top class in triple should be rdfs:Resource.
-;;; The rule rdfs13 indicates the default data type in triple should be rdfs:Datatype.
+;;; The rule rdfs13 indicates the default data type in triple should be rdfs:Literal.
 ;;; The following methods assure rdfs8 and rdfs13 rules.
 
 #+allegro
@@ -137,7 +137,7 @@
   "Rdfs8 rule is implemented at this method."
   (list (load-time-value (find-class 'rdfs:|Resource|))))
 
-#+lispworks
+#-allegro
 (defmethod class-direct-superclasses :around ((class rdfs:|Class|))
   "Rdfs8 rule is implemented at this method."
   (or (funcall #'call-next-method class)
@@ -146,13 +146,13 @@
 #+allegro
 (defmethod excl::default-direct-superclasses ((class rdfs:|Datatype|))
   "Rdfs13 rule is implemented at this method."
-  (list (load-time-value (find-class 'rdfs:|Datatype|)))) ; old: 'rdfs:|Literal|
+  (list (load-time-value (find-class 'rdfs:|Literal|))))
 
-#+lispworks
+#-allegro
 (defmethod class-direct-superclasses :around ((class rdfs:|Datatype|))
-  "Rdfs8 rule is implemented at this method."
+  "Rdfs13 rule is implemented at this method."
   (or (funcall #'call-next-method class)
-      (list (load-time-value (find-class 'rdfs:|Datatype|)))))
+      (list (load-time-value (find-class 'rdfs:|Literal|)))))
 
 (defmethod make-instance :around ((class (eql rdfs:|Class|)) &rest initargs)
   (cond ((notany #'(lambda (cls) (c2cl:subtypep cls (load-time-value rdfs:|Resource|)))
@@ -534,11 +534,11 @@ of this <instance> property."
 (defun make-initargs-from-slotds (slotds)
   (mapcar #'make-initarg-from-slotd slotds))
 
-(defun make-initarg-from-slotd (slotd) ; TODO: buggy, not portable
+(defun make-initarg-from-slotd (slotd) ; TODO: buggy
   (loop with name
 	for facetd in (class-slots (class-of slotd))
       when (and (slot-boundp slotd (setq name (slot-definition-name facetd)))
-		 (cond ((symbol-equal name 'initform)
+		(cond ((symbol-equal name 'initform) ; old: (eq name 'excl::initform)
 		       (slot-definition-initform slotd))
 		      ((symbol-equal name 'initfunction)
 		       (slot-definition-initfunction slotd))
@@ -558,10 +558,15 @@ of this <instance> property."
 		   ((symbol-equal name 'initargs)
 		    `(:initargs ,(slot-definition-initargs slotd)))
 		   ((symbol-equal name 'initform)
-		    `(:initform ,(slot-definition-initform slotd)))
+		    #+allegro
+		    `(:initform ,(slot-definition-initform slotd))
+		    #-allegro
+		    nil)
 		   ((symbol-equal name 'initfunction)
+		    #+allegro
 		    `(:initfunction ,(slot-definition-initfunction slotd))
-		    ) ; old: nil
+		    #-allegro
+		    nil) ; this broke RdfsObject.cl loading
 		   ((symbol-equal name 'readers)
 		    `(:readers ,(slot-definition-readers slotd)))
 		   ((symbol-equal name 'writers)
@@ -569,9 +574,9 @@ of this <instance> property."
 		   ((eq name 'common-lisp:type)
 		    `(:type ,(slot-definition-type slotd)))
 		   ((symbol-equal name 'allocation)
-		    `(:allocation ,(slot-definition-allocation slotd))
-		    ) ; old: nil
-		   ((eq name 'documentation)
+		    `(:allocation ,(slot-definition-allocation slotd)))
+		   ((or (eq name 'documentation)
+			(symbol-equal name 'documentation-slot))
 		    `(:documentation ,(slot-value slotd name)))
 		   (t
 		    (let ((initargs (car (slot-definition-initargs facetd))))

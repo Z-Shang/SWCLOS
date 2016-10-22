@@ -41,7 +41,7 @@
   (setf (uri-namedspace-package (set-uri-namedspace (documentation (find-package :rdfs) t)))
     (find-package :rdfs))
   )
-(defvar *autoepistemic-local-closed-world*)
+
 ;;;
 ;;;; Unsatisfiable Error
 ;;;
