@@ -41,9 +41,7 @@
   (require :swclospackages)
   (require :namespace)
   (require :rdfboot)
-  ;(require :gxtype)
-  ;(require :rdfsobjects)
-  ;(require :domainrange)
+  (require :slotdef)
 ) ; end of eval-when
 
 (in-package :gx)

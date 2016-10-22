@@ -130,7 +130,7 @@
    This macro sets the class object to the symbol <name> 
    and returns the class object."
   (assert (symbolp name))
-  `(progn (excl:record-source-file ',name :type :type)
+  `(progn (record-source-file ',name :type :type)
      ,(expand-def 'rdfs:|Class| name args)))
 
 (defmacro defConcept (name &rest args)
@@ -141,14 +141,14 @@
   (cond ((and (assoc 'rdf:|type| args)
               (length=1 (cdr (assoc 'rdf:|type| args))))
          (cond ((eql 'owl:|Class| (cadr (assoc 'rdf:|type| args)))
-                `(progn (excl:record-source-file ',name :type :type)
+                `(progn (record-source-file ',name :type :type)
                    ,(expand-def 'owl:|Class| name (remove 'rdf:|type| args :key #'car))))
                ((eql 'rdfs:|Class| (cadr (assoc 'rdf:|type| args)))
-                `(progn (excl:record-source-file ',name :type :type)
+                `(progn (record-source-file ',name :type :type)
                    ,(expand-def 'rdfs:|Class| name (remove 'rdf:|type| args :key #'car))))
-               (t `(progn (excl:record-source-file ',name :type :type)
+               (t `(progn (record-source-file ',name :type :type)
                      ,(expand-def 'rdfs:|Class| name args)))))
-        (t `(progn (excl:record-source-file ',name :type :type)
+        (t `(progn (record-source-file ',name :type :type)
               ,(expand-def 'rdfs:|Class| name args)))))
 
 (defmacro defProperty (name &rest args)

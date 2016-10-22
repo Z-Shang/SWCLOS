@@ -54,7 +54,7 @@
 (defsystem :swclos
     :name "SWCLOS"
   :author "Seiji Koide <SeijiKoide@aol.com>"
-  :maintainer "Seiji Koide <SeijiKoide@aol.com>"
+  :maintainer "Chun Tian (binghe) <binghe.lisp@gmail.com>"
   :version "2.0.0"
   :licence "SWCLOS"
   :description "SWCLOS is an OWL Full processor on top of CLOS."
@@ -63,50 +63,53 @@
   :default-component-class cl-source-file.cl
   :components
   ((:module "RDF"
-            :components
-            ((:file "packages")
-             (:file "Utils"        :depends-on ("packages"))
-             (:file "RdfIO"        :depends-on ("packages"))
-             (:file "IRI"          :depends-on ("packages"))
-             (:file "Xml"          :depends-on ("packages"))
-             (:file "rdferror"     :depends-on ("Utils"))
-             (:file "NameSpace"    :depends-on ("IRI"))
-             (:file "Literal"      :depends-on ("Utils" "Xml"))
-             (:file "RDFShare"     :depends-on ("RdfIO" "NameSpace"))
-             (:file "RdfParser"    :depends-on ("NameSpace" "RDFShare"))
-             (:file "RdfReader"    :depends-on ("RdfParser"))
-             (:file "node0"        :depends-on ("IRI"))
-             (:file "node"         :depends-on ("node0"))))
+    :components
+    ((:file "packages")
+     (:file "Utils"        :depends-on ("packages"))
+     (:file "RdfIO"        :depends-on ("packages"))
+     (:file "IRI"          :depends-on ("packages"))
+     (:file "Xml"          :depends-on ("packages"))
+     (:file "rdferror"     :depends-on ("Utils"))
+     (:file "NameSpace"    :depends-on ("IRI"))
+     (:file "Literal"      :depends-on ("Utils" "Xml"))
+     (:file "RDFShare"     :depends-on ("RdfIO" "NameSpace"))
+     (:file "RdfParser"    :depends-on ("NameSpace" "RDFShare"))
+     (:file "RdfReader"    :depends-on ("RdfParser"))
+     (:file "node0"        :depends-on ("IRI"))
+     (:file "node"         :depends-on ("node0"))))
    (:module "RDFS" :depends-on ("RDF")
-            :components
-            ((:file "SlotDef")
-             (:file "RDFboot0"     :depends-on ("SlotDef"))
-             (:file "RDFboot1"     :depends-on ("RDFboot0"))
-             (:file "RDFboot"      :depends-on ("RDFboot1"))
-             (:file "DomainRange"  :depends-on ("RDFboot"))
-             (:file "RdfsKernel"   :depends-on ("SlotDef" "RDFboot"))
-             (:file "GxType0"      :depends-on ("SlotDef" "RDFboot"))
-             (:file "GxType"       :depends-on ("GxType0"))
-             (:file "RdfsObjects"  :depends-on ("RDFboot" "GxType"))
-             (:file "GxForwardRef" :depends-on ("GxType" "RdfsObjects" "DomainRange" "RdfsKernel"))
-             (:file "RdfsCore"     :depends-on ("DomainRange" "RdfsObjects" "RdfsKernel"))
-             (:file "gxutils"      :depends-on ("RdfsCore"))
-             (:file "rdfwriter"    :depends-on ("gxutils" "GxForwardRef"))))
+    :components
+    ((:file "SlotDef")
+     (:file "RDFboot0"     :depends-on ("SlotDef"))
+     (:file "RDFboot1"     :depends-on ("RDFboot0"))
+     (:file "RDFboot"      :depends-on ("RDFboot1"))
+     (:file "DomainRange"  :depends-on ("RDFboot"))
+     (:file "RdfsKernel"   :depends-on ("SlotDef" "RDFboot"))
+     (:file "GxType0"      :depends-on ("SlotDef" "RDFboot"))
+     (:file "GxType"       :depends-on ("GxType0"))
+     (:file "GxForwardRef" :depends-on ("GxType" "DomainRange" "RdfsKernel"))
+     ;; (:file "RdfsObjects"  :depends-on ("RDFboot" "GxType" "GxForwardRef"))
+     ;; (:file "RdfsCore"     :depends-on ("DomainRange" "RdfsObjects" "RdfsKernel"))
+     ;; (:file "gxutils"      :depends-on ("RdfsCore"))
+     ;; (:file "rdfwriter"    :depends-on ("gxutils" "GxForwardRef"))
+     ))
+   #+ignore
    (:module "OWL" :depends-on ("RDFS")
-            :components
-            ((:file "owlerror")
-             (:file "owlkernel")
-             (:file "owlsamedifferent")
-             (:file "owlequivalentdisjoint")
-             (:file "NNF")
-             (:file "tunify")
-             (:file "subsume"      :depends-on ("NNF" "tunify"))
-             (:file "OWL"          :depends-on ("subsume"))))
+    :components
+    ((:file "owlerror")
+     (:file "owlkernel")
+     (:file "owlsamedifferent")
+     (:file "owlequivalentdisjoint")
+     (:file "NNF")
+     (:file "tunify")
+     (:file "subsume"      :depends-on ("NNF" "tunify"))
+     (:file "OWL"          :depends-on ("subsume"))))
+   #+ignore
    (:module "ntriple" :depends-on ("RDF" "RDFS" "OWL")
-            :components
-            ((:file "Ntriple")
-             (:file "NTparser")
-             (:file "ntwriter")))))
+    :components
+    ((:file "Ntriple")
+     (:file "NTparser")
+     (:file "ntwriter")))))
 
 (in-package #:cl-user)
 (format t "~%=========== System Description ================")

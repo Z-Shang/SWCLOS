@@ -9,11 +9,8 @@
 ;; 2009.09.04    name RDFSclass is changed to _rdfsClass.
 ;; Nov. 2 2007    file created
 
-(provide :gxforwardref)
-
 (eval-when (:execute :load-toplevel :compile-toplevel)
   (require :gxtype)
-  (require :rdfsobjects)
   (require :domainrange)
   (require :rdfskernel)
   ) ; end of eval-when
@@ -74,8 +71,12 @@
                       oldsupers)))
     (dolist (del (set-difference oldsupers newsupers))
       ;; keep the partial order in list
+      #+allegro
       (setf (slot-value class 'excl::direct-superclasses)
         (remove del (slot-value class 'excl::direct-superclasses)))
+      #-allegro
+      (setf (class-direct-superclasses class)
+	    (remove del (class-direct-superclasses class)))
       (remove-direct-subclass del class))
     (check-superclasses-order class)
     (call-next-method)))
@@ -111,14 +112,17 @@
                      ((member (cadr inconsistent)
                                  (member (car inconsistent)
                                             (class-direct-superclasses super)))
-                      (setf (slot-value super 'excl::direct-superclasses)
-                        (swap (car inconsistent) (cadr inconsistent) 
-                              (class-direct-superclasses super)))
+		      
+                      (setf #+allegro (slot-value super 'excl::direct-superclasses)
+			    #-allegro (class-direct-superclasses super)
+			    (swap (car inconsistent) (cadr inconsistent) 
+				  (class-direct-superclasses super)))
                       (when (class-finalized-p super)
                         (finalize-inheritance super))
                       (format t "~%Repaired ~S at ~S" inconsistent super)
                       t)
-                     (t (loop for sup in (class-direct-superclasses super) with rslt
+                     (t (loop with rslt = nil
+			      for sup in (class-direct-superclasses super)
                             when (walk-supers-to-repair inconsistent sup)
                             do (setq rslt t)
                             finally (return rslt))))))
@@ -129,10 +133,12 @@
                 (when (member (cadr repairing)
                                  (member (car repairing)
                                             (class-direct-superclasses self)))
-                  (setf (slot-value self 'excl::direct-superclasses)
-                    (swap (car repairing) (cadr repairing) 
+                  (setf #+allegro (slot-value self 'excl::direct-superclasses)
+			#-allegro (class-direct-superclasses self)
+                    (swap (car repairing) (cadr repairing)
                           (class-direct-superclasses self))))
-                (loop for super in (class-direct-superclasses self) with found
+                (loop with found = nil
+		      for super in (class-direct-superclasses self)
                     when (walk-supers-to-repair repairing super)
                     do (setq found t)
                     finally (if found
@@ -229,7 +235,8 @@
                when (and (property? role) (setq filler (getf initargs role)))
                do (reify instance (symbol-value role) filler)))
           ((consp slot-names)
-           (loop for role in slot-names with filler
+           (loop with filler
+		 for role in slot-names
                when (and (property? role) (setq filler (getf initargs role)))
                do (reify instance (symbol-value role) filler)))
           ((eq slot-names t)
@@ -266,3 +273,5 @@
 
 ;; End of module
 ;; --------------------------------------------------------------------
+
+(provide :gxforwardref)

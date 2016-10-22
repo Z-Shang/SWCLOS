@@ -321,6 +321,12 @@ but optimized for vectors."
 (defun symbol-equal (sym1 sym2)
   (string-equal (symbol-name sym1) (symbol-name sym2)))
 
+;;; a portable excl:record-source-file
+(defun record-source-file (name &key type)
+  (declare (ignorable name type))
+  #+allegro
+  (excl:record-source-file name :type type))
+  
 ;; End of module
 ;; --------------------------------------------------------------------
 ;;;
