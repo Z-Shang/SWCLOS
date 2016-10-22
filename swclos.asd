@@ -87,13 +87,12 @@
      (:file "RdfsKernel"   :depends-on ("SlotDef" "RDFboot"))
      (:file "GxType0"      :depends-on ("SlotDef" "RDFboot"))
      (:file "GxType"       :depends-on ("GxType0"))
-     (:file "GxForwardRef" :depends-on ("GxType" "DomainRange" "RdfsKernel"))
-     ;; (:file "RdfsObjects"  :depends-on ("RDFboot" "GxType" "GxForwardRef"))
-     ;; (:file "RdfsCore"     :depends-on ("DomainRange" "RdfsObjects" "RdfsKernel"))
-     ;; (:file "gxutils"      :depends-on ("RdfsCore"))
-     ;; (:file "rdfwriter"    :depends-on ("gxutils" "GxForwardRef"))
+     (:file "RdfsObjects"  :depends-on ("RDFboot" "GxType"))
+     (:file "GxForwardRef" :depends-on ("GxType" "RdfsObjects" "DomainRange" "RdfsKernel"))
+     (:file "RdfsCore"     :depends-on ("DomainRange" "RdfsObjects" "RdfsKernel"))
+     (:file "gxutils"      :depends-on ("RdfsCore"))
+     (:file "rdfwriter"    :depends-on ("gxutils" "GxForwardRef"))
      ))
-   #+ignore
    (:module "OWL" :depends-on ("RDFS")
     :components
     ((:file "owlerror")
@@ -104,7 +103,6 @@
      (:file "tunify")
      (:file "subsume"      :depends-on ("NNF" "tunify"))
      (:file "OWL"          :depends-on ("subsume"))))
-   #+ignore
    (:module "ntriple" :depends-on ("RDF" "RDFS" "OWL")
     :components
     ((:file "Ntriple")

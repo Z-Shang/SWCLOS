@@ -18,7 +18,6 @@
   (require :namespace)
   (require :rdfboot)
   (require :gxtype)
-  (require :gxforwardref)
 ) ; end of eval-when
 
 (in-package :gx)

@@ -11,6 +11,7 @@
 
 (eval-when (:execute :load-toplevel :compile-toplevel)
   (require :gxtype)
+  (require :rdfsobjects)
   (require :domainrange)
   (require :rdfskernel)
   ) ; end of eval-when
