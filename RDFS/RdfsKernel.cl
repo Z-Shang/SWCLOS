@@ -130,27 +130,66 @@
 ;;; The rule rdfs13 indicates the default data type in triple should be rdfs:Literal.
 ;;; The following methods assure rdfs8 and rdfs13 rules.
 
-#+allegro
-(defmethod excl::default-direct-superclasses ((class rdfs:|Class|))
-  "Rdfs8 rule is implemented at this method."
-  (list (load-time-value (find-class 'rdfs:|Resource|))))
+;;; (defmethod excl::default-direct-superclasses ((class rdfs:|Class|))
+;;;  "Rdfs8 rule is implemented at this method."
+;;;   (list (load-time-value (find-class 'rdfs:|Resource|))))
+;;;
+;;; (defmethod excl::default-direct-superclasses ((class rdfs:|Datatype|))
+;;;  "Rdfs13 rule is implemented at this method."
+;;;  (list (load-time-value (find-class 'rdfs:|Literal|))))
 
-#-allegro
-(defmethod class-direct-superclasses :around ((class rdfs:|Class|))
-  "Rdfs8 rule is implemented at this method."
-  (or (funcall #'call-next-method class)
-      (list (load-time-value (find-class 'rdfs:|Resource|)))))
+;;; Thanks to Pascal Costanza <pc@p-cos.net> for this portable version:
+;;;
+;;; "My guess is that this inserts a default superclass to the list of direct superclasses of a class metaobject.
+;;;  For standard-class, that's standard-object (as per ANSI CL), but for other metaclasses, you might want other default superclasses.
+;;;  The typical idiom for adding a default superclass with the CLOS MOP is to define methods on initialize-instance and reinitialize-instance, like this:"
 
-#+allegro
-(defmethod excl::default-direct-superclasses ((class rdfs:|Datatype|))
-  "Rdfs13 rule is implemented at this method."
-  (list (load-time-value (find-class 'rdfs:|Literal|))))
+(defmethod initialize-instance :around ((class rdfs:|Class|) &rest initargs &key direct-superclasses)
+  (if (loop for direct-superclass in direct-superclasses
+	    thereis (subclassp direct-superclass 'rdfs:|Resource|))
+      (call-next-method)
+    (apply #'call-next-method
+	   class
+	   :direct-superclasses
+	   (append direct-supercalsses
+		   (list (find-class 'rdfs:|Resource|)))
+	   initargs)))
 
-#-allegro
-(defmethod class-direct-superclasses :around ((class rdfs:|Datatype|))
-  "Rdfs13 rule is implemented at this method."
-  (or (funcall #'call-next-method class)
-      (list (load-time-value (find-class 'rdfs:|Literal|)))))
+(defmethod reinitialize-instance :around ((class rdfs:|Class|) &rest initargs &key (direct-superclasses '() direct-superclasses-p))
+  (if (or (not direct-superclasses-p)
+	  (loop for direct-superclass in direct-superclasses
+		thereis (subclassp direct-superclass 'rdfs:|Resource|)))
+      (call-next-method)
+    (apply #'call-next-method
+	   class
+	   :direct-superclasses
+	   (append direct-supercalsses
+		   (list (find-class 'rdfs:|Resource|)))
+	   initargs)))
+
+(defmethod initialize-instance :around ((class rdfs:|Datatype|) &rest initargs &key direct-superclasses)
+  (if (loop for direct-superclass in direct-superclasses
+	    thereis (subclassp direct-superclass 'rdfs:|Literal|))
+      (call-next-method)
+    (apply #'call-next-method
+	   class
+	   :direct-superclasses
+	   (append direct-supercalsses
+		   (list (find-class 'rdfs:|Literal|)))
+	   initargs)))
+
+(defmethod reinitialize-instance :around ((class rdfs:|Datatype|) &rest initargs &key (direct-superclasses '() direct-superclasses-p))
+  (if (or (not direct-superclasses-p)
+	  (loop for direct-superclass in direct-superclasses
+		thereis (subclassp direct-superclass 'rdfs:|Literal|)))
+      (call-next-method)
+    (apply #'call-next-method
+	   class
+	   :direct-superclasses
+	   (append direct-supercalsses
+		   (list (find-class 'rdfs:|Literal|)))
+	   initargs)))
+
 
 (defmethod make-instance :around ((class (eql rdfs:|Class|)) &rest initargs)
   (cond ((notany #'(lambda (cls) (c2cl:subtypep cls (load-time-value rdfs:|Resource|)))
@@ -158,8 +197,7 @@
          (setf (getf initargs :direct-superclasses)
            (append (getf initargs :direct-superclasses) (list (load-time-value rdfs:|Resource|))))
          (apply #'call-next-method class initargs))
-        (t (call-next-method)))
-  )
+        (t (call-next-method))))
 
 (defmethod make-instance :around ((class (eql rdfs:|Datatype|)) &rest initargs)
   (cond ((notany #'(lambda (cls) (c2cl:subtypep cls (load-time-value rdfs:|Literal|)))
