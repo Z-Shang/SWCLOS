@@ -151,7 +151,7 @@
     (apply #'call-next-method
 	   class
 	   :direct-superclasses
-	   (append direct-supercalsses
+	   (append direct-superclasses
 		   (list (find-class 'rdfs:|Resource|)))
 	   initargs)))
 
@@ -163,7 +163,7 @@
     (apply #'call-next-method
 	   class
 	   :direct-superclasses
-	   (append direct-supercalsses
+	   (append direct-superclasses
 		   (list (find-class 'rdfs:|Resource|)))
 	   initargs)))
 
@@ -174,7 +174,7 @@
     (apply #'call-next-method
 	   class
 	   :direct-superclasses
-	   (append direct-supercalsses
+	   (append direct-superclasses
 		   (list (find-class 'rdfs:|Literal|)))
 	   initargs)))
 
@@ -186,7 +186,7 @@
     (apply #'call-next-method
 	   class
 	   :direct-superclasses
-	   (append direct-supercalsses
+	   (append direct-superclasses
 		   (list (find-class 'rdfs:|Literal|)))
 	   initargs)))
 

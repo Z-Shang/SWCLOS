@@ -160,7 +160,8 @@
 (defun collect-domains (properties)
   "collects domain information from <properties>. A property must be a symbol.
    If anyone in properties is not defined, this function executes rdf1 entaiment rule."
-  (loop for role in properties with domains
+  (loop with domains = nil
+	for role in properties
       when (and (not (eq role 'rdf:|about|))
                 (not (eq role 'rdf:|ID|))
                 (not (eq role 'xml:lang))
@@ -241,7 +242,8 @@
 
 (defun collect-ranges (properties)
   "collects range information from <properties>. A property must be a symbol."
-  (loop for role in properties with ranges
+  (loop with ranges = nil
+	for role in properties
       when (and (not (eq role 'rdf:|about|))
                 (not (eq role 'rdf:|ID|))
                 (not (eq role 'xml:lang))
@@ -339,11 +341,13 @@
     (symbol (if (class? range) (slot-value-range-check role value (symbol-value range))
                (error "Not Yet!")))
     (cons (case (op range)
-            (and (loop for r in (args range) with val = value
+            (and (loop with val = value
+		       for r in (args range)
                      unless (setq val (slot-value-range-check role val r))
                      do (return-from slot-value-range-check nil)
                      finally (return val)))
-            (or (loop for r in (args range) with val
+            (or (loop with val = nil
+		      for r in (args range)
                     when (setq val (slot-value-range-check role value r))
                     do (return-from slot-value-range-check val)))
             (not (if (slot-value-range-check role value (args range)) nil value))
