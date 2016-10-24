@@ -60,20 +60,9 @@
 	    nodeID? nodeID2symbol mclasses
 	    property? subPropertyOf class-direct-instances)))
 
-;;; To be re-defined in GxType.cl
-(defun typep (obj type &optional env)
-  (c2cl:typep obj type env))
-(defun subtypep (sub super &optional env)
-  (c2cl:subtypep sub super env))
-(defun type-of (object)
-  (cl:type-of object)) ; cl:type-of is never re-defined in closer-mop
-
 ;;; Portable versions of private MOP APIs in Allegro CL
 (declaim (inline standard-instance-p))
 (defun standard-instance-p (object)
-  #+allegro
-  (excl::standard-instance-p object)
-  #-allegro
   (c2cl:typep object 'standard-object))
 
 ;;;
