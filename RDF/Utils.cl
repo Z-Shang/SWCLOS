@@ -326,7 +326,18 @@ but optimized for vectors."
   (declare (ignorable name type))
   #+allegro
   (excl:record-source-file name :type type))
-  
+
+;;; To be re-defined in RDFS:GxType.cl
+(defun typep (obj type &optional env)
+  (c2cl:typep obj type env))
+
+(defun subtypep (sub super &optional env)
+  (c2cl:subtypep sub super env))
+
+(defun type-of (object)
+  (cl:type-of object)) ; cl:type-of is never re-defined in closer-mop
+
+
 ;; End of module
 ;; --------------------------------------------------------------------
 ;;;
