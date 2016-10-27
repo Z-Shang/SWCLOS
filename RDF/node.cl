@@ -11,12 +11,12 @@
 (defclass gnode ()
   ((name :initarg :name :initform nil)
    (iri :initarg :iri :initform nil :accessor iri)
-   ;(mclasses :initarg :mclasses :initform nil :accessor mclasses)
-   (type-tag :initform nil :accessor type-tag)
-   ;(inv-plist :initform nil)
-   )
+   (type-tag :initform nil :accessor type-tag))
   (:metaclass rdf-node)
   (:documentation "This class provides the concept of RDF graph."))
+
+(defgeneric mclasses (instance)
+  (:documentation "returns multiple classes of instance"))
 
 (defmethod mclasses ((instance gnode))
   "returns multiple classes of <gnode>. This function returns length=1 list for single class."
@@ -66,9 +66,13 @@
   (or (not (slot-value node 'name))
       (not (symbol-package (slot-value node 'name)))))
 
+(defgeneric ground? (node))
+
 (defmethod ground? ((node gnode))
   (and (slot-value node 'name)
        (symbol-package (slot-value node 'name))))
+
+(defgeneric name (node))
 
 (defmethod name ((node symbol))
   node)
@@ -78,12 +82,15 @@
   (let ((name (slot-value node 'name)))
     (when (and name (symbol-package name)) name))) ; name might have uninterned symbol.
 
+(defgeneric (setf name) (new-value node))
+
 (defmethod (setf name) (symbol (node gnode))
   "exports <symbol> for QName."
   (setf (slot-value node 'name) symbol)
   (export-as-QName symbol)
   (setf (symbol-value symbol) node))
 
+;; TODO
 (defmethod shared-initialize :after ((instance gnode) slot-names &rest initargs)
   (cond ((and (null slot-names) (null initargs))  ; when change-class
          )
@@ -108,12 +115,10 @@
 ;;; ----------------------------------------------------------------------------------
 (defun nodeID? (name)
   "Is this <name> a nodeID?"
-  (declare (optimize (speed 3) (safety 1)))
   (and (symbol-package name)
        (string= "_" (package-name (symbol-package name)))))
 
 (defun nodeID2symbol (str)
-  (declare (optimize (speed 3) (safety 1)))
   "simply transforms <str> to a exported symbol in anonymous node package :_
    and returns it."
   (let ((nodeID (intern str :_)))
