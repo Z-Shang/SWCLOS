@@ -59,7 +59,7 @@
   :licence "SWCLOS"
   :description "SWCLOS is an OWL Full processor on top of CLOS."
   :long-description "This code is written at Galaxy Express Corporation, Japan, for the realization of the MEXT IT Program in Japan, and is maintained by Seiji Koide."
-  :depends-on (puri flexi-streams closer-mop named-readtables)
+  :depends-on (:puri :flexi-streams :closer-mop :named-readtables)
   :default-component-class cl-source-file.cl
   :components
   ((:module "RDF"
@@ -77,7 +77,7 @@
      (:file "RdfReader"    :depends-on ("RdfParser"))
      (:file "node0"        :depends-on ("IRI"))
      (:file "node"         :depends-on ("node0"))))
-   (:module "RDFS" :depends-on ("RDF")
+   (:module "RDFS"         :depends-on ("RDF")
     :components
     ((:file "SlotDef")
      (:file "RDFboot0"     :depends-on ("SlotDef"))
@@ -93,7 +93,7 @@
      (:file "gxutils"      :depends-on ("RdfsCore"))
      (:file "rdfwriter"    :depends-on ("gxutils" "GxForwardRef"))
      ))
-   (:module "OWL" :depends-on ("RDFS")
+   (:module "OWL"          :depends-on ("RDFS")
     :components
     ((:file "owlerror")
      (:file "owlkernel")
@@ -103,7 +103,7 @@
      (:file "tunify")
      (:file "subsume"      :depends-on ("NNF" "tunify"))
      (:file "OWL"          :depends-on ("subsume"))))
-   (:module "ntriple" :depends-on ("RDF" "RDFS" "OWL")
+   (:module "ntriple"      :depends-on ("RDF" "RDFS" "OWL")
     :components
     ((:file "Ntriple")
      (:file "NTparser")
