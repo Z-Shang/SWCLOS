@@ -406,7 +406,8 @@ and instance of owl:Class."))
               (slot-value obj 'name))
          (print-unreadable-object (obj stream :type t)
            (prin1 (slot-value obj 'name) stream)))
-        ((slot-boundp obj 'owl:|oneOf|)
+        ((and (slot-exists-p obj 'owl:|oneOf|)
+	      (slot-boundp obj 'owl:|oneOf|))
          (let ((ones (slot-value obj 'owl:|oneOf|)))
            (print-unreadable-object (obj stream :type t)
              (when (and (slot-boundp obj 'name)
@@ -908,9 +909,9 @@ and instance of owl:Class."))
 ;;;; Here OWL rdf file is read.
 ;;;
 
-(defProperty owl::imports)          ; just for suppression of entailment warning
-(defProperty owl::versionInfo)      ; just for suppression of entailment warning
-(defProperty owl::priorVersion)     ; just for suppression of entailment warning
+(defProperty owl::|imports|)          ; just for suppression of entailment warning
+(defProperty owl::|versionInfo|)      ; just for suppression of entailment warning
+(defProperty owl::|priorVersion|)     ; just for suppression of entailment warning
 
 (eval-when (:load-toplevel)
   (read-rdf-file #'addRdfXml "OWL:OWL.rdf"))
