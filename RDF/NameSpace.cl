@@ -307,13 +307,13 @@ package slot and uri to symbol name mapping environment slot.")
   (let ((pkg (ask-user-package-name uri)))
     ;; pkg is a string or nil
     (when pkg
-      (let ((found (find-package pkg)))
+      (let ((found (find-package (string-upcase pkg))))
         (cond (found 
                (cond ((string= (documentation found t) (render-uri uri nil)) found)
                      ((y-or-n-p "~S is used for ~S~%Use another package name. OK?" found (documentation found t))
                       (default-uri2symbol-package-mapping-fun uri))
                      (t nil)))
-              (t (setq pkg (make-package pkg :use nil))) ; by smh
+              (t (setq pkg (make-package (string-upcase pkg) :use nil))) ; by smh
               )))))
 
 (defun default-uri2symbol-name-mapping-fun (uri)
@@ -422,10 +422,10 @@ package slot and uri to symbol name mapping environment slot.")
     (when (null-string-p LocalPart)   ; needed for turtle reader
       (error "Not Yet!"))
     (cond (Prefix
-           (setq pkg (find-package Prefix)) ; nicknames available
+           (setq pkg (find-package (string-upcase Prefix))) ; nicknames available
            (when (null pkg)
              (warn "There is no package for ~A." Prefix)
-             (setq pkg (make-package Prefix :use nil))  ; by smh
+             (setq pkg (make-package (string-upcase Prefix) :use nil))  ; by smh
              (warn "~W created." pkg))
            (shadow LocalPart pkg)
            (setq QName (intern LocalPart pkg))

@@ -328,9 +328,10 @@
              (cond ((and pkg (string= NCName (package-name pkg)))) ; nothing done
                    ((and pkg (member NCName (package-nicknames pkg) :test #'string=))) ; nothing done
                    (pkg ; multiple abreviations for same uri-namedspace
-                    (eval `(defpackage ,(package-name pkg)
-                             (:use ) ; supressing using common lisp package
-                             (:nicknames ,@(cons NCName (package-nicknames pkg))))))
+                    (eval `(unless (find-package ,(string-upcase (package-name pkg)))
+                             (defpackage ,(string-upcase (package-name pkg))
+                               (:use ) ; supressing using common lisp package
+                               (:nicknames ,@(cons NCName (package-nicknames pkg)))))))
                    (t (setq pkg (or (find-package NCName) (make-package NCName :use nil)))  ; by smh
                       (unless (documentation pkg t) (setf (documentation pkg t) AttValue))
                       (setf (uri-namedspace-package ns) pkg))))

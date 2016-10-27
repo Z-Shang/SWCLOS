@@ -557,10 +557,10 @@ no <*default-namespace*> and no <*base-uri*>, the string is returned."
     (cond ((match-pattern-p ":" stream)
            (read-pattern-p ":" stream)
            (setq LocalPart (read-NCName stream))
-           (setq pkg (find-package Prefix)) ; nicknames availabel
+           (setq pkg (find-package (string-upcase Prefix))) ; nicknames availabel
            (when (null pkg)
              (warn "There is no package for ~A." Prefix)
-             (setq pkg (make-package Prefix :use nil))  ; by smh
+             (setq pkg (make-package (string-upcase Prefix) :use nil))  ; by smh
              (warn "~W created." pkg))
            (shadow LocalPart pkg)
            (setq QName (intern LocalPart pkg))
