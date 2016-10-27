@@ -94,7 +94,7 @@
     (when (c2cl:typep x 'uri-namedspace)
       (funcall fun x))))
 
-(defgeneric list-all-entities-in ((namespace string) &optional uri?)
+(defgeneric list-all-entities-in (namespace &optional uri?)
   (:documentation 
    "These methods return all entities in <namespace>, namely all external symbol in <namespace> package. 
 Note that it is not cared that symbols are bound to resource objects or not."))
