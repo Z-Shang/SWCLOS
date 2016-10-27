@@ -436,12 +436,13 @@
 
 (defun write-xml-all-entities-in (package &optional (stream-or-file *standard-output*))
   (cond ((streamp stream-or-file)
-         (format stream-or-file "<?xml version=\"1.0\" ?>~%")
-         (write-xml (mapcar #'symbol-value (list-all-entities-in package)) stream-or-file))
-        (t (with-open-file (outstream stream-or-file :direction :output :if-exists :supersede
-                                      :external-format (excl::find-external-format "UTF-8"))
-             (format outstream "<?xml version=\"1.0\" encoding=\"UTF-8\" ?>~%")
-             (write-xml (mapcar #'symbol-value (list-all-entities-in package)) outstream)))))
+	 (format stream-or-file "<?xml version=\"1.0\" ?>~%")
+	 (write-xml (mapcar #'symbol-value (list-all-entities-in package)) stream-or-file))
+	(t (with-open-file (outstream stream-or-file :direction :output :if-exists :supersede)
+	     (let ((stream (flexi-streams:make-flexi-stream outstream
+							    :external-format (find-external-format :utf-8))))
+	       (format stream "<?xml version=\"1.0\" encoding=\"UTF-8\" ?>~%")
+	       (write-xml (mapcar #'symbol-value (list-all-entities-in package)) stream))))))
 
 ;; End of module
 ;; --------------------------------------------------------------------
