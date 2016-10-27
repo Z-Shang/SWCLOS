@@ -78,3 +78,6 @@
   (:use :closer-common-lisp :named-readtables :puri)
   (:shadow typep subtypep type-of)
   (:documentation "http://www.TopOntologies.com/tools/SWCLOS#"))
+
+#+lispworks
+(clos:set-clos-initarg-checking nil)
