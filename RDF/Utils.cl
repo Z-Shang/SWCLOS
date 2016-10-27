@@ -328,6 +328,8 @@ but optimized for vectors."
   (excl:record-source-file name :type type))
 
 ;;; To be re-defined in RDFS:GxType.cl
+(proclaim '(notinline typep subtypep type-of))
+
 (defun typep (obj type &optional env)
   (c2cl:typep obj type env))
 
