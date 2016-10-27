@@ -329,6 +329,24 @@ of this <instance> property."
         (t  ; first or redefining, or when undate-instance-fore-different-class with added slot
          (apply #'book-keeping-super/sub-property instance slot-names initargs)
          (apply #'equivalentProperty-maintain instance slot-names initargs)
+#|
+Call to ERROR
+Call to (METHOD SHARED-INITIALIZE :AFTER (SLOT-DEFINITION T))
+Call to CLOS::MAKE-INSTANCE-FROM-CLASS-2
+Call to CLOS::MAKE-INSTANCE-FROM-CLASS-1
+Call to (METHOD SHARED-INITIALIZE :AFTER (COMMON-LISP:STANDARD-CLASS T))
+Call to CLOS::NEXT-METHOD-CALL-3
+Call to (METHOD SHARED-INITIALIZE :AROUND (RDFS:|Resource| T))
+Call to (HARLEQUIN-COMMON-LISP:SUBFUNCTION CALL-NEXT-METHOD (METHOD SHARED-INITIALIZE :AROUND (RDFS:|Class| T)))
+Call to (METHOD SHARED-INITIALIZE :AROUND (RDFS:|Class| T))
+Call to (HARLEQUIN-COMMON-LISP:SUBFUNCTION CALL-NEXT-METHOD (METHOD REINITIALIZE-INSTANCE :AROUND (STANDARD-CLASS)))
+Call to (METHOD REINITIALIZE-INSTANCE :AROUND (STANDARD-CLASS))
+Call to CLOS::NEXT-METHOD-CALL-2
+Call to (METHOD REINITIALIZE-INSTANCE :AROUND (RDFS:|Class|))
+Call to ADD-DIRECT-SLOTS-TO-DOMAIN
+Call to (METHOD SHARED-INITIALIZE :AFTER (RDF:|Property| T))
+|#
+	 #+ignore ; the following will break LispWorks builds.
          (when (getf initargs 'rdfs:|domain|)
            (add-direct-slots-to-domain instance (getf initargs 'rdfs:|domain|)))
          (cond (initargs ; first and reinitialize
@@ -594,15 +612,9 @@ of this <instance> property."
 		   ((symbol-equal name 'initargs)
 		    `(:initargs ,(slot-definition-initargs slotd)))
 		   ((symbol-equal name 'initform)
-		    #+allegro
-		    `(:initform ,(slot-definition-initform slotd))
-		    #-allegro
-		    nil)
+		    `(:initform ,(slot-definition-initform slotd)))
 		   ((symbol-equal name 'initfunction)
-		    #+allegro
-		    `(:initfunction ,(slot-definition-initfunction slotd))
-		    #-allegro
-		    nil) ; this broke RdfsObject.cl loading
+		    `(:initfunction ,(slot-definition-initfunction slotd)))
 		   ((symbol-equal name 'readers)
 		    `(:readers ,(slot-definition-readers slotd)))
 		   ((symbol-equal name 'writers)
