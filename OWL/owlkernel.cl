@@ -104,14 +104,28 @@ OwlProperty-direct-slot-definition in OWL module.")
 ;;; a property of owl:FunctionProperty and <inverse-funprop-inverse> that is the inverse pointer 
 ;;; of a property of owl:InverseFunctionProperty.
 ;;;
+
+#|
+**++++ Error between functions:
+  bad slot specification (:NAME
+                          XML:LANG
+                          :INITFUNCTION
+                          #<Function FALSE 418016A5C4>
+                          :INITARGS
+                          (XML:LANG)
+                          :ALLOCATION
+                          :INSTANCE
+                          :DOCUMENTATION
+                          NIL)
+|#
 (eval-when (:execute :load-toplevel :compile-toplevel)
   (reinitialize-instance
    rdfs:|Resource|
    :direct-slots
-   `((:name funprop-inverse :initform nil :initfunction ,(load-time-value #'excl::false)
+   `((:name funprop-inverse :initform nil :initfunction ,(load-time-value #'false)
             :initargs (:funprop-inverse))
      (:name inverse-funprop-inverse :initform nil 
-            :initfunction ,(load-time-value #'excl::false)
+            :initfunction ,(load-time-value #'false)
             :initargs (:inverse-funprop-inverse))))
   )
 
@@ -150,8 +164,9 @@ and instance of owl:Class."))
    Note that owl:Class and owl:Restriction is not owl class."
   ;;this is same as '(c2cl:typep <obj> owl:Class)'
   (declare (inline))
-  (and (excl::standard-instance-p obj)
+  (and (standard-instance-p obj)
        (%owl-class-subtype-p (class-of obj))))
+
 (defun %owl-class-subtype-p (class)
   "If you are sure that <class> is a metaobject of CLOS, use this instead of 
    (c2cl:subtypep <class> owl:Class)."
@@ -203,7 +218,7 @@ and instance of owl:Class."))
    Note that owl:Class and owl:Thing is not owl thing."
   ;;this is same as '(c2cl:typep <obj> owl:Thing)'
   (declare (inline))
-  (and (excl::standard-instance-p obj)
+  (and (standard-instance-p obj)
        (%owl-thing-subclass-p (class-of obj))
        (not (eq (name obj) 'owl:|Nothing|))))
 (defun %owl-thing-subclass-p (class)
@@ -269,9 +284,36 @@ and instance of owl:Class."))
   (:metaclass rdfs:|Class|)
   (:documentation "owl:Restriction is a metaclass a subclass of owl:Class in OWL."))
 
+#| the following method has been rewritten in portable way using Pascal Costanza's method:
 (defmethod excl::default-direct-superclasses ((class owl:|Restriction|))
   "The default direct superclass of restrictions is rdfs:|Resource|."
   (list (load-time-value (find-class 'rdfs:|Resource|))))
+|#
+
+(defmethod initialize-instance :around ((class owl:|Restriction|) &rest initargs &key direct-superclasses)
+  "The default direct superclass of restrictions is rdfs:|Resource|."
+  (if (loop for direct-superclass in direct-superclasses
+	    thereis (subclassp direct-superclass 'rdfs:|Resource|))
+      (call-next-method)
+    (apply #'call-next-method
+	   class
+	   :direct-superclasses
+	   (append direct-superclasses
+		   (list (find-class 'rdfs:|Resource|)))
+	   initargs)))
+
+(defmethod reinitialize-instance :around ((class owl:|Restriction|) &rest initargs &key (direct-superclasses '() direct-superclasses-p))
+  "The default direct superclass of restrictions is rdfs:|Resource|."
+  (if (or (not direct-superclasses-p)
+	  (loop for direct-superclass in direct-superclasses
+		thereis (subclassp direct-superclass 'rdfs:|Resource|)))
+      (call-next-method)
+    (apply #'call-next-method
+	   class
+	   :direct-superclasses
+	   (append direct-superclasses
+		   (list (find-class 'rdfs:|Resource|)))
+	   initargs)))
 
 (defclass owl:|allValuesFromRestriction| (owl:|Restriction|) () (:metaclass rdfs:|Class|)
   (:documentation "A class for value restrictions is a subclass of owl:Restriction."))
@@ -324,7 +366,7 @@ and instance of owl:Class."))
                     (let ((x (slot-value obj 'owl:|hasValue|)))
                       (cond ((eq x t) t)
                             ((eq x nil) nil)
-                            ((excl::standard-instance-p x)
+                            ((standard-instance-p x)
                              (cond ((name x))
                                    ((datatype-p (class-of x)) x)
                                    (t :anonymous)))
@@ -427,6 +469,8 @@ and instance of owl:Class."))
 ;;; with <subsumed-p> and <owl-equivalent-p>. 
 
 (without-redefinition-warnings
+
+#+allegro
 (defmethod excl::compute-effective-slot-definition-initargs ((class rdfs:|Class|) direct-slotds)
   (declare (optimize (speed 3) (safety 0)))
   (let ((initargs (call-next-method)))
@@ -442,6 +486,24 @@ and instance of owl:Class."))
         (setf (getf initargs ':type) type)))
     (%compute-effective-slot-definition-initargs 
      class (class-name class) (slot-definition-name (car direct-slotds)) direct-slotds initargs)))
+
+#+lispworks
+(defmethod clos::compute-effective-slot-definition-initargs ((class rdfs:|Class|) name direct-slotds)
+  (declare (ignore name))
+  (let ((initargs (call-next-method)))
+    (let ((type (getf initargs ':type)))
+      (when (consp type)
+        (cond ((eq (car type) 'and)
+               ; this 'and' comes from standard routine in ACL
+               (check-simple-disjoint-pair-p-in-slot-types class (cdr type))
+               ;(setq type (most-specific-concepts-for-slotd-type (cdr type)))
+               ;(setq type (compute-effective-slot-definition-type type))
+               )
+              ((error "Cant happen!")))
+        (setf (getf initargs ':type) type)))
+    (%compute-effective-slot-definition-initargs 
+     class (class-name class) (slot-definition-name (car direct-slotds)) direct-slotds initargs)))
+
 (defun %compute-effective-slot-definition-initargs (class class-name slot-name direct-slotds initargs)
   (declare (optimize (speed 3) (safety 0)))
   (cond ((member-if #'owl-property-direct-slotd-p direct-slotds)
@@ -654,7 +716,8 @@ and instance of owl:Class."))
                            ((subsumed-p filler oldval) (cardinality-ok-p filler slotd))
                            (t (satisfy-filler instance name filler type maxc minc oldval slotd))))
                 (otherwise (cond ((object? type)
-                                  (setf (slot-value slotd 'excl::type)
+                                  (setf #+allegro (slot-value slotd 'excl::type)
+					#-allegro (slot-definition-type slotd)
                                     (symbol-value type))
                                   (type-option-check-with-cardinality instance filler slotd oldval))
                                  (t (error "Cant happen!"))))))
@@ -789,9 +852,36 @@ and instance of owl:Class."))
 ;;; (owl:Class owl:Thing (rdfs:label "Thing") (owl:unionOf owl:Nothing (owl:Class (owl:complementOf owl:Nothing))))
 ;;; this rule must be defined before reading the OWL file.
 
+#|
 ;; rule1a and rule1b by Seiji
 (defmethod excl::default-direct-superclasses ((class owl:|Class|))
   (list (load-time-value (find-class 'owl:|Thing|))))
+|#
+
+(defmethod initialize-instance :around ((class owl:|Class|) &rest initargs &key direct-superclasses)
+  "rule1a and rule1b by Seiji"
+  (if (loop for direct-superclass in direct-superclasses
+	    thereis (subclassp direct-superclass 'owl:|Thing|))
+      (call-next-method)
+    (apply #'call-next-method
+	   class
+	   :direct-superclasses
+	   (append direct-superclasses
+		   (list (find-class 'owl:|Thing|)))
+	   initargs)))
+
+(defmethod reinitialize-instance :around ((class owl:|Class|) &rest initargs &key (direct-superclasses '() direct-superclasses-p))
+  "rule1a and rule1b by Seiji"
+  (if (or (not direct-superclasses-p)
+	  (loop for direct-superclass in direct-superclasses
+		thereis (subclassp direct-superclass 'owl:|Thing|)))
+      (call-next-method)
+    (apply #'call-next-method
+	   class
+	   :direct-superclasses
+	   (append direct-superclasses
+		   (list (find-class 'owl:|Thing|)))
+	   initargs)))
 
 (defmethod make-instance :around ((class (eql owl:|Class|)) &rest initargs)
   (cond ((notany #'(lambda (cls)
@@ -882,6 +972,7 @@ and instance of owl:Class."))
                                  :key #'name)
                          :key #'name)
                  :key #'name)))
+    #+ignore ; TODO: do we really need this?
     (slot-makunbound owl:|Restriction| 'excl::direct-slots)
     (setf (class-direct-slots owl:|Restriction|) slots)
     )

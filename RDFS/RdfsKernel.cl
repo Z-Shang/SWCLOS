@@ -145,6 +145,7 @@
 ;;;  The typical idiom for adding a default superclass with the CLOS MOP is to define methods on initialize-instance and reinitialize-instance, like this:"
 
 (defmethod initialize-instance :around ((class rdfs:|Class|) &rest initargs &key direct-superclasses)
+  "Rdfs8 rule is implemented at this method."
   (if (loop for direct-superclass in direct-superclasses
 	    thereis (subclassp direct-superclass 'rdfs:|Resource|))
       (call-next-method)
@@ -156,6 +157,7 @@
 	   initargs)))
 
 (defmethod reinitialize-instance :around ((class rdfs:|Class|) &rest initargs &key (direct-superclasses '() direct-superclasses-p))
+  "Rdfs8 rule is implemented at this method."
   (if (or (not direct-superclasses-p)
 	  (loop for direct-superclass in direct-superclasses
 		thereis (subclassp direct-superclass 'rdfs:|Resource|)))
@@ -168,6 +170,7 @@
 	   initargs)))
 
 (defmethod initialize-instance :around ((class rdfs:|Datatype|) &rest initargs &key direct-superclasses)
+  "Rdfs13 rule is implemented at this method."
   (if (loop for direct-superclass in direct-superclasses
 	    thereis (subclassp direct-superclass 'rdfs:|Literal|))
       (call-next-method)
@@ -179,6 +182,7 @@
 	   initargs)))
 
 (defmethod reinitialize-instance :around ((class rdfs:|Datatype|) &rest initargs &key (direct-superclasses '() direct-superclasses-p))
+  "Rdfs13 rule is implemented at this method."
   (if (or (not direct-superclasses-p)
 	  (loop for direct-superclass in direct-superclasses
 		thereis (subclassp direct-superclass 'rdfs:|Literal|)))
@@ -349,6 +353,7 @@ Call to (METHOD SHARED-INITIALIZE :AFTER (RDF:|Property| T))
 	 #+ignore ; the following will break LispWorks builds.
          (when (getf initargs 'rdfs:|domain|)
            (add-direct-slots-to-domain instance (getf initargs 'rdfs:|domain|)))
+
          (cond (initargs ; first and reinitialize
                 (let ((newrange (getf initargs 'rdfs:|range|))
                       (prop-name (name instance)))
