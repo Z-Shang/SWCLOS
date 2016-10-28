@@ -44,7 +44,7 @@
          (and (eq (class-of x) (class-of y))
               (rdf-equalp (value-of x) (value-of y))))
         ((and (rsc-object-p x) (rsc-object-p y))
-         (cond ((and (name x) (name y) (equal (name x) (name y))) t) ; if names are equal. 
+         (cond ((and (node-name x) (node-name y) (equal (node-name x) (node-name y))) t) ; if names are equal. 
                ;; name may be a cons
                
                ;; owl part
@@ -66,7 +66,7 @@
                ;; therefore, graph-equality-checking must be done.
                ;; end of owl part
                
-               ((and (not *nonUNA*) (name x) (name y)) nil) ; if UNA and different names
+               ((and (not *nonUNA*) (node-name x) (node-name y)) nil) ; if UNA and different names
                (t  ; if nonUNA, check subtree, even though different names or anonymous
                 (multiple-value-bind (result graph) (rdf-graph-equalp x y)
                   (declare (ignore graph))
@@ -133,11 +133,11 @@
          (let ((drestrs (remove-if-not #'owl-restriction-p dintersections)))
            (unless drestrs (return-from %intersection12-subsumed-p t))
            (let ((props (remove-duplicates
-                         (mapcar #'(lambda (dr) (name (onproperty-of dr))) drestrs))))
+                         (mapcar #'(lambda (dr) (node-name (onproperty-of dr))) drestrs))))
              (loop for prop in props
                  always 
                    (let* ((drs (remove-if-not  ; y's restriction
-                                #'(lambda (dr) (eq prop (name (onproperty-of dr))))
+                                #'(lambda (dr) (eq prop (node-name (onproperty-of dr))))
                                 drestrs))
                           (cslot (remove-duplicates
                                   (loop for c in conjuncts 
@@ -545,7 +545,7 @@
 (defun shared-initialize-after-for-intersectionOf (class intersections)
   (loop for super in (remove-if #'owl-restriction-p intersections)
       unless (owl-class-p super)
-      do (warn "Change class by intersectionOf:~S rdf:type owl:Class" (name super))
+      do (warn "Change class by intersectionOf:~S rdf:type owl:Class" (node-name super))
         (change-class super (load-time-value owl:|Class|)))
   (let ((siblings (get-intersect-siblings class intersections)))
     ;; class and its structural equivalents are removed from siblings
@@ -623,7 +623,7 @@
   ;(format t "~%SHARED-INITIALIZE-AFTER-FOR-UNIONOF(~S ~S)" class unions)
   (loop for sub in (remove-if #'owl-restriction-p unions)
       unless (owl-class-p sub)
-      do (warn "Change class by unionOf:~S rdf:type owl:Class" (name sub))
+      do (warn "Change class by unionOf:~S rdf:type owl:Class" (node-name sub))
         (change-class sub (load-time-value (find-class 'owl:|Class|))))
   ;; reinitialize supers of unions
   (loop for sub in (remove-if #'owl-restriction-p unions)
@@ -944,7 +944,7 @@
                                 (assert (not (eq (car MSCs) owl:|Nothing|)))
                                 (warn "Entailed in refining: ~S to ~S." instance (class-name (car MSCs)))
                                 (apply #'change-class instance (car MSCs) initargs))
-                               (t (warn "Twin found for ~S at ~S" instance (name (car MSCs)))
+                               (t (warn "Twin found for ~S at ~S" instance (node-name (car MSCs)))
                                   ;(destroy instance)
                                   )))
                         (t (warn "~S might be refine with changing class to ~S" instance MSCs)
@@ -961,7 +961,7 @@
                                 (assert (not (eq (car MSCs) owl:|Nothing|)))
                                 (warn "Entailed in refining: ~S to ~S." instance (class-name (car MSCs)))
                                 (apply #'change-class instance (car MSCs) initargs))
-                               (t (warn "Twin found for ~S at ~S" instance (name (car MSCs)))
+                               (t (warn "Twin found for ~S at ~S" instance (node-name (car MSCs)))
                                   ;(destroy instance)
                                   )))
                         (t (warn "~S might be refine with changing class to ~S" instance MSCs)
@@ -1118,7 +1118,7 @@
       (every #'(lambda (ins)
                  (or (eq ins instance)
                      (anonymous-p ins)
-                     (not (eql (name ins) (name instance)))))
+                     (not (eql (node-name ins) (node-name instance)))))
              (class-direct-instances class))))
 
 (defun %symbols2values (lst)
@@ -1151,8 +1151,8 @@
                   t)))))
 )
 (defun restriction-subtypep (restriction1 restriction2)
-  (and (eq (name (slot-value restriction1 'owl:|onProperty|))
-           (name (slot-value restriction2 'owl:|onProperty|)))
+  (and (eq (node-name (slot-value restriction1 'owl:|onProperty|))
+           (node-name (slot-value restriction2 'owl:|onProperty|)))
        (etypecase restriction2
          (owl:|hasValueRestriction| 
           (etypecase restriction1
@@ -1270,7 +1270,7 @@
            (let ((range (get-range property)))
              (when range
                (slot-value-range-check 'owl:|hasValue| hasvalues range)))
-           (let* ((name (name property))
+           (let* ((name (node-name property))
                   (slotd (find name (class-direct-slots class) :key #'slot-definition-name))
                #|   (initfun (cond ((symbolp hasvalues)
                                   (eval (excl::compute-initfunction-function
@@ -1334,7 +1334,7 @@
         (t ;; first or redefinition
          (let ((property (slot-value class 'owl:|onProperty|))
                (somevalues (slot-value class 'owl:|someValuesFrom|)))
-           (let* ((name (name property))
+           (let* ((name (node-name property))
                   (slotd (find name (class-direct-slots class) :key #'slot-definition-name)))
              (cond (slotd (reinitialize-instance slotd :name name
                                                  :type (make-instance 'exists
@@ -1372,7 +1372,7 @@
         (t ;; first or redefinition
          (let ((property (slot-value class 'owl:|onProperty|))
                (allvalues (slot-value class 'owl:|allValuesFrom|)))
-           (let ((name (name property))
+           (let ((name (node-name property))
                  ;(range (get-range property))
                  )
              #|
@@ -1430,7 +1430,7 @@
          )
         (t ;; first or redefinition
          (let ((property (slot-value class 'owl:|onProperty|)))
-           (let* ((name (name property))
+           (let* ((name (node-name property))
                   (maxcardinality (and (slot-boundp class 'owl:|maxCardinality|) 
                                        (slot-value class 'owl:|maxCardinality|)))
                   (mincardinality (and (slot-boundp class 'owl:|minCardinality|) 
@@ -1603,8 +1603,8 @@
   (when (slot-value slotd 'excl::initform)
     (when (not (owl-equalp value (slot-value slotd 'excl::initform)))
       (when (and (slot-value slotd 'maxcardinality) (<= (slot-value slotd 'maxcardinality) 1)
-                 (not (functional-property? (name slotd))))
-        (error "owl:|hasValue| cardinality violation: ~S.~S <- ~S" object (name slotd) value)))))
+                 (not (functional-property? (slot-definition-name slotd))))
+        (error "owl:|hasValue| cardinality violation: ~S.~S <- ~S" object (slot-definition-name slotd) value)))))
 |#
 ;;;
 ;;; We construct every inference upon subsumption-basis.
@@ -1711,7 +1711,7 @@
                       (setq known nil))))))
     ;; true or unknown here
     (loop for r in restrictions
-        as prop = (name (onproperty-of r))
+        as prop = (node-name (onproperty-of r))
         as slotvalues = (mklist (get-value object (onproperty-of r)))
         do ;(format t "~%prop:~S~%slotvalues:~S" prop slotvalues)
           (etypecase r
