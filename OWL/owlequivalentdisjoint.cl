@@ -159,7 +159,7 @@ instersection, then returns false."
   (declare (optimize (speed 3) (safety 0)))
   (cond ((equal x y))         ; symbols, objects, and gx:uri. If both are equal, then equal.
         ((and (owl-class-p x) (owl-class-p y))
-         (cond ((and (name x) (name y) (equal (name x) (name y))) t) ; if names are equal. 
+         (cond ((and (node-name x) (node-name y) (equal (node-name x) (node-name y))) t) ; if names are equal. 
                ;;name may be a cons
                ((and (owl-restriction-p x) (owl-restriction-p y))
                 (%owl-restriction-equal x y))
@@ -177,7 +177,7 @@ instersection, then returns false."
                ((and (owl-thing-p x) (owl-thing-p y)
                      (or (functional-property-equal-p x y)             ; rdfp1 by ter Horst
                          (inverse-functional-property-equal-p x y))))  ; rdfp2 by ter Horst
-               ((and (not *nonUNA*) (name x) (name y)) nil) ; if UNA and different names 
+               ((and (not *nonUNA*) (node-name x) (node-name y)) nil) ; if UNA and different names 
                (t   ; if nonUNA, check subtree, even though different names or anonymous
                 (multiple-value-bind (result graph) (rdf-graph-equalp x y)
                   (declare (ignore graph))
@@ -203,7 +203,7 @@ instersection, then returns false."
   (declare (optimize (speed 3) (safety 0)))
   (cond ((equal x y))         ; symbols, objects, and gx:uri. If both are equal, then equal.
         ((and (owl-class-p x) (owl-class-p y))
-         (cond ((and (name x) (name y) (equal (name x) (name y))) t) ; if names are equal. 
+         (cond ((and (node-name x) (node-name y) (equal (node-name x) (node-name y))) t) ; if names are equal. 
                ;;name may be a cons
                ((and (owl-restriction-p x) (owl-restriction-p y))
                 (%owl-restriction-equal x y))
@@ -221,7 +221,7 @@ instersection, then returns false."
                ((and (owl-thing-p x) (owl-thing-p y)
                      (or (functional-property-equal-p x y)             ; rdfp1 by ter Horst
                          (inverse-functional-property-equal-p x y))))  ; rdfp2 by ter Horst
-               ((and (name x) (name y)) nil) ; <--
+               ((and (node-name x) (node-name y)) nil) ; <--
                (t nil)))                     ; <--
         ((and (symbolp x) (object? x) (symbolp y) (object? y))
          (definitely-owl-equivalent-p (symbol-value x) (symbol-value y)))
@@ -258,7 +258,7 @@ instersection, then returns false."
   ;(error "Check it")
   (cond ((equal x y))            ; symbols, objects, and gx:uri. If both are equal, then equal.
         ((and (owl-class-p x) (owl-class-p y))
-         (cond ((and (name x) (name y) (equal (name x) (name y))) t) ; if names are equal. 
+         (cond ((and (node-name x) (node-name y) (equal (node-name x) (node-name y))) t) ; if names are equal. 
                ;; name may be a cons
                ((and (owl-restriction-p x) (owl-restriction-p y))
                 (%owl-restriction-equal x y))
@@ -276,7 +276,7 @@ instersection, then returns false."
                ((and (owl-thing-p x) (owl-thing-p y)
                      (or (functional-property-equal-p x y)             ; rdfp1 by ter Horst
                          (inverse-functional-property-equal-p x y))))  ; rdfp2 by ter Horst
-               ((and (not *nonUNA*) (name x) (name y)) nil) ; if UNA and different names 
+               ((and (not *nonUNA*) (node-name x) (node-name y)) nil) ; if UNA and different names 
                (t     ; if nonUNA, check subtree, even though different names or anonymous
                 (multiple-value-bind (result graph) (rdf-graph-equalp x y)
                   (declare (ignore graph))
@@ -291,7 +291,7 @@ instersection, then returns false."
   (declare (optimize (speed 3) (safety 0)))
   (cond ((equal x y))      ; symbols, objects, and gx:uri. If both are equal, then equal.
         ((and (owl-class-p x) (owl-class-p y))
-         (cond ((and (name x) (name y) (equal (name x) (name y))) t) ; if names are equal. 
+         (cond ((and (node-name x) (node-name y) (equal (node-name x) (node-name y))) t) ; if names are equal. 
                ;; name may be a cons
                ((and (owl-restriction-p x) (owl-restriction-p y))
                 (%owl-restriction-equal x y))
@@ -309,7 +309,7 @@ instersection, then returns false."
                ((and (owl-thing-p x) (owl-thing-p y)
                      (or (functional-property-equal-p x y)             ; rdfp1 by ter Horst
                          (inverse-functional-property-equal-p x y))))  ; rdfp2 by ter Horst
-               ((and (not *nonUNA*) (name x) (name y)) nil) ; if UNA and different names 
+               ((and (not *nonUNA*) (node-name x) (node-name y)) nil) ; if UNA and different names 
                (t     ; if nonUNA, check subtree, even though different names or anonymous
                 (multiple-value-bind (result graph) (rdf-graph-equalp x y)
                   (declare (ignore graph))
@@ -499,8 +499,8 @@ instersection, then returns false."
                (values nil val2))))))
 
 (defun %restriction-disjoint-p (c1 c2)
-  (let ((role1 (name (slot-value c1 'owl:|onProperty|)))
-        (role2 (name (slot-value c2 'owl:|onProperty|))))
+  (let ((role1 (node-name (slot-value c1 'owl:|onProperty|)))
+        (role2 (node-name (slot-value c2 'owl:|onProperty|))))
     (unless (equivalent-property-p role1 role2)
       (return-from %restriction-disjoint-p (values nil nil)))
     ;; compare only if role1 and role2 is equivalent.
