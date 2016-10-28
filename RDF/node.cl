@@ -6,7 +6,7 @@
 (in-package :gx)
 
 (eval-when (:compile-toplevel :load-toplevel :execute)
-  (export '(name mclasses)))
+  (export '(node-name mclasses)))
 
 (defclass gnode ()
   ((name :initarg :name :initform nil)
@@ -72,19 +72,19 @@
   (and (slot-value node 'name)
        (symbol-package (slot-value node 'name))))
 
-(defgeneric name (node))
+(defgeneric node-name (node))
 
-(defmethod name ((node symbol))
+(defmethod node-name ((node symbol))
   node)
 
-(defmethod name ((node gnode))
+(defmethod node-name ((node gnode))
   "returns a QName or a nodeID of <node>, if it exists. Otherwise nil."
   (let ((name (slot-value node 'name)))
     (when (and name (symbol-package name)) name))) ; name might have uninterned symbol.
 
-(defgeneric (setf name) (new-value node))
+(defgeneric (setf node-name) (new-value node))
 
-(defmethod (setf name) (symbol (node gnode))
+(defmethod (setf node-name) (symbol (node gnode))
   "exports <symbol> for QName."
   (setf (slot-value node 'name) symbol)
   (export-as-QName symbol)

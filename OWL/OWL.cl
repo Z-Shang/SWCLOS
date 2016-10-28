@@ -1268,7 +1268,7 @@
              (when range
                (slot-value-range-check 'owl:|hasValue| hasvalues range)))
            (let* ((name (name property))
-                  (slotd (find name (class-direct-slots class) :key #'name))
+                  (slotd (find name (class-direct-slots class) :key #'slot-definition-name))
                #|   (initfun (cond ((symbolp hasvalues)
                                   (eval (excl::compute-initfunction-function
                                          hasvalues 'slot-definition-initfunction
@@ -1332,7 +1332,7 @@
          (let ((property (slot-value class 'owl:|onProperty|))
                (somevalues (slot-value class 'owl:|someValuesFrom|)))
            (let* ((name (name property))
-                  (slotd (find name (class-direct-slots class) :key #'name)))
+                  (slotd (find name (class-direct-slots class) :key #'slot-definition-name)))
              (cond (slotd (reinitialize-instance slotd :name name
                                                  :type (make-instance 'exists
                                                          :role name
@@ -1390,7 +1390,7 @@
                        (most-specific-concepts
                         (append (mklist range) (class-direct-superclasses allvalues))))))) |#
              
-             (let ((slotd (find name (class-direct-slots class) :key #'name)))
+             (let ((slotd (find name (class-direct-slots class) :key #'slot-definition-name)))
                (cond (slotd (reinitialize-instance slotd
                                                    :name name
                                                    :type (make-instance 'forall
@@ -1434,7 +1434,7 @@
                                        (slot-value class 'owl:|minCardinality|)))
                   (cardinality (and (slot-boundp class 'owl:|cardinality|) 
                                     (slot-value class 'owl:|cardinality|)))
-                  (slotd (find name (class-direct-slots class) :key #'name)))
+                  (slotd (find name (class-direct-slots class) :key #'slot-definition-name)))
              (when (datatype-p (class-of cardinality))
                (setq cardinality (value-of cardinality)))
              (assert (or (null cardinality) (integerp cardinality)))

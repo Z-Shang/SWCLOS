@@ -356,7 +356,7 @@ Call to (METHOD SHARED-INITIALIZE :AFTER (RDF:|Property| T))
 
          (cond (initargs ; first and reinitialize
                 (let ((newrange (getf initargs 'rdfs:|range|))
-                      (prop-name (name instance)))
+                      (prop-name (node-name instance)))
                   (declare (ignore newrange prop-name))
                   #|
            (when (or newdomain newrange)
@@ -389,7 +389,7 @@ Call to (METHOD SHARED-INITIALIZE :AFTER (RDF:|Property| T))
   (declare (ignore slot-names))
   ;; inverse relation of rdfs:subPropertyOf
   (loop for super in (mklist (getf initargs 'rdfs:|subPropertyOf|))
-      do (when (or (eql (name super) (name property))
+      do (when (or (eql (node-name super) (node-name property))
                    (subproperty-p super property))
            (error 'asyclic-property-termilogy-error
              :format-control "<~S, ~S>"
@@ -417,7 +417,7 @@ Call to (METHOD SHARED-INITIALIZE :AFTER (RDF:|Property| T))
   (loop for domain in (mklist newdomain)
       when (and (rsc-object-p domain)
                 (not (associated-p instance domain)))
-      do (let* ((slot-name (name instance))
+      do (let* ((slot-name (node-name instance))
                 (range (get-range instance))
                 (prop-forms
                  (cond ((null range)
@@ -756,11 +756,11 @@ Call to (METHOD SHARED-INITIALIZE :AFTER (RDF:|Property| T))
                          (loop for fil in filler
                              unless (typep fil type)
                              do (unless (eq (class-of fil) (load-time-value (symbol-value '|rdfs:Resource|)))
-                                  (warn "Range entail of ~S: change class of ~S to ~S." (name slotd) fil type))
+                                  (warn "Range entail of ~S: change class of ~S to ~S." (slot-definition-name slotd) fil type))
                                (change-class fil type)))
                         ((typep filler type) nil)
                         (t (unless (eq (class-of filler) (load-time-value (symbol-value '|rdfs:Resource|)))
-                             (warn "Range entail of ~S: change class of ~S to ~S." (name slotd) filler type))
+                             (warn "Range entail of ~S: change class of ~S to ~S." (slot-definition-name slotd) filler type))
                            (change-class filler type))))
       (otherwise (error "Cant happen!")))))
 
@@ -874,7 +874,7 @@ Checks the residual mclasses of all instances of <class>."
         ((and (consp slot-names) (null initargs)) ; when metaclass redefined, propagated
          )
         ((eq slot-names t)   ;; first definition
-         (let* ((datatype (name class))
+         (let* ((datatype (node-name class))
 		#+allegro ; TODO: what's the purpose here?
                 (fname `(excl::deftype-expander ,datatype)))
            (cond #+allegro
@@ -883,12 +883,12 @@ Checks the residual mclasses of all instances of <class>."
                   (symbol-function datatype)
                   `(deftype ,datatype (satisfies ,datatype)))
                  (t (warn "Datatype ~S is defined. Please define lisp type with same name."
-                      (name class))))))
+                      (node-name class))))))
         (t ;; redefinition
-         (case (name class)
+         (case (node-name class)
            (rdf:|XMLLiteral| nil)
            (otherwise
-            (let* ((datatype (name class))
+            (let* ((datatype (node-name class))
 		   #+allegro ; TODO: what's the purpose here?
                    (fname `(excl::deftype-expander ,datatype)))
               (cond #+allegro
@@ -897,7 +897,7 @@ Checks the residual mclasses of all instances of <class>."
                      (symbol-function datatype)
                      `(deftype ,datatype (satisfies ,datatype)))
                     (t (warn "Datatype ~S is defined. Please define lisp type with same name."
-                         (name class))))))))))
+                         (node-name class))))))))))
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;;

@@ -159,8 +159,8 @@
          (and (eq (class-of x) (class-of y))                         ; "1"^xsd:|integer| /= "1.0"^xsd:|float|
               (%rdf-equalp (value-of x) (value-of y))))
         ((and (rsc-object-p x) (rsc-object-p y))
-         (cond ((and (name x) (name y) (equal (name x) (name y))) t) ; if names are equal, then equal. name may be a cons
-               ((and (not *nonUNA*) (name x) (name y)) nil) ; if UNA and different names then different
+         (cond ((and (node-name x) (node-name y) (equal (node-name x) (node-name y))) t) ; if names are equal, then equal. name may be a cons
+               ((and (not *nonUNA*) (node-name x) (node-name y)) nil) ; if UNA and different names then different
                (t                                    ; if nonUNA, check subtree, even though different names or anonymous
                 (not (not (rdf-graph-equalp x y))))))
         ((and (consp x) (consp y))
@@ -299,12 +299,12 @@ cases, each value is compared with each slot name."
                                      :test #'(lambda (yrole xrole) (role-val-equalp y yrole x xrole))))
                        graph))
                      ;; no subgraph
-                     ((and (name x) (name y))
-                      (if (equal (name x) (name y)) (values t t)
+                     ((and (node-name x) (node-name y))
+                      (if (equal (node-name x) (node-name y)) (values t t)
                         (values nil t)))
-                     ((name x) ; anonymous y
+                     ((node-name x) ; anonymous y
                       (values nil t))
-                     ((name y) ; anonymous x
+                     ((node-name y) ; anonymous x
                       (values nil t))
                      (t (values nil t)))))))
         (t (values nil nil))))
@@ -316,8 +316,8 @@ cases, each value is compared with each slot name."
          (and (eq (class-of x) (class-of y))
               (equalp (value-of x) (value-of y))))
         ((and (rsc-object-p x) (rsc-object-p y))
-         (cond ((and (name x) (name y))
-                (cond ((equal (name x) (name y)) t)        ; if names are equal, then equal. 
+         (cond ((and (node-name x) (node-name y))
+                (cond ((equal (node-name x) (node-name y)) t)        ; if names are equal, then equal. 
                       ;; name may be cons
                       (*nonUNA*
                        (multiple-value-bind (result graph) (rdf-graph-equalp x y)
@@ -380,13 +380,13 @@ cases, each value is compared with each slot name."
                    (yroles ; no xroles
                     (values t t))
                    ;; no subgraph, both atomic
-                   ((and (name x) (name y))
-                    (if (equal (name x) (name y))
+                   ((and (node-name x) (node-name y))
+                    (if (equal (node-name x) (node-name y))
                         (values nil t)
                       (values t t)))
-                   ((name x) ; anonymous y
+                   ((node-name x) ; anonymous y
                     (values t t))
-                   ((name y) ; anonymous x
+                   ((node-name y) ; anonymous x
                     (values t t))
                    (t ; both atomic anonymous
                     (values nil nil))))))
@@ -698,7 +698,7 @@ A subclass of this class is a metaclass.")
          (print-unreadable-object (obj stream :type t)
            (format stream "~S ~S"
              (forall-role obj)
-             (or (name (forall-filler obj))
+             (or (node-name (forall-filler obj))
                  (get-form (forall-filler obj))))))
         (t (call-next-method))))
 (defmethod print-object ((obj exists) stream)
@@ -707,7 +707,7 @@ A subclass of this class is a metaclass.")
          (print-unreadable-object (obj stream :type t)
            (format stream "~S.~S"
              (exists-role obj)
-             (or (name (exists-filler obj))
+             (or (node-name (exists-filler obj))
                  (get-form (exists-filler obj))))))
         (t (call-next-method))))
 (defmethod print-object ((obj fills) stream)
@@ -716,7 +716,7 @@ A subclass of this class is a metaclass.")
          (print-unreadable-object (obj stream :type t)
            (format stream "~S.~S"
              (fills-role obj)
-             (or (name (fills-filler obj))
+             (or (node-name (fills-filler obj))
                  (get-form (fills-filler obj))))))
         (t (call-next-method))))
 
@@ -1162,7 +1162,7 @@ A subclass of this class is a metaclass.")
                                                                                   (owl-equivalent-p x y))
                                                                                  ((and (c2cl:typep x rdfs:|Resource|)
                                                                                        (c2cl:typep y rdfs:|Resource|)
-                                                                                       (not (name x)) (not (name y)))
+                                                                                       (not (node-name x)) (not (node-name y)))
                                                                                   ; x and y might be an individual
                                                                                   (owl-equivalent-p x y)))))))
                                        (set-difference l l :test #'strict-abstp))))
@@ -1515,12 +1515,12 @@ A subclass of this class is a metaclass.")
                   ((object? x) (type-of (symbol-value x)))
                   (t (error "Symbol ~S is not defined as QName." x))))
     (rdf:|inLang| 'rdf:|XMLLiteral|)
-    (rdfs:|Resource| (cond ((shadowed-class-p (class-of x)) (mapcar #'name (mclasses x)))
+    (rdfs:|Resource| (cond ((shadowed-class-p (class-of x)) (mapcar #'node-name (mclasses x)))
                          (t (cl:type-of x))))
     (rdfsClass (cond ((eql x rdfs:|Class|) 'rdfs:|Class|)
                      (t (error "Another meta-metaclass than rdfs:Class:~S" x))))
     (otherwise (cond ((stringp x) 'xsd:|string|)
-                     ((shadowed-class-p (class-of x)) (mapcar #'name (mclasses x)))
+                     ((shadowed-class-p (class-of x)) (mapcar #'node-name (mclasses x)))
                      (t (cl:type-of x))))))
 
 ;;;
@@ -1638,7 +1638,7 @@ A subclass of this class is a metaclass.")
      (typecase object
        (rdfs:|Resource| (%typep object type))
        ;; resolve for object
-       (uri (cond ((string= (name type) "Ontology") (values t t))
+       (uri (cond ((string= (node-name type) "Ontology") (values t t))
                           ((c2cl:subtypep (symbol-value 'xsd:|anyURI|) type) (values t t))
                           ((and (iri-p object) (iri-boundp object))
                            (%typep (iri-value object) type))
@@ -1705,12 +1705,12 @@ A subclass of this class is a metaclass.")
         )
        (rdf:|inLang| (if (c2cl:subtypep (symbol-value 'xsd:|string|) type) (values t t) (values nil t)))
        (cons (if (c2cl:subtypep rdf:|List| type) (values t t) (values nil t)))
-       (cl:string (cond ((and (c2cl:typep type rdfs:|Datatype|) (c2cl:typep object (name type)))
+       (cl:string (cond ((and (c2cl:typep type rdfs:|Datatype|) (c2cl:typep object (node-name type)))
                          (values t t))
                         ((c2cl:subtypep (symbol-value 'xsd:|string|) type)
                          (values t t))
                         (t (values nil t))))
-       (cl:number (cond ((and (c2cl:typep type rdfs:|Datatype|) (c2cl:typep object (name type)))
+       (cl:number (cond ((and (c2cl:typep type rdfs:|Datatype|) (c2cl:typep object (node-name type)))
                          (values t t))
                         ((c2cl:subtypep (symbol-value 'xsd:|decimal|) type)
                          (values t t))
