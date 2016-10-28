@@ -96,13 +96,12 @@
    (:module "OWL"          :depends-on ("RDFS")
     :components
     ((:file "owlerror")
-     #+ignore (:file "owlkernel")
+     (:file "owlkernel")
      (:file "owlsamedifferent")
      (:file "owlequivalentdisjoint")
      (:file "NNF")
      (:file "tunify")
      (:file "subsume"      :depends-on ("NNF" "tunify"))
-     #+ignore
      (:file "OWL"          :depends-on ("subsume" "owlkernel"))))
    (:module "NTriple"      :depends-on ("RDFS")
     :components
