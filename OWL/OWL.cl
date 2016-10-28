@@ -721,26 +721,29 @@
          )
         ((and (consp slot-names) (null initargs)) ; when metaclass redefined, propagated
          )
-        (t ;; first or redefinition
-         (with-slots (rdfs:|subClassOf| owl:|intersectionOf| owl:|unionOf| owl:|equivalentClass| 
-                                      owl:|disjointWith| owl:|complementOf|)
-             class
-           ;; see also ensure-meta-absts-using-class class for subclasses and intersections
-           (when (and (slot-boundp class 'rdfs:|subClassOf|) rdfs:|subClassOf|)
-             (check-intersection-refining-for-subclasses class (mklist rdfs:|subClassOf|))
-             (when (class-direct-subclasses class)
-               (check-union-refining-for-subclasses class (class-direct-subclasses class))))
-           (when (and (slot-boundp class 'owl:|intersectionOf|) owl:|intersectionOf|)
-             (shared-initialize-after-for-intersectionOf class owl:|intersectionOf|))
-           (when (and (slot-boundp class 'owl:|unionOf|) owl:|unionOf|)
-             (unless (eq class owl:|Thing|)
-               (shared-initialize-after-for-unionOf class owl:|unionOf|)))
-           (when (and (slot-boundp class 'owl:|equivalentClass|) owl:|equivalentClass|)
-             (shared-initialize-after-for-equivalentClass class (mklist owl:|equivalentClass|)))
-           (when (and (slot-boundp class 'owl:|disjointWith|) owl:|disjointWith|)
-             (shared-initialize-after-for-disjointWith class (mklist owl:|disjointWith|)))
-           (when (and (slot-boundp class 'owl:|complementOf|) owl:|complementOf|)
-             (shared-initialize-after-for-complementOf class (mklist owl:|complementOf|))))
+        (t ; first or redefinition
+	 ;; see also ensure-meta-absts-using-class class for subclasses and intersections
+	 (when (and (slot-boundp class 'rdfs:|subClassOf|)
+		    (slot-value class 'rdfs:|subClassOf|))
+	   (check-intersection-refining-for-subclasses class (mklist (slot-value class 'rdfs:|subClassOf|)))
+	   (when (class-direct-subclasses class)
+	     (check-union-refining-for-subclasses class (class-direct-subclasses class))))
+	 (when (and (slot-boundp class 'owl:|intersectionOf|)
+		    (slot-value class 'owl:|intersectionOf|))
+	   (shared-initialize-after-for-intersectionOf class (slot-value class 'owl:|intersectionOf|)))
+	 (when (and (slot-boundp class 'owl:|unionOf|)
+		    (slot-value class 'owl:|unionOf|))
+	   (unless (eq class owl:|Thing|)
+	     (shared-initialize-after-for-unionOf class (slot-value class 'owl:|unionOf|))))
+	 (when (and (slot-boundp class 'owl:|equivalentClass|)
+		    (slot-value class owl:|equivalentClass|))
+	   (shared-initialize-after-for-equivalentClass class (mklist (slot-value class owl:|equivalentClass|))))
+	 (when (and (slot-boundp class 'owl:|disjointWith|)
+		    (slot-value class 'owl:|disjointWith|))
+	   (shared-initialize-after-for-disjointWith class (mklist (slot-value class 'owl:|disjointWith|))))
+	 (when (and (slot-boundp class 'owl:|complementOf|)
+		    (slot-value class 'owl:|complementOf|))
+	   (shared-initialize-after-for-complementOf class (mklist (slot-value class owl:|complementOf|))))
          (unless (owl-thing-p class)
            (reinitialize-instance
             class
@@ -754,7 +757,7 @@
 (defun symmetric-property-p (obj)
   "Is this <obj> an instance of owl:SymmetricProperty?"
   ;;this is same as '(c2cl:typep <obj> owl:SymmetricProperty)'
-  (and (excl::standard-instance-p obj)
+  (and (standard-instance-p obj)
        (let ((class (class-of obj)))
          (cond ((eq class (load-time-value owl:|SymmetricProperty|)))
                ((class-finalized-p class)
@@ -1095,7 +1098,7 @@
                            (warn "Change class by distinctMembers: ~S type owl:|Thing|." distinct)
                            (change-class distinct 'owl:|Thing|)))
                         (t (warn "Entail by distinctMembers: ~S type owl:|Thing|." distinct)
-                           (make-instance 'owl:|Thing| `(:name ,distinct)))))
+                           (make-instance 'owl:|Thing| :name distinct))))
                  ((owl-thing-p distinct))
                  (t (warn "Change class by distinctMembers: ~S type owl:|Thing|." distinct)
                     (change-class distinct 'owl:|Thing|)
