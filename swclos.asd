@@ -93,17 +93,17 @@
      (:file "gxutils"      :depends-on ("RdfsCore"))
      (:file "rdfwriter"    :depends-on ("gxutils" "GxForwardRef"))
      ))
-   #+ignore
    (:module "OWL"          :depends-on ("RDFS")
     :components
     ((:file "owlerror")
-     (:file "owlkernel")
+     #+ignore (:file "owlkernel")
      (:file "owlsamedifferent")
      (:file "owlequivalentdisjoint")
      (:file "NNF")
      (:file "tunify")
      (:file "subsume"      :depends-on ("NNF" "tunify"))
-     (:file "OWL"          :depends-on ("subsume"))))
+     #+ignore
+     (:file "OWL"          :depends-on ("subsume" "owlkernel"))))
    (:module "NTriple"      :depends-on ("RDFS")
     :components
     ((:file "ntriple")

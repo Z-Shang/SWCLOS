@@ -44,7 +44,7 @@
   "Is this <obj> an instance of owl:FunctionalProperty?"
   ;;this is the same as '(c2cl:typep <obj> owl:FunctionalProperty)'
   (declare (optimize (speed 3) (safety 0)))
-  (and (excl::standard-instance-p obj)
+  (and (standard-instance-p obj)
        (let ((class (class-of obj)))
          (cond ((eq class (load-time-value 
                            (symbol-value 'owl:|FunctionalProperty|))))
@@ -81,7 +81,7 @@
   "Is this <obj> an instance of owl:InverseFunctionalProperty?"
   ;;this is the same as '(c2cl:typep <obj> owl:InverseFunctionalProperty)'
   (declare (optimize (speed 3) (safety 0)))
-  (and (excl::standard-instance-p obj)
+  (and (standard-instance-p obj)
        (let ((class (class-of obj)))
          (cond ((eq class (load-time-value 
                           (symbol-value 'owl:|InverseFunctionalProperty|))))
