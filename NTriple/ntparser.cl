@@ -310,8 +310,9 @@ absoluteURI ::= character+ with escapes as defined in section URI References
 
 (defun read-NTriple-file (process-fn &optional (file (ask-user-nt-file)) (code :default))
   (unless file (return-from read-NTriple-file nil))
-  (with-open-file (stream (pathname file) :external-format (excl:find-external-format code))
-    (read-ntripleDoc stream process-fn)))
+  (with-open-file (istream (pathname file))
+    (let ((stream (flexi-streams:make-flexi-stream istream :external-format (find-external-format code))))
+      (read-ntripleDoc stream process-fn))))
 
 (defun rdf-parser-test (subject predicate object)
   (cond ((and (null subject) (null predicate) (null object))

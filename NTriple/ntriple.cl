@@ -198,13 +198,13 @@
 ;;;
 
 (defmethod superclasses-of ((object rdfs:|Class|))
-  (mop:class-direct-superclasses object))
+  (class-direct-superclasses object))
 (defmethod subclasses-of ((object rdfs:|Class|))
-  (mop:class-direct-subclasses object))
+  (class-direct-subclasses object))
 
 (defmethod addTriple ((subject rdfs:|Class|) (predicate (eql rdfs:|subClassOf|)) (object rdfs:|Class|))
   ;; if subject is already subclass of object, nothing done.
-  (if (cl:subtypep subject object) subject
+  (if (c2cl:subtypep subject object) subject
     (let ((supers (superclasses-of subject)))
       (setq supers (most-specific-concepts (cons object supers)))
       (addClass (list (class-of subject)) subject supers '()))))
@@ -477,7 +477,7 @@
     (when (setq range (get-range predicate))
       (unless (typep object range)
         (error "Range violation:~S for ~S" object range))
-      (unless (cl:typep object range)
+      (unless (c2cl:typep object range)
         (warn "Entail in ~S ~S ~S:~%..... ~S rdf:type ~S"
           subject (name predicate) object object range)
         (addTriple object rdf:|type| range)))
@@ -505,7 +505,7 @@
     (when (setq range (get-range predicate))
       (unless (typep object range)
         (error "Range violation:~S for ~S" object range))
-      (unless (cl:typep object range)
+      (unless (c2cl:typep object range)
         (warn "Entail in ~S ~S ~S:~%..... ~S rdf:type ~S"
           subject (name predicate) object object range)
         (addTriple object rdf:|type| range)))
@@ -827,10 +827,10 @@
 (/. baz1 bas baz2)
 
 (defun revert-slot (slotd)
-  (let ((role (mop:slot-definition-name slotd))
-        (filler (mop:slot-definition-initform slotd))
-        (readers (mop:slot-definition-readers slotd))
-        (writers (mop:slot-definition-writers slotd)))
+  (let ((role (slot-definition-name slotd))
+        (filler (slot-definition-initform slotd))
+        (readers (slot-definition-readers slotd))
+        (writers (slot-definition-writers slotd)))
     `(:name ,role :initargs (,role) :initform ,filler :type ,filler
             :readers ,readers :writers ,writers)))
 
