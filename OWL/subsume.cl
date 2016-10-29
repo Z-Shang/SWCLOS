@@ -160,6 +160,7 @@
          (mappend #'(lambda (conj) (mklist (unfold-intersection conj)))
                   dintersections)))
     (%intersection-subsumed-p c (remove-duplicates unfolded :test #'rdf-equalp))))
+
 (defun %intersection-subsumed-p (c dintersections)
   (unless (class-finalized-p c) (finalize-inheritance c))
   (let ((cpl (clos:class-precedence-list c))
@@ -173,9 +174,10 @@
               (remove-if-not #'(lambda (cs) (c2cl:typep cs 'Property-effective-slot-definition))
                              (class-slots c))
               (remove-duplicates
-               (mapcar #'(lambda (dr) (name (onproperty-of dr))) drestrs))
+               (mapcar #'(lambda (dr) (node-name (onproperty-of dr))) drestrs))
               (remove-if-not #'(lambda (x) (c2cl:typep x (symbol-value 'owl:|cardinalityRestriction|))) drestrs)
               (remove-if #'(lambda (x) (c2cl:typep x (symbol-value 'owl:|cardinalityRestriction|))) drestrs))))))
+
 (defun %intersection-restriction-subsumed-p (cslots dprops dcards dcnsts)
   "cslots are effective slots for c's instances, dprops are property names for restrictions as intersection at d.
    dcars are cardinality restrictions on d's properties. dcnsts are non-cardinality restrictions on d's properties."
@@ -183,7 +185,7 @@
     (values 
      (loop for prop in dprops
          always 
-           (flet ((onproperty-p (x) (eq prop (name (onproperty-of x))))
+           (flet ((onproperty-p (x) (eq prop (node-name (onproperty-of x))))
                   (get-maxcard
                    (x)
                    (and x
