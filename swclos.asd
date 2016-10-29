@@ -97,8 +97,8 @@
     :components
     ((:file "owlerror")
      (:file "owlkernel")
-     (:file "owlsamedifferent")
-     (:file "owlequivalentdisjoint")
+     (:file "owlsamedifferent" :depends-on ("owlkernel"))
+     (:file "owlequivalentdisjoint" :depends-on ("owlkernel"))
      (:file "NNF")
      (:file "tunify")
      (:file "subsume"      :depends-on ("NNF" "tunify"))

@@ -77,12 +77,12 @@
   ;; OWL module
   (:module :owlerror  "OWL/owlerror"  (:load-before-compile :RDFS))
   (:module :owlkernel "OWL/owlkernel" (:load-before-compile :RDFS))
-  (:module :owlsamedifferenct "OWL/owlsamedifferent" (:load-before-compile :RDFS))
-  (:module :owlequivalentdisjoint "OWL/owlequivalentdisjoint" (:load-before-compile :RDFS))
+  (:module :owlsamedifferenct "OWL/owlsamedifferent" (:load-before-compile :RDFS :owlkernel))
+  (:module :owlequivalentdisjoint "OWL/owlequivalentdisjoint" (:load-before-compile :RDFS :owlkernel))
   (:module :NNF     "OWL/NNF"     (:load-before-compile :RDFS))
   (:module :tunify  "OWL/tunify"  (:load-before-compile :RDFS))
   (:module :subsume "OWL/subsume" (:load-before-compile :RDFS :NNF :tunify))
-  (:module :OWL     "OWL/OWL"     (:load-before-compile :RDFS :subsume))
+  (:module :OWL     "OWL/OWL"     (:load-before-compile :RDFS :owlkernel :subsume))
   )
 
 (excl:defsystem :NTriple (:pretty-name "NTriple subsystem of SWCLOS"
