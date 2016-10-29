@@ -22,7 +22,7 @@
 (in-package :gx)
 
 (eval-when (:compile-toplevel :load-toplevel :execute)
-  (export '(read-NTriple-file addTriple-from-file)))
+  (export '(read-NTriple-file add-triple-from-file)))
 
 ;;
 ;; Name space is mapped to a lisp package.
@@ -323,7 +323,7 @@ absoluteURI ::= character+ with escapes as defined in section URI References
 
 #|
 (read-NTriple-file #'gx::rdf-parser-test)
-(read-NTriple-file #'addTriple-from-file)
+(read-NTriple-file #'add-triple-from-file)
 > (get-form eg:Proposal)
 > (<- eg:Proposal eg:author eg:name)
 > (<- eg:Proposal dc:title)

@@ -118,8 +118,8 @@
 ;;; (rdf-equalp (iri "http://somewhere") (iri "http://somewhere"))    -> true
 ;;; (rdf-equalp (iri "http://somewhere") (iri "http://some%20where")) -> false
 ;;; (rdf-equalp 'foo 'bar)                                            -> false
-;;; (defIndividual foo)                                     -> #<|rdfs:Resource| foo>
-;;; (defIndividual bar)                                     -> #<|rdfs:Resource| bar>
+;;; (def-individual foo)                                     -> #<|rdfs:Resource| foo>
+;;; (def-individual bar)                                     -> #<|rdfs:Resource| bar>
 ;;; (rdf-equalp foo bar)                                              -> false
 ;;; (let ((*nonUNA* t)) (rdf-equalp foo bar))                     -> false
 ;;; ----------------------------------------------------------------------------------
@@ -232,7 +232,7 @@ rdfs:ContainerMembershipProperty is bound."
   (let ((role (intern (format nil "_~D" n) :rdf)))
     (unless (and (boundp role)
                  (c2cl:typep (symbol-value role) 'rdfs:|ContainerMembershipProperty|))
-      (addInstance (list (symbol-value 'rdfs:|ContainerMembershipProperty|)) role ()))
+      (add-instance (list (symbol-value 'rdfs:|ContainerMembershipProperty|)) role ()))
     role))
 
 (defun collect-container-members (container)

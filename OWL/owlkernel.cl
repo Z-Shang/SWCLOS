@@ -827,9 +827,9 @@ and instance of owl:Class."))
                           (t (mapc #'(lambda (fil) (range-satisfy fil)) y))))))))))
 ) ; end of without-redefinition-warnings
 
-(defProperty owl:|complementOf|)
-(defConcept owl:|Ontology|)
-(defProperty owl:|unionOf|)
+(def-property owl:|complementOf|)
+(def-concept owl:|Ontology|)
+(def-property owl:|unionOf|)
 
 ;;;
 ;;;; Default Super Class in OWL
@@ -896,9 +896,9 @@ and instance of owl:Class."))
 ;;;; Here OWL rdf file is read.
 ;;;
 
-(defProperty owl::|imports|)          ; just for suppression of entailment warning
-(defProperty owl::|versionInfo|)      ; just for suppression of entailment warning
-(defProperty owl::|priorVersion|)     ; just for suppression of entailment warning
+(def-property owl::|imports|)          ; just for suppression of entailment warning
+(def-property owl::|versionInfo|)      ; just for suppression of entailment warning
+(def-property owl::|priorVersion|)     ; just for suppression of entailment warning
 
 (eval-when (:load-toplevel)
   (read-rdf-file #'addRdfXml "OWL:OWL.rdf"))
@@ -911,16 +911,16 @@ and instance of owl:Class."))
 ;;;
 ;;; Then, we add owl:Functional&InverseFunctionalProperty
 ;;;
-(addClass `(,rdfs:|Class|) '|owl:FunctionalProperty|
+(add-class `(,rdfs:|Class|) '|owl:FunctionalProperty|
           `(,(symbol-value 'owl:|FunctionalProperty|) ,(symbol-value 'owl:|ObjectProperty|)))
-(addClass `(,rdfs:|Class|) 'owl::Functional&InverseFunctionalProperty
+(add-class `(,rdfs:|Class|) 'owl::Functional&InverseFunctionalProperty
           `(,(symbol-value '|owl:FunctionalProperty|) ,(symbol-value 'owl:|InverseFunctionalProperty|)))
 
 ;;;; We add some new axioms for OWL.
 ;;;
 
 ;;; For OWL Full, an owl class also inherit owl:|Thing|
-(addClass `(,(class-of owl:|Class|)) 'owl:|Class| `(,owl:|Thing|) ())
+(add-class `(,(class-of owl:|Class|)) 'owl:|Class| `(,owl:|Thing|) ())
 #|
 (apply #'ensure-class-using-class (find-class 'shadowed-class) 'shadowed-class
        :direct-superclasses `(,owl:|Class|)

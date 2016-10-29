@@ -63,7 +63,7 @@
 ;;; (i) top level macro layer, 
 ;;; (ii) intermediate function/method layer, and 
 ;;; (iii) MOP programming layer.
-;;; The top level macro layer, which includes three macros, <defConcept>, <defProperty>, and <defIndividual>,
+;;; The top level macro layer, which includes three macros, <def-concept>, <def-property>, and <def-individual>,
 ;;; allows users to input RDF(S) and OWL entities in S-expression just in the same feeling as defining classes 
 ;;; or structures in lisp. 
 ;;; The intermediate layer composed of several functions and methods mediates inputs at the top level to the 

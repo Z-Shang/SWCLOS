@@ -172,30 +172,30 @@
 ;; (subsumed-p vin:DryWine vin:TableWine)
 ;; (subsumed-p vin:DryWhiteWine vin:WhiteNonSweetWine)
 #|
-(defConcept Person)
-(defConcept Doctor
+(def-concept Person)
+(def-concept Doctor
     (owl:|intersectionOf| Person
                         (owl:|Restriction| (owl:|onProperty| hasMedicalBranch)
                                          (owl:|someValuesFrom| MedicalBranch))))
-(defConcept Doctor* (rdfs:|subClassOf| Person))
-(defProperty hasMedicalBranch (rdfs:|domain| Doctor*) (rdfs:|range| MedicalBranch))
-(defConcept Employee
+(def-concept Doctor* (rdfs:|subClassOf| Person))
+(def-property hasMedicalBranch (rdfs:|domain| Doctor*) (rdfs:|range| MedicalBranch))
+(def-concept Employee
     (owl:|intersectionOf| Person
                         (owl:|Restriction| (owl:|onProperty| hasSalary)
                                          (owl:|someValuesFrom| Salary))))
-(defConcept Employee* (rdfs:|subClassOf| Person))
-(defProperty hasSalary (rdfs:|domain| Employee*) (rdfs:|range| Salary))
-(defConcept Employer
+(def-concept Employee* (rdfs:|subClassOf| Person))
+(def-property hasSalary (rdfs:|domain| Employee*) (rdfs:|range| Salary))
+(def-concept Employer
     (owl:|intersectionOf| Person
                         (owl:|Restriction| (owl:|onProperty| hasEmployee)
                                          (owl:|someValuesFrom| Employee)))
   (owl:|disjointWith| Employee))
-(defConcept Employer* (rdfs:|subClassOf| Person))
-(defProperty hasEmployee (rdfs:|domain| Employer*) (rdfs:|range| Employee))
+(def-concept Employer* (rdfs:|subClassOf| Person))
+(def-property hasEmployee (rdfs:|domain| Employer*) (rdfs:|range| Employee))
 
-(defConcept DoctorAndEmployee
+(def-concept DoctorAndEmployee
     (owl:|intersectionOf| Employee Doctor))
-(defConcept DoctorAndEmployee* (rdf:|type| owl:|Class|)
+(def-concept DoctorAndEmployee* (rdf:|type| owl:|Class|)
     (rdfs:|subClassOf| Employee* Doctor*))
 
 (subsumed-p DoctorAndEmployee Doctor)
@@ -203,9 +203,9 @@
 (subsumed-p DoctorAndEmployee Doctor*)
 (subsumed-p DoctorAndEmployee* Doctor)
 
-(defConcept DoctorAndEmployer
+(def-concept DoctorAndEmployer
     (owl:|intersectionOf| Employer Doctor))
-(defConcept DoctorSelfEmployed
+(def-concept DoctorSelfEmployed
     (owl:|intersectionOf| Doctor
                         (owl:|Class| (owl:|complementOf| Employee))
                         (owl:|Class| (owl:|complementOf| Employer))))
@@ -222,14 +222,14 @@
 (disjoint-p DoctorSelfEmployed DoctorAndEmployer)
 (disjoint-p DoctorAndEmployee DoctorAndEmployer)
 
-(defConcept AlbeitDoctor* (rdf:|type| owl:|Class|)
+(def-concept AlbeitDoctor* (rdf:|type| owl:|Class|)
   (rdfs:|subClassOf| Doctor))
-(defProperty hasSalary (rdfs:|domain| AlbeitDoctor*) (rdfs:|range| Salary))
+(def-property hasSalary (rdfs:|domain| AlbeitDoctor*) (rdfs:|range| Salary))
 
 (subsumed-p AlbeitDoctor* DoctorAndEmployee)
 (subsumed-p DoctorAndEmployee AlbeitDoctor*)
 
-(defConcept AlbeitDoctor 
+(def-concept AlbeitDoctor 
     (owl:|intersectionOf| Doctor
                         (owl:|Restriction| (owl:|onProperty| hasSalary)
                                          (owl:|someValuesFrom| Salary))))
@@ -238,19 +238,19 @@
 (subsumed-p DoctorAndEmployee* AlbeitDoctor)
 
 
-(defConcept Parent
+(def-concept Parent
     (owl:|intersectionOf| Person
                         (owl:|Restriction| (owl:|onProperty| hasChild)
                                          (owl:|someValuesFrom| Person))))
-(defConcept ParentOfEmployee
+(def-concept ParentOfEmployee
     (owl:|intersectionOf| Person
                         (owl:|Restriction| (owl:|onProperty| hasChild)
                                          (owl:|someValuesFrom| Employee))))
-(defConcept ParentOfEmployer
+(def-concept ParentOfEmployer
     (owl:|intersectionOf| Person
                         (owl:|Restriction| (owl:|onProperty| hasChild)
                                          (owl:|someValuesFrom| Employer))))
-(defConcept ParentOfDoctor
+(def-concept ParentOfDoctor
     (owl:|intersectionOf| Person
                         (owl:|Restriction| (owl:|onProperty| hasChild)
                                          (owl:|someValuesFrom| Doctor))))
@@ -260,7 +260,7 @@
 (subsumed-p ParentOfEmployer ParentOfDoctor)
 (disjoint-p ParentOfEmployee ParentOfDoctor)
 
-(defConcept ParentWhosChildAllDoctor
+(def-concept ParentWhosChildAllDoctor
     (owl:|intersectionOf| Parent
                         (owl:|Restriction| (owl:|onProperty| hasChild)
                                          (owl:|allValuesFrom| Doctor))))
@@ -269,15 +269,15 @@
 (subsumed-p ParentWhosChildAllDoctor ParentOfEmployer)
 (subsumed-p ParentOfEmployer ParentWhosChildAllDoctor)
 
-(defConcept ParentOfDoctorAndEmployee
+(def-concept ParentOfDoctorAndEmployee
     (owl:|intersectionOf| Person
                         (owl:|Restriction| (owl:|onProperty| hasChild)
                                          (owl:|someValuesFrom| DoctorAndEmployee))))
-(defConcept ParentOfDoctorAndEmployer
+(def-concept ParentOfDoctorAndEmployer
     (owl:|intersectionOf| Person
                         (owl:|Restriction| (owl:|onProperty| hasChild)
                                          (owl:|someValuesFrom| DoctorAndEmployer))))
-(defConcept ParentOfDoctorSelfEmployed
+(def-concept ParentOfDoctorSelfEmployed
     (owl:|intersectionOf| Person
                         (owl:|Restriction| (owl:|onProperty| hasChild)
                                          (owl:|someValuesFrom| DoctorSelfEmployed))))
@@ -286,26 +286,26 @@
 (subsumed-p ParentOfDoctorAndEmployee ParentOfEmployee)
 (subsumed-p ParentOfDoctorAndEmployee ParentOfEmployer)
 
-(defConcept IntersectOfParentsOfEmployeeAndParentsOfDoctor
+(def-concept IntersectOfParentsOfEmployeeAndParentsOfDoctor
     (owl:|intersectionOf| ParentOfEmployee ParentOfDoctor))
 (defConcpet IntersectOfParentOfEmployeeAndParentOfDoctor
     (owl:|intersectionOf| ParentOfEmployee ParentOfEmployer))
-(defConcept IntersectOfParentOfEmployeeParentOfEmployerParentOfDoctor
+(def-concept IntersectOfParentOfEmployeeParentOfEmployerParentOfDoctor
     (owl:|intersectionOf| ParentOfEmployee ParentOfEmployer ParentOfDoctor))
-(defConcept IntersectOfParentOfEmployeeAndParentOfEmployerInheritParentOfDoctor
+(def-concept IntersectOfParentOfEmployeeAndParentOfEmployerInheritParentOfDoctor
     (owl:|intersectionOf| ParentOfEmployee ParentOfEmployer)
   (rdfs:|subClassOf| ParentOfDoctor))
 
 (subsumed-p IntersectOfParentsOfEmployeeAndParentsOfDoctor ParentOfDoctorAndEmployee) -> nil
 (subsumed-p IntersectOfParentOfEmployeeParentOfEmployerParentOfDoctor ParentOfDoctorAndEmployee)
-(defConcept ParentOfOneChildDoctorAndEmployee
+(def-concept ParentOfOneChildDoctorAndEmployee
     (owl:|intersectionOf| ParentOfEmployee ParentOfDoctor
                         (owl:|Restriction| (owl:|onProperty| hasChild)
                                          (owl:|cardinality| 1))))
 
 (subsumed-p ParentOfOneChildDoctorAndEmployee ParentOfDoctorAndEmployee)
 
-(defConcept ParentOfTwoChildDoctorAndEmployee
+(def-concept ParentOfTwoChildDoctorAndEmployee
     (owl:|intersectionOf| ParentOfEmployee ParentOfDoctor
                         (owl:|Restriction| (owl:|onProperty| hasChild)
                                          (owl:|cardinality| 2))))
@@ -318,51 +318,51 @@
 |#
 
 #|
-(defConcept ParentOfEmployeeAndEmployer
+(def-concept ParentOfEmployeeAndEmployer
     (owl:|intersectionOf| Person
                         (owl:|Restriction| (owl:|onProperty| hasChild)
                                          (owl:|someValuesFrom| Employee))
                         (owl:|Restriction| (owl:|onProperty| hasChild)
                                          (owl:|someValuesFrom| Employer))))  -> clash
 
-(defConcept GrandParentOfDoctor
+(def-concept GrandParentOfDoctor
     (owl:|intersectionOf| Person
                         (owl:|Restriction| (owl:|onProperty| hasChild)
                                          (owl:|someValuesFrom| ParentOfDoctor))))
-(defConcept GrandParentOfDoctorAndEmployee
+(def-concept GrandParentOfDoctorAndEmployee
     (owl:|intersectionOf| Person
                         (owl:|Restriction| (owl:|onProperty| hasChild)
                                          (owl:|someValuesFrom| ParentOfDoctorAndEmployee))))
 
 (subsumed-p GrandParentOfDoctorAndEmployee GrandParentOfDoctor)
 
-(defConcept IntersectionOfOneChildParentOfEmployeeAndParentOfEmployer
+(def-concept IntersectionOfOneChildParentOfEmployeeAndParentOfEmployer
     (owl:|intersectionOf| ParentOfEmployee ParentOfEmployer
                         (owl:|Restriction| (owl:|onProperty| hasChild)
                                          (owl:|cardinality| 1))))
 
 (subsumed-p IntersectionOfOneChildParentOfEmployeeAndParentOfEmployer ParentOfEmployee)
 
-(defConcept Lawyer (rdfs:|subClassOf| Person))
-(defConcept PatentAttorney (rdfs:|subClassOf| Person))
+(def-concept Lawyer (rdfs:|subClassOf| Person))
+(def-concept PatentAttorney (rdfs:|subClassOf| Person))
 
-(defConcept ParentOfLawyer
+(def-concept ParentOfLawyer
     (owl:|intersectionOf| Person
                         (owl:|Restriction| (owl:|onProperty| hasChild)
                                          (owl:|someValuesFrom| Lawyer))))
-(defConcept ParentOfAttorney
+(def-concept ParentOfAttorney
     (owl:|intersectionOf| Person
                         (owl:|Restriction| (owl:|onProperty| hasChild)
                                          (owl:|someValuesFrom| Attorney))))
 
-(defConcept ParentOfLawyerAndAttorney
+(def-concept ParentOfLawyerAndAttorney
     (owl:|intersectionOf| Person
                         (owl:|Restriction| (owl:|onProperty| hasChild)
                                          (owl:|someValuesFrom| Lawyer))
                         (owl:|Restriction| (owl:|onProperty| hasChild)
                                          (owl:|someValuesFrom| Attorney))))
 
-(defConcept ParentOfLawyerAndAttorneyAndDoctor
+(def-concept ParentOfLawyerAndAttorneyAndDoctor
     (owl:|intersectionOf| Person
                         (owl:|Restriction| (owl:|onProperty| hasChild)
                                          (owl:|someValuesFrom| Lawyer))
@@ -374,7 +374,7 @@
 (subsumed-p ParentOfLawyer ParentOfLawyerAndAttorney)
 (subsumed-p ParentOfLawyerAndAttorneyAndDoctor ParentOfDoctor)   --> nil
 (subsumed-p ParentOfDoctor ParentOfLawyerAndAttorneyAndDoctor)
-(defConcept GrandParentOfDoctor
+(def-concept GrandParentOfDoctor
     (owl:|intersectionOf| Person
                         (owl:|Restriction| (owl:|onProperty| hasChild)
                                          (owl:|cardinality| 1))))
@@ -1734,7 +1734,7 @@
                     (if *autoepistemic-local-closed-world*
                         (if (y-or-n-p "No value for ~S in ~S.~%Create it?" prop object)
                             (setf (slot-value object prop) 
-                              (addInstance (slot-value r 'owl:|someValuesFrom|) nil))
+                              (add-instance (slot-value r 'owl:|someValuesFrom|) nil))
                           (return-from owl-intersection-type-p (values nil t)))
                       (return-from owl-intersection-type-p (values nil nil))))
                    (t (let ((rst (slot-value r 'owl:|someValuesFrom|)))
@@ -1748,7 +1748,7 @@
                               (*autoepistemic-local-closed-world*    ; local world
                                (if (y-or-n-p "No value for ~S in ~S.~%Create it?" prop object)
                                    (setf (slot-value object prop) 
-                                     (addInstance (slot-value r 'owl:|someValuesFrom|) nil))
+                                     (add-instance (slot-value r 'owl:|someValuesFrom|) nil))
                                  (return-from owl-intersection-type-p (values nil t))))
                               (t (return-from owl-intersection-type-p (values nil nil))))))))
             (owl:|hasValueRestriction|              ; rdfp14a by ter Horst
@@ -1885,11 +1885,11 @@
 ;; Additional Useful Axioms
 ;;
 #+:slot-value-for-metaclass
-(defConcept owl:|DatatypeProperty| (rdf:|type| rdfs:|Class|)
+(def-concept owl:|DatatypeProperty| (rdf:|type| rdfs:|Class|)
   (rdfs:|subClassOf| (owl:|Restriction| (owl:|onProperty| rdfs:|range|)
                                     (owl:|allValuesFrom| rdfs:|Datatype|))))
 #+:slot-value-for-metaclass
-(defConcept owl:|ObjectProperty| (rdf:|type| rdfs:|Class|)
+(def-concept owl:|ObjectProperty| (rdf:|type| rdfs:|Class|)
   (rdfs:|subClassOf| (owl:|Restriction| (owl:|onProperty| rdfs:|range|)
                                     (owl:|allValuesFrom| owl:|Class|))))
 |#

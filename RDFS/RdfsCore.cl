@@ -40,7 +40,7 @@
 ;;; (i) top level macro layer, 
 ;;; (ii) intermediate function/method layer, and 
 ;;; (iii) MOP programming layer.
-;;; The top level macro layer, which includes three macros, <defConcept>, <defProperty>, and <defIndividual>,
+;;; The top level macro layer, which includes three macros, <def-concept>, <def-property>, and <def-individual>,
 ;;; allows users to input RDF(S) and OWL entities in S-expression just in the same feeling as defining classes 
 ;;; or structures in lisp. 
 ;;; The intermediate layer composed of several functions and methods mediates inputs at the top level to the 
@@ -60,13 +60,13 @@
 ;;;
 ;;;; Syntax of Top Level Definition
 ;;; The syntax of top level macros are as follows.
-;;; # <defConcept>    : define a resource class in RDF(S) or OWL.
-;;; # <defProperty>   : define a property in RDF(S) or OWL.
-;;; # <defIndividual> : define an individual or instance in RDF(S) or OWL.
+;;; # <def-concept>    : define a resource class in RDF(S) or OWL.
+;;; # <def-property>   : define a property in RDF(S) or OWL.
+;;; # <def-individual> : define an individual or instance in RDF(S) or OWL.
 ;;; ----------------------------------------------------------------------------------
 ;;;  <defform>        ::= <resource-def> | <property-def> | <individual-def>
-;;;  <resource-def>   ::= (defConcept <resource-name> <slot-form>* )
-;;;  <property-def>   ::= (defProperty <property-name> <slot-form>* )
+;;;  <resource-def>   ::= (def-concept <resource-name> <slot-form>* )
+;;;  <property-def>   ::= (def-property <property-name> <slot-form>* )
 ;;;  <individual-def> ::= (defIndvidual <individual-name> <slot-form>* )
 ;;;  <slot-form>      ::= (<role> [<lang>] <form> <form>*)
 ;;;  <form>           ::= (<typetag> [<name>] [<lang-form>] <slot-form>*)
@@ -82,21 +82,21 @@
 ;;;
 ;;; To direct a class in defining an entity, rdf:type is used in <slot-form> as same as other slot-forms. For example,
 ;;; ----------------------------------------------------------------------------------
-;;;    (defIndividual vin::ElyseZinfandel (rdf:|type| vin::Zinfandel)).
+;;;    (def-individual vin::ElyseZinfandel (rdf:|type| vin::Zinfandel)).
 ;;; ----------------------------------------------------------------------------------
-;;; As default, rdf:Property is used for property class in <defProperty>. 
-;;; To direct an object property in OWL, rdf:type is used in <defProperty> as follows.
+;;; As default, rdf:Property is used for property class in <def-property>. 
+;;; To direct an object property in OWL, rdf:type is used in <def-property> as follows.
 ;;; ----------------------------------------------------------------------------------
-;;;    (defProperty vin::hasColor (rdf:|type| owl::ObjectProperty))
+;;;    (def-property vin::hasColor (rdf:|type| owl::ObjectProperty))
 ;;; ----------------------------------------------------------------------------------
 ;;; Note that owl:FunctionalProperty is not a subclass of owl:ObjectProperty, while 
 ;;; owl:InverseFunctionalProperty is a subclass of owl:ObjectProperty. Therefore, it may 
 ;;; be needed to add owl:ObjectProperty with owl:FunctionalProperty as follows.
 ;;; ----------------------------------------------------------------------------------
-;;;  (defProperty vin::hasMaker 
+;;;  (def-property vin::hasMaker 
 ;;;    (rdf:|type| owl:FunctionalProperty owl:ObjectProperty))
 ;;;
-;;;  (defProperty vin::producesWine
+;;;  (def-property vin::producesWine
 ;;;    (rdf:|type| owl:InverseFunctionalProperty)
 ;;;    (owl:inverseOf vin::hasMaker))
 ;;; ----------------------------------------------------------------------------------
@@ -125,7 +125,7 @@
           ((error "Cant happen!"))))
   )
 
-(defmacro defResource (name &rest args)
+(defmacro def-resource (name &rest args)
   "defines a class in OWL or a resource class in RDF(S). 
    This macro sets the class object to the symbol <name> 
    and returns the class object."
@@ -133,7 +133,7 @@
   `(progn (record-source-file ',name :type :type)
      ,(expand-def 'rdfs:|Class| name args)))
 
-(defmacro defConcept (name &rest args)
+(defmacro def-concept (name &rest args)
   "defines a class in OWL or a resource class in RDF(S). 
    This macro sets the class object to the symbol <name> 
    and returns the class object."
@@ -151,14 +151,14 @@
         (t `(progn (record-source-file ',name :type :type)
               ,(expand-def 'rdfs:|Class| name args)))))
 
-(defmacro defProperty (name &rest args)
+(defmacro def-property (name &rest args)
   "defines an instance of rdf:Property. 
    This macro sets a property object to the symbol <name> and 
    returns the property object."
   (assert (symbolp name))
   (expand-def 'rdf:|Property| name args))
 
-(defmacro defIndividual (name &rest args)
+(defmacro def-individual (name &rest args)
   "defines an individual of owl:Resource 
    with <name> and slots.  This macro sets the individual object to 
    the symbol <name> and the object."
@@ -352,7 +352,7 @@
                                (warn "Range entail by rdf:type: ~S rdf:type ~S." cls (node-name rdfs:|range|))
                                (cond ((length=1 domains)
                                       (cond ((eq (car domains) rdfs:|Resource|)
-                                             (addClass rdfs:|Class| cls (list rdfs:|Resource|)))
+                                             (add-class rdfs:|Class| cls (list rdfs:|Resource|)))
                                             ((y-or-n-p "Define ~S as subclass of ~S?" cls (car domains))
                                              (warn "Superclass of ~S is entailed to ~S by domain constraint of other properties."
                                                cls (node-name (car domains)))
@@ -361,7 +361,7 @@
                                                           (rdfs:|subClassOf| ,(node-name (car domains))))))
                                             ((warn "Nothing done!"))))
                                      (t (let ((uri (symbol2uri cls))
-                                              (obj (addClass '(rdfs:|range| rdf:|type|) cls ())))
+                                              (obj (add-class '(rdfs:|range| rdf:|type|) cls ())))
                                           (when uri (setf (iri-value uri) obj))
                                           obj)))))
                        (let ((class
@@ -381,7 +381,7 @@
                                      (car (most-specific-concepts (append domains (list (symbol-value (car form)))))))
                                     (t (warn "Implicit range entailment: ~S rdf:type rdfs:Class." (car form))
                                        (let ((uri (symbol2uri (car form)))
-                                             (obj (addClass rdfs:|Class| (car form) ())))
+                                             (obj (add-class rdfs:|Class| (car form) ())))
                                          (when uri (setf (iri-value uri) obj))
                                          obj))))
                              (slots (aggregate-slots (cdr form)))
@@ -628,7 +628,7 @@
           (cond ((null metas) rdfs:|Class|)
                 ((length=1 metas) (car metas))
                 (t (error "Not Yet!")))))
-    (addClass meta (make-coined-name types) types)))
+    (add-class meta (make-coined-name types) types)))
 
 (defun make-coined-name (types)
   (setq types (remove-if #'anonymous-p types))
@@ -676,8 +676,8 @@
 (defun addObject (type slot-forms)
   "<type> is a class or a meta-class except rdfs:Class. Every slot-filler is already objectized if it is an resource object.
    This method sets up QName's package in uri-namedspace from name in <slot-forms>, then calls <ensure-meta-absts> 
-   to fix the meta class and abst classes for this object. Finally, calls <addClass> if the meta class or abst exists, else 
-   calls <addInstance>. If optional <domains> is not supplied, the domain constrant is computed and it is used for ensuring 
+   to fix the meta class and abst classes for this object. Finally, calls <add-class> if the meta class or abst exists, else 
+   calls <add-instance>. If optional <domains> is not supplied, the domain constrant is computed and it is used for ensuring 
    the metaclass and abst classes. To suppress domain computing, supply nil."
   (when (c2cl:subtypep type 'rdfs:|Container|) ;type = rdf:Alt,rdf:Seq,rdf:Bag, etc.
     (check-ordinal-properties slot-forms))
@@ -689,9 +689,9 @@
         (setq metas (cons type (remove type metas))))
       ; anyway make slots under this type
       (cond ((rdf-metaclass-p (car metas))
-             (addClass metas name absts slot-forms))
+             (add-class metas name absts slot-forms))
             (absts (error "Cant happen!"))
-            (t (addInstance metas name slot-forms))))))
+            (t (add-instance metas name slot-forms))))))
 
 ;;;
 ;;;; Ensuring Meta Classes and Abst(Super) Classes
@@ -871,7 +871,7 @@
 |#
 
 ;;;
-;;;; addClass
+;;;; add-class
 ;;;
 ;;; Principles in multiple typing
 ;;;  # The association between a type and slots attached to it should be given by user, except the case that a slot states its domain. 
@@ -879,7 +879,7 @@
 
 (defvar *subjects-defined* nil "storage where all subjects defined are stored")
 
-(defun addClass (classes class absts &optional islots)
+(defun add-class (classes class absts &optional islots)
   "create a class of metaclass <classes> with <class>, <absts>, and <islots>.
    Each of <classes> must be an object. An element of <islots> is '(<role> . <fillers>)'.
    Note that <islots> are not slot definition for class but slots for this class.
@@ -1035,10 +1035,10 @@
             ))))
 
 ;;;
-;;;; addInstance
+;;;; add-instance
 ;;;
 
-(defun addInstance (classes instance &optional slots)
+(defun add-instance (classes instance &optional slots)
   "creates a new instance or redefines the instance with <instance> and <slots>. 
    <instance> must be a symbol, a URI, or resource object.
    Each of <classes> must be defined and <classes> must be MSCs. 
@@ -1107,7 +1107,7 @@
       (cond ((and (null slots) (eq (car classes) (class-of obj)))
              (ensure-multiple-classes classes obj))
             (obj                                                   ; redefine
-             (format t "~%Redefining ~S with classes:~S~%    slots:~S in addInstance" name classes slots)
+             (format t "~%Redefining ~S with classes:~S~%    slots:~S in add-instance" name classes slots)
              ;; If name is a blank node ID, definitely it is bound to an default object.
              ;; Therefore the control always falls here, and the object is anonymous.
              (let ((mclasses (substitute rdfs:|Resource| |rdfs:Resource| (mclasses obj))))
@@ -1319,14 +1319,14 @@
 ;;; See, RDFboot module.
 ;;;
 #|
-(defConcept rdfs:|Container| (rdf:|type| rdfs:|Class|)
+(def-concept rdfs:|Container| (rdf:|type| rdfs:|Class|)
   (rdfs:|subClassOf| rdfs:|Resource|)
   (rdfs:|label| "Container")
   (rdf:|about| "http://www.w3.org/2000/01/rdf-schema#Container")
   (rdfs:|isDefinedBy| (iri "http://www.w3.org/2000/01/rdf-schema#"))
   (rdfs:|comment| "The class of RDF containers."))
 
-(defProperty rdfs:|member|
+(def-property rdfs:|member|
   (rdf:|about| "http://www.w3.org/2000/01/rdf-schema#member")
   (rdfs:|label| "member")
   (rdfs:|isDefinedBy| (iri "http://www.w3.org/2000/01/rdf-schema#"))
@@ -1334,7 +1334,7 @@
   (rdfs:|domain| rdfs:|Container|)                              ; reaxiomatized by Seiji 2008/6/27
   (rdfs:|range| rdfs:|Resource|))
 
-(defConcept rdfs:|ContainerMembershipProperty| (rdf:|type| rdfs:|Class|)
+(def-concept rdfs:|ContainerMembershipProperty| (rdf:|type| rdfs:|Class|)
   (rdfs:|subClassOf| rdf:|Property|)
   (rdfs:|label| "ContainerMembershipProperty")
   (rdf:|about| "http://www.w3.org/2000/01/rdf-schema#ContainerMembershipProperty")
@@ -1362,19 +1362,19 @@
   (pushnew instance (slot-value rdfs:|member| 'subproperty)
                       :test-not #'(lambda (ins subp) (subproperty-p ins subp))))
 
-(defConcept rdf:|Bag| (rdf:|type| rdfs:|Class|)
+(def-concept rdf:|Bag| (rdf:|type| rdfs:|Class|)
   (rdfs:|subClassOf| rdfs:|Container|)
   (rdfs:|label| "Bag")
   (rdf:|about| "http://www.w3.org/1999/02/22-rdf-syntax-ns#Bag")
   (rdfs:|isDefinedBy| (iri "http://www.w3.org/1999/02/22-rdf-syntax-ns#"))
   (rdfs:|comment| "The class of unordered containers."))
-(defConcept rdf:|Seq| (rdf:|type| rdfs:|Class|)
+(def-concept rdf:|Seq| (rdf:|type| rdfs:|Class|)
   (rdfs:|subClassOf| rdfs:|Container|)
   (rdfs:|label| "Seq")
   (rdf:|about| "http://www.w3.org/1999/02/22-rdf-syntax-ns#Seq")
   (rdfs:|isDefinedBy| (iri "http://www.w3.org/1999/02/22-rdf-syntax-ns#"))
   (rdfs:|comment| "The class of ordered containers."))
-(defConcept rdf:|Alt| (rdf:|type| rdfs:|Class|)
+(def-concept rdf:|Alt| (rdf:|type| rdfs:|Class|)
   (rdfs:|subClassOf| rdfs:|Container|)
   (rdfs:|label| "Alt")
   (rdf:|about| "http://www.w3.org/1999/02/22-rdf-syntax-ns#Alt")
@@ -1407,7 +1407,7 @@
       do (make-ordinal-property (slot-role slot))))
 
 (defun make-ordinal-property (role)
-  (addInstance rdfs:|ContainerMembershipProperty| role ())
+  (add-instance rdfs:|ContainerMembershipProperty| role ())
   role)
 
 ;;;
@@ -1418,7 +1418,7 @@
    <l> fills the first role rdf:_1, the second fills the second role rdf:_2, and so on. 
    If <l> is empty, rdf:nil is returned."
   (if (null l) rdf:|nil|
-    (addInstance rdf:|Seq| nil
+    (add-instance rdf:|Seq| nil
                  (loop for x in l
                      for i from 1 to (length l)
                      collect (create-slot (make-ordinal-property-from-number i) x)))))
@@ -1428,7 +1428,7 @@
    <l> fills the first role rdf:_1, the second fills the second role rdf:_2, and so on. 
    If <l> is empty, rdf:nil is returned."
   (if (null l) rdf:|nil|
-    (addInstance rdf:|Bag| nil
+    (add-instance rdf:|Bag| nil
                  (loop for x in l
                      for i from 1 to (length l)
                      collect (create-slot (make-ordinal-property-from-number i) x)))))
@@ -1438,7 +1438,7 @@
    <l> fills the first role rdf:_1, the second fills the second role rdf:_2, and so on. 
    If <l> is empty, rdf:nil is returned."
   (if (null l) rdf:|nil|
-    (addInstance rdf:|Alt| nil
+    (add-instance rdf:|Alt| nil
                  (loop for x in l
                      for i from 1 to (length l)
                      collect (create-slot (make-ordinal-property-from-number i) x)))))

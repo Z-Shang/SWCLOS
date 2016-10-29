@@ -412,9 +412,9 @@
     ;(format t "~%~S" form)
     (cond ((eql form :eof) (return-from read-entity :eof))
           (t (case (car form)
-               (defIndividual (second form))
-               (defConcept    (second form))
-               (defProperty   (second form))
+               (def-individual (second form))
+               (def-concept    (second form))
+               (def-property   (second form))
                (otherwise nil))))))
 
 (defun collect-instance-slots (instance)

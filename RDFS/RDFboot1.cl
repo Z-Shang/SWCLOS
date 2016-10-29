@@ -157,15 +157,15 @@ rdfs:|Resource|.")
 ;;; notion of disjointness is taken care for not only OWL universe but also RDF universe. In 
 ;;; SWCLOS, the clash by disjointness is directed as follows.
 ;;; ----------------------------------------------------------------------------------
-;;; (defConcept C1 (rdfs:|subClassOf| (owl:|Restriction| (owl:|onProperty| s)
+;;; (def-concept C1 (rdfs:|subClassOf| (owl:|Restriction| (owl:|onProperty| s)
 ;;;                                    (owl:|allValuesFrom| xsd:|decimal|))))
-;;; (defConcept C2 (rdfs:|subClassOf| (owl:|Restriction| (owl:|onProperty| s)
+;;; (def-concept C2 (rdfs:|subClassOf| (owl:|Restriction| (owl:|onProperty| s)
 ;;;                                    (owl:|allValuesFrom| xsd:|float|))))
-;;; (defConcept C3 (rdfs:|subClassOf| (owl:|Restriction| (owl:|onProperty| s)
+;;; (def-concept C3 (rdfs:|subClassOf| (owl:|Restriction| (owl:|onProperty| s)
 ;;;                                    (owl:|allValuesFrom| xsd:|integer|))))
-;;; (defConcept C4 (rdfs:|subClassOf| (owl:|Restriction| (owl:|onProperty| s)
+;;; (def-concept C4 (rdfs:|subClassOf| (owl:|Restriction| (owl:|onProperty| s)
 ;;;                                    (owl:|allValuesFrom| xsd:|short|))))
-;;; (defConcept C5 (rdfs:|subClassOf| C4 C2))
+;;; (def-concept C5 (rdfs:|subClassOf| C4 C2))
 ;;; (slot-definition-type (car (compute-slots C5)))
 ;;; -> Error: Disjoint pair #<forall s xsd:|short|> and #<forall s xsd:|float|> found in slot 
 ;;;    inheritance computation of #<rdfs:|Class| C5>.
