@@ -77,7 +77,8 @@
 (defpackage :gx
   (:use :closer-common-lisp :named-readtables :puri)
   (:import-from
-    #+allegro :excl #+lispworks :clos #-(or allegro lispworks) :c2cl
+    #+allegro :excl #+(or ecl lispworks) :clos
+    #-(or allegro ecl lispworks) :mop
     #:name)
   (:shadow #:typep #:subtypep #:type-of)
   (:documentation "http://www.TopOntologies.com/tools/SWCLOS#"))
