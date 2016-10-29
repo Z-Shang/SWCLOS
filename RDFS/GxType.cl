@@ -129,9 +129,9 @@
 ;;; ----------------------------------------------------------------------------------
 ;;; (rdf-equalp <http://somewhere> <http://anotherplace>)             -> false
 ;;; (setf (iri-value <http://somewhere>)
-;;;   (addForm '(rdf:Description )))             -> #<|rdfs:Resource| :anonymous>
+;;;   (add-form '(rdf:Description )))             -> #<|rdfs:Resource| :anonymous>
 ;;; (setf (iri-value <http://anotherplace>)
-;;;   (addForm '(rdf:Description )))             -> #<|rdfs:Resource| :anonymous>
+;;;   (add-form '(rdf:Description )))             -> #<|rdfs:Resource| :anonymous>
 ;;; (rdf-equalp <http://somewhere> <http://anotherplace>)             -> false
 ;;; (let ((*nonUNA* t))
 ;;;   (rdf-equalp <http://somewhere> <http://anotherplace>))          -> true

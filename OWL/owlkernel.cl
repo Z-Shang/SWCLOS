@@ -977,8 +977,8 @@ and instance of owl:Class."))
                        :disjoint-classes (list (load-time-value (symbol-value 'owl:|Thing|))))
 
 ;;;
-;;;; %addForm for OWL
-;;; Calling sequence: %addForm (<type> <slots> <role>)
+;;;; %add-form for OWL
+;;; Calling sequence: %add-form (<type> <slots> <role>)
 ;;; When <type> is an undefined symbol as resource,
 ;;; # If <type> is a symbol rdf:Description and <role> is a symbol owl:intersectionOf, 
 ;;;   owl:unionOf, then owl:Class is used for <type>. See, rule2a and rule2b.

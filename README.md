@@ -11,10 +11,11 @@ OWL Full Processor on top of Common Lisp Object System (CLOS), See http://www-ka
 ## API changes
 
 * defConcept &rarr; def-concept
-* defProperty &rarr; def-property
 * defIndividual &rarr; def-individual
+* defProperty &rarr; def-property
 * defResource &rarr; def-resource
-* DefTriple &rarr; def-triple
-* AddClass &rarr; add-class
-* AddInstance &rarr; add-instance
-* AddTriple &rarr; add-triple
+* defTriple &rarr; def-triple
+* addClass &rarr; add-class
+* addForm &rarr; add-form
+* addInstance &rarr; add-instance
+* addTriple &rarr; add-triple

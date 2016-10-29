@@ -106,20 +106,20 @@
     "<type> may be symbol rdfs:Class, rdf:Property, rdfs:Resource, or '|rdfs:Resource|."
     (cond ((null name)
            (cond ((and (null type) (assoc 'rdf:|type| args))
-                  `(addForm ',(cons (mkatom (cdr (assoc 'rdf:|type| args))) args)
+                  `(add-form ',(cons (mkatom (cdr (assoc 'rdf:|type| args))) args)
                             t))
-                 (t `(addForm ',(cons type args)
+                 (t `(add-form ',(cons type args)
                               t))))
           ((symbolp name)
            (cond ((and (null type) (assoc 'rdf:|type| args))
                   `(progn
                      (defparameter ,name
-                       (addForm ',(cons (mkatom (cdr (assoc 'rdf:|type| args))) (cons `(:name ,name) args))
+                       (add-form ',(cons (mkatom (cdr (assoc 'rdf:|type| args))) (cons `(:name ,name) args))
                                 t))
                      ,name))
                  (t `(progn
                        (defparameter ,name
-                         (addForm ',(cons type (cons `(:name ,name) args))
+                         (add-form ',(cons type (cons `(:name ,name) args))
                                   t))
                        ,name))))
           ((error "Cant happen!"))))
@@ -187,11 +187,11 @@
              (when id (setq name id))
              (when nodeID (setq name (nodeID2symbol nodeID))))
            ;(format t "~%~S" (list* (car form) `(:name ,name) (cdr form)))
-           (addForm (list* (car form) `(:name ,name) (cdr form)) nil)))
+           (add-form (list* (car form) `(:name ,name) (cdr form)) nil)))
         ((error "What ~S" description))))
 
 (defun lasyAddRdfXml (description)
-  "This function lazily <addForm> when it is forced.
+  "This function lazily <add-form> when it is forced.
    <delay> must be explicitly called with <force> function."
   (cond ((|Description|-p description)
          (let* ((form (|Description|-form description))
@@ -219,9 +219,9 @@
 ;;;; Defining Form in S-expression for RDF Entity
 ;;;
 ;;; The defining macro at the top level mentioned above internally produces the code for input form 
-;;; in S-expression and calls function <addForm> with it.
+;;; in S-expression and calls function <add-form> with it.
 ;;; Reading RDF/XML file also makes a sequence of input forms in S-expression (See <addRdfXml> and <Description-form>), 
-;;; and such input form is processed by <addForm>.
+;;; and such input form is processed by <add-form>.
 ;;;
 ;;; Input form in S-expression has recursive structures. The BNF syntax for defining an RDF resource in S-expression is as follows.
 ;;; ----------------------------------------------------------------------------------
@@ -248,9 +248,9 @@
 ;;; * <cl:number> is a lisp number.
 ;;; * <lang> is a keyword that denotes langugage, e.g., :en, :ja. See <lang?>
 ;;;
-;;;; addForm
+;;;; add-form
 ;;;
-;;; In lisp, <addForm> accepts any defining form that defines an entity or a fragment of entity described above 
+;;; In lisp, <add-form> accepts any defining form that defines an entity or a fragment of entity described above 
 ;;; and returns the denotation of the form. Namely, 
 ;;; # If a form is a number in lisp, then it is returned.
 ;;; # If a form is a string in lisp, then it is read and interpreted as one of RDF datatype 
@@ -261,17 +261,17 @@
 ;;; # If a form is a symbol, then it must be a QName and the denoted object is returned if exists, 
 ;;;   else the denoted object is newly created at the minimal constraint from role range or rdfs4b rule. 
 ;;;   See <make-object-with-minimal-constraint>.
-;;; # If a form is (<lang> <form>), then the <form> is <addForm>ed in <lang> environment.
+;;; # If a form is (<lang> <form>), then the <form> is <add-form>ed in <lang> environment.
 ;;; # If a form is (<datatype> <data>), then the typed data is created and returned.
 ;;; # Otherwise the form denotes a complex entity, then each subforms are evaluated through <form2slot> 
-;;;   and the form replaced with results is computed by <%addForm>.
+;;;   and the form replaced with results is computed by <%add-form>.
 ;;;
 
-(defun addForm (form &optional role)
+(defun add-form (form &optional role)
   "<form> is a form described above, and <role> is nil in calling at top level 
    but a role for <form> as filler in recursive call."
-  (when (eq form t) (return-from addForm t))
-  (when (eq form nil) (return-from addForm nil))
+  (when (eq form t) (return-from add-form t))
+  (when (eq form nil) (return-from add-form nil))
   (assert (not (boundp 'rdf:|about|)))
   (let ((lang-env lang-env))  ; this is effective in read-in-lang-env
     (etypecase form
@@ -303,10 +303,10 @@
                           form)
                          (t (let ((name (uri2symbol form))     ; getting name of URI
                                   (uri (iri form)))            ; ensure interning and getting valued-uri 
-                              (cond (name (setf (iri-value uri) (addForm name role)))
+                              (cond (name (setf (iri-value uri) (add-form name role)))
                                     ; un-named URI denotes anonymous object
                                     (t (if (iri-boundp uri) (iri-value uri)
-                                         (setf (iri-value uri) (addForm `(rdfs:|Resource| ) role)))
+                                         (setf (iri-value uri) (add-form `(rdfs:|Resource| ) role)))
                                        ))))))
       ;; typed literal???
       (symbol (assert (and (not (eq role t)) (not (eq role nil))))
@@ -330,7 +330,7 @@
                      form)
       (cons (cond ((lang? (car form))
                    (setq lang-env (car form))
-                   (addForm (second form) role)) ; skip lang
+                   (add-form (second form) role)) ; skip lang
                   ((and (car form) (rdf-subtypep (car form) 'xsd:|anySimpleType|))
                    (^^ (second form) (car form)))
                   ((and (symbolp (car form)) (fboundp (car form)) (not (eq (car form) 'rdfs:|subClassOf|)))
@@ -346,7 +346,7 @@
                        (loop for cls in (cdr (assoc 'rdf:|type| (cdr form)))
                            do (cond ((symbolp cls))
                                     ((uri-p cls) (setq cls (uri2symbol cls)))
-                                    ((consp cls) (setq cls (addForm cls 'rdf:|type|)))
+                                    ((consp cls) (setq cls (add-form cls 'rdf:|type|)))
                                     (t (error "Not Yet!")))
                              (unless (or (rdf-class-p cls) (class? cls))
                                (warn "Range entail by rdf:type: ~S rdf:type ~S." cls (node-name rdfs:|range|))
@@ -356,7 +356,7 @@
                                             ((y-or-n-p "Define ~S as subclass of ~S?" cls (car domains))
                                              (warn "Superclass of ~S is entailed to ~S by domain constraint of other properties."
                                                cls (node-name (car domains)))
-                                             (addForm `(,(type-of (car domains))
+                                             (add-form `(,(type-of (car domains))
                                                           (:name ,cls)
                                                           (rdfs:|subClassOf| ,(node-name (car domains))))))
                                             ((warn "Nothing done!"))))
@@ -371,7 +371,7 @@
                                            (etypecase cls
                                              (symbol (symbol-value cls))
                                              (uri (symbol-value (uri2symbol cls)))
-                                             (cons (addForm cls))))
+                                             (cons (add-form cls))))
                                        (if domains (car domains) (symbol-value '|rdfs:Resource|))))
                                     ((consp (car form))
                                      (car (most-specific-concepts
@@ -389,10 +389,10 @@
                          ;(format t "~%Class:~S" class)
                          (cond ((and (assoc 'owl:|oneOf| slots) (assoc :name slots))
                                 (setq obj
-                                      (%addForm class (mapcar #'form2slot (remove (assoc 'owl:|oneOf| slots) slots)) role))
+                                      (%add-form class (mapcar #'form2slot (remove (assoc 'owl:|oneOf| slots) slots)) role))
                                 ;; obj = class of oneOfs, rule7
                                 (loop for one in (cdr (assoc 'owl:|oneOf| slots))
-                                    do (addForm
+                                    do (add-form
                                         (cond ((consp one)                                    ; maybe a form
                                                (cond ((eq (car one) 'owl:|Thing|)
                                                       (cons (node-name obj) (cdr one)))
@@ -400,8 +400,8 @@
                                               ((symbolp one) `(,(node-name obj) (:name ,one)))     ; maybe a name
                                               (t `(,(node-name obj) ,one))                         ; object ?
                                               )))
-                                (%addForm class (mapcar #'form2slot slots) role))
-                               (t (setq obj (%addForm class (mapcar #'form2slot slots) role))))
+                                (%add-form class (mapcar #'form2slot slots) role))
+                               (t (setq obj (%add-form class (mapcar #'form2slot slots) role))))
                          (assert obj)
                          (setf (type-tag obj) (car form))
                          (let* ((name (node-name obj))
@@ -410,7 +410,7 @@
                          obj))))))))
 
 (defun form2slot (slot-form)
-  "accepts a <slot-form> and evaluates the filler using <addForm> and returns a slot, namely it makes a filler object 
+  "accepts a <slot-form> and evaluates the filler using <add-form> and returns a slot, namely it makes a filler object 
    or data, and returnes a list of role and filler.
    when a slot-form is a non-nil symbol, it should be a name of resource
    and a name slot is created and returned."
@@ -443,7 +443,7 @@
       (otherwise
        (cons role
              ;; null filler happens.
-             (mapcar #'(lambda (form) (addForm form role)) forms))))))
+             (mapcar #'(lambda (form) (add-form form role)) forms))))))
 
 (defun make-object-with-minimal-constraint (name role)
   "This function returns a resource entity (object) of which class is 
@@ -522,11 +522,11 @@
          (if (eql range rdf:|List|) rdfs:|Resource| range))))))
 
 ;;;
-;;;; %addForm for RDF
-;;; <%addForm> is a set of methods that are dedicated to each type of RDF entity.
+;;;; %add-form for RDF
+;;; <%add-form> is a set of methods that are dedicated to each type of RDF entity.
 ;;; These methods are called with instantiated slots and returns an instance object of <type>.
 ;;;
-;;; Calling sequence: %addForm (<type> <slots> <role>)
+;;; Calling sequence: %add-form (<type> <slots> <role>)
 ;;; * <slots> - aggregated slots such as ((<role>1 <filler>11 <filler>12 ...) (<role>2 <filler>21 <filler>22 ...) ...), 
 ;;;   where every <role>-n is a symbol and every <filler>-n is a designated value object.
 ;;; * <role>  - a role symbol that plays the rage constraint for (<role> <form>).
@@ -535,48 +535,48 @@
 ;;; In most of cases, the most specific concept (MSC) among domain constraints from roles that are included in <slots>,
 ;;; a range constraint of pair <role> in slot of upper nests, and rdf:type filler in <slots> is computed and used.
 ;;; If any roles in <slots> are not defined, they are tentatively defined as instance of rdf:Property. In case that,
-;;; * %addForm((eql 'rdf:|Description|)) - If MSC from constraints exists it is used, otherwise the value of 
+;;; * %add-form((eql 'rdf:|Description|)) - If MSC from constraints exists it is used, otherwise the value of 
 ;;;   *top*(=rdfs:Resource) is <type>.
-;;; * %addForm((eql rdfs:Class)) - If MSC is more special than rdfs:Class, 
+;;; * %add-form((eql rdfs:Class)) - If MSC is more special than rdfs:Class, 
 ;;;   it is used otherwise rdfs:Class is used for <type>.
-;;; * %addForm((eql owl:Class)) - If MSC is more special than owl:Class, 
+;;; * %add-form((eql owl:Class)) - If MSC is more special than owl:Class, 
 ;;;   it is used otherwise owl:Class is used for <type>.
-;;; * %addForm((eql rdfs:Resource)) - If MSC is more special than rdfs:Resource, 
+;;; * %add-form((eql rdfs:Resource)) - If MSC is more special than rdfs:Resource, 
 ;;;   it is used otherwise rdfs:Resource is used for <type>.
-;;; * %addForm((eql owl:Thing)) - If MSC exists, it is used, else owl:Thing is used for <type>.
-;;; * %addForm((eql owl:Restriction) t t) - MSC is used for type. Note that more special 
+;;; * %add-form((eql owl:Thing)) - If MSC exists, it is used, else owl:Thing is used for <type>.
+;;; * %add-form((eql owl:Restriction) t t) - MSC is used for type. Note that more special 
 ;;;   restrictions than owl:Restriction are computed from role domain constraints. For exmaple, 
 ;;;   owl:allValuesFrom's domain is set to owl:allValuedFromRestriction.
-;;; * %addForm(rdfsClass) - Error. Never happen because %addForm((eql rdfs:Class)) supersedes this.
-;;; * %addForm(rdfs:Class) - Indicated type is used.
-;;; * %addForm(rdfs:Resource) - An instance is indicated for type. After changing it to a class, 
+;;; * %add-form(rdfsClass) - Error. Never happen because %add-form((eql rdfs:Class)) supersedes this.
+;;; * %add-form(rdfs:Class) - Indicated type is used.
+;;; * %add-form(rdfs:Resource) - An instance is indicated for type. After changing it to a class, 
 ;;;   it or MSC is used.
-;;; * %addForm(symbol) - If the type is already defined, recurse with the symbol value. 
+;;; * %add-form(symbol) - If the type is already defined, recurse with the symbol value. 
 ;;;   Otherwise it is defined by metaclass that is computed from the MSC.
 ;;; In short, if a more special class than rdfs:Class is indicated for <type>, it is used 
 ;;; whether or not more special MSC exists. Otherwise, MSC is computed and it is used.
 ;;;
 ;;; See the following example. Here Species and EndangeredSpecies are defined as metaclass. 
 ;;; ----------------------------------------------------------------------------------
-;;; (addForm
+;;; (add-form
 ;;;   '(rdfs:|Class| Species
 ;;;      (rdfs:|subClassOf| rdfs:|Class|)        ; this makes Species a metaclass
-;;;      (rdfs:|comment| "This example is for the demonstration of addForm.")))
-;;; (addForm
+;;;      (rdfs:|comment| "This example is for the demonstration of add-form.")))
+;;; (add-form
 ;;;   '(rdfs:|Class| EndangeredSpecies
 ;;;      (rdfs:|subClassOf| Species)))         ; a subclass of metaclass is a metaclass
-;;; (addForm
+;;; (add-form
 ;;;   '(rdf:|Property| estimatedPopulation
 ;;;      (rdfs:|domain| EndangeredSpecies)
 ;;;      (rdfs:|range| xsd:|nonNegativeInteger|)))
-;;; (addForm
+;;; (add-form
 ;;;   '(rdfs:|Class| Hawk
 ;;;      (estimatedPopulation 2000)))         ; MSC is computed as EndangeredSpecies
-;;; (addForm '(Hawk Harry))
+;;; (add-form '(Hawk Harry))
 ;;; ----------------------------------------------------------------------------------
 
-(defun %addForm (type slots role)
-  "subfunction for <%addForm>. To be here, <type> must be fixed.
+(defun %add-form (type slots role)
+  "subfunction for <%add-form>. To be here, <type> must be fixed.
    This function creates an object with <type> and <slots> using <addObject>."
   (let ((types (most-specific-concepts
                 (reverse
