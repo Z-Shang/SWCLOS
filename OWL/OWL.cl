@@ -871,24 +871,27 @@
          )
         (t                                        ; first or redefinition
          (cond ((eq slot-names t)
-                ;(format t "~%SHARED-INITIALIZE:AFTER(owl:Thing) first definition ~S~%  with ~S)" instance initargs)
+                ;; (format t "~%SHARED-INITIALIZE:AFTER(owl:Thing) first definition ~S~%  with ~S)" instance initargs)
                 )
-               (t ;(format t "~%SHARED-INITIALIZE:AFTER(owl:Thing) redefining ~S~%  slots ~S~%  with ~S)" instance slot-names initargs)
+               (t
+		;; (format t "~%SHARED-INITIALIZE:AFTER(owl:Thing) redefining ~S~%  slots ~S~%  with ~S)" instance slot-names initargs)
                 ))
-         (with-slots (owl:|sameAs| owl:|differentFrom|) instance
-           ;; owl:|sameAs| makes sameAs groups among individuals.
-           (when (slot-boundp instance 'owl:|sameAs|)
-             (shared-initialize-after-for-sameAs instance (mklist owl:|sameAs|)))
-           
-           ;; owl:|differentFrom| makes pairwise different groups among individuals.
-           (when (slot-boundp instance 'owl:|differentFrom|)
-             (shared-initialize-after-for-differentFrom instance (mklist owl:|differentFrom|))))
-         
+
+	 ;; owl:|sameAs| makes sameAs groups among individuals.
+	 (when (slot-boundp instance 'owl:|sameAs|)
+	   (shared-initialize-after-for-sameAs instance
+					       (mklist (slot-value instance 'owl:|sameAs|))))
+
+	 ;; owl:|differentFrom| makes pairwise different groups among individuals.
+	 (when (slot-boundp instance 'owl:|differentFrom|)
+	   (shared-initialize-after-for-differentFrom instance
+						      (mklist (slot-value instance ' owl:|differentFrom|))))
+
          ;; functional property is moved to shared-initialize:after(rdfs:Resource)
          ;; inverse functional property is moved to shared-initialize:after(rdfs:Resource)
          ;; symmetric property is moved to shared-initialize:after(rdfs:Resource)
          ;; transitive property is moved to shared-initialize:after(rdfs:Resource)
-         
+
          ;; satisfiability check for oneOf individual
          (let ((oneof (find-if #'owl-oneof-p  (class-precedence-list (class-of instance)))))
            (when oneof

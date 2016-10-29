@@ -340,6 +340,8 @@ but optimized for vectors."
 (defun type-of (object)
   (cl:type-of object)) ; cl:type-of is never re-defined in closer-mop
 
+(defmacro neq (o1 o2)
+  `(not (eq ,o1 ,o2)))
 
 ;; End of module
 ;; --------------------------------------------------------------------
