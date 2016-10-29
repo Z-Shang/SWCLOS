@@ -44,9 +44,6 @@
 ;;; returns a value bound to the <iri>.
 ;;; See, reader macro <gx::double-angle-bracket-reader>.
 
-(eval-when (:execute :compile-toplevel :load-toplevel)
-  (proclaim '(inline iri-p boundp iri-value bound-value)))
-
 (defclass iri (uri)
   ((value :accessor iri-value))
   (:documentation "iri in SWCLOS that is a subclass of uri and able to bind a value to, 
@@ -56,9 +53,6 @@ just like lisp symbol. The accessor <iri-value> allows to get and set the bound 
   (if *print-escape*
       (format stream "<~a>" (render-uri iri nil))
     (render-uri iri stream)))
-
-(eval-when (:execute :compile-toplevel :load-toplevel)
-  (proclaim '(inline iri-p iri-boundp iri-value)))
 
 (defun iri-boundp (x)
   "Is <x> an iri and bound at its value slot?"
