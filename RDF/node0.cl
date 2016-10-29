@@ -1,3 +1,5 @@
+;;;; -*- Mode: common-lisp; syntax: common-lisp; package: gx; base: 10 -*-
+
 (in-package :gx)
 
 ;;;; gnode & rdf-node

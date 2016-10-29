@@ -1128,6 +1128,7 @@
 ;;;
 ;;;; owl:|Restriction| again
 ;;;
+
 (without-redefinition-warnings 
 (defun owl-restriction-p (obj)
   "Is this <obj> an instance of owl:|Restriction|?"
@@ -1150,6 +1151,7 @@
                              :test #'eq)
                   t)))))
 )
+
 (defun restriction-subtypep (restriction1 restriction2)
   (and (eq (node-name (slot-value restriction1 'owl:|onProperty|))
            (node-name (slot-value restriction2 'owl:|onProperty|)))

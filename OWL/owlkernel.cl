@@ -105,19 +105,6 @@ OwlProperty-direct-slot-definition in OWL module.")
 ;;; of a property of owl:InverseFunctionProperty.
 ;;;
 
-#|
-**++++ Error between functions:
-  bad slot specification (:NAME
-                          XML:LANG
-                          :INITFUNCTION
-                          #<Function FALSE 418016A5C4>
-                          :INITARGS
-                          (XML:LANG)
-                          :ALLOCATION
-                          :INSTANCE
-                          :DOCUMENTATION
-                          NIL)
-|#
 (eval-when (:execute :load-toplevel :compile-toplevel)
   (reinitialize-instance
    rdfs:|Resource|
