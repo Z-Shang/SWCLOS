@@ -99,7 +99,7 @@
 
 (defun name+ (object bindings)
   (or (car (rassoc object bindings))
-      (name object)))
+      (node-name object)))
 
 (defun class-of+ (x bindings cbindings)
   "simulates class-of but <cbindings> is prior to actual class."
@@ -368,7 +368,7 @@
   (let ((var-class (class-of+ var bindings cbindings))
         (val ())
         (val-class ()))
-    (format t "~%var:class = ~S:~S" var (name var-class))
+    (format t "~%var:class = ~S:~S" var (node-name var-class))
     (cond ((get-binding var bindings)
            (setq val (lookup var bindings))
            (cond ((skolem-p val)
@@ -418,7 +418,7 @@
                       (setq x suc)
                       (setq val-class (class-of+ suc bindings cbindings))))
                    (t (setq val-class (class-of+ x bindings cbindings))))
-             (format t "~%x:class = ~S:~S" x (name val-class))
+             (format t "~%x:class = ~S:~S" x (node-name val-class))
              (cond ((disjoint-p var-class val-class)
                     (return-from unify-var (values +fail+ cbindings kbindings)))
                    ((owl-equivalent-p var-class val-class))

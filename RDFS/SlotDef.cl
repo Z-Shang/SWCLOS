@@ -237,14 +237,6 @@ which work as the constraint for settable number of values."))
     (otherwise 
      (and (boundp name) (c2cl:typep (symbol-value name) 'rdf:|Property|)))))
 
-(defmethod name ((object standard-direct-slot-definition))
-  "returns a name of <object>, if it is named, otherwise nil."
-  (slot-definition-name object))
-
-(defmethod name ((object standard-effective-slot-definition))
-  "returns a name of <object>, if it is named, otherwise nil."
-  (slot-definition-name object))
-
 ;;;
 ;;;; Slot Definition for owl:oneOf 
 ;;;

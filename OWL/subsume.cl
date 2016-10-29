@@ -695,7 +695,7 @@
 (defun transitive-property-p (obj)
   "Is this <obj> an instance of owl:|TransitiveProperty|?"
   ;;this is same as '(c2cl:typep <obj> owl:|TransitiveProperty|)'
-  (and (excl::standard-instance-p obj)
+  (and (standard-instance-p obj)
        (let ((class (class-of obj)))
          (cond ((eq class (find-class 'owl:|TransitiveProperty|)))
                ((class-finalized-p class)

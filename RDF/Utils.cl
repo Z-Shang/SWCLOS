@@ -267,6 +267,7 @@ but optimized for vectors."
   nil)
 
 (defreadtable token
+  (:merge :standard)
   (:case :preserve))
 
 ;;; a portable excl::read-token
@@ -278,7 +279,7 @@ but optimized for vectors."
 ;;; a portable excl::read-string
 (defun read-string (stream closech)
   (loop with string-buffer = (make-array 0 :element-type 'character :adjustable t :fill-pointer t)
-	for next-char = (read-char-no-hang stream nil closech nil)
+	for next-char = (or (read-char-no-hang stream nil closech nil) closech)
 	unless (char= next-char closech) do
     (vector-push-extend next-char string-buffer)
 	finally
@@ -339,6 +340,8 @@ but optimized for vectors."
 (defun type-of (object)
   (cl:type-of object)) ; cl:type-of is never re-defined in closer-mop
 
+(defmacro neq (o1 o2)
+  `(not (eq ,o1 ,o2)))
 
 ;; End of module
 ;; --------------------------------------------------------------------

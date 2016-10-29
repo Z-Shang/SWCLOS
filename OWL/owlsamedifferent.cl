@@ -44,7 +44,7 @@
   "Is this <obj> an instance of owl:FunctionalProperty?"
   ;;this is the same as '(c2cl:typep <obj> owl:FunctionalProperty)'
   (declare (optimize (speed 3) (safety 0)))
-  (and (excl::standard-instance-p obj)
+  (and (standard-instance-p obj)
        (let ((class (class-of obj)))
          (cond ((eq class (load-time-value 
                            (symbol-value 'owl:|FunctionalProperty|))))
@@ -81,7 +81,7 @@
   "Is this <obj> an instance of owl:InverseFunctionalProperty?"
   ;;this is the same as '(c2cl:typep <obj> owl:InverseFunctionalProperty)'
   (declare (optimize (speed 3) (safety 0)))
-  (and (excl::standard-instance-p obj)
+  (and (standard-instance-p obj)
        (let ((class (class-of obj)))
          (cond ((eq class (load-time-value 
                           (symbol-value 'owl:|InverseFunctionalProperty|))))
@@ -158,12 +158,12 @@
          nil)    ;; occurence check
         ((equalp x y))   ; treats 1 = 1.0, "a" = "A"
         ((and (owl-thing-p x) (owl-thing-p y)
-              (or (and (name x) (name y) (eq (name x) (name y)))
+              (or (and (node-name x) (node-name y) (eq (node-name x) (node-name y)))
                   (member x (same-as-of y)
                           :test #'(lambda (a b) (definitely-%owl-same-p a b (cons (cons x y) pairs)))))
               t))
         ((and (rsc-object-p x) (rsc-object-p y)
-              (or (and (name x) (name y) (eq (name x) (name y)))
+              (or (and (node-name x) (node-name y) (eq (node-name x) (node-name y)))
                   ;; rdfp1 by ter Horst
                   (functional-property-equal-p
                    x y :test #'(lambda (a b) (definitely-%owl-same-p a b (cons (cons x y) pairs))))
@@ -204,9 +204,9 @@
 (defun definitely-%%owl-different-p (x y)
   (cond ((member x (slot-value y 'different-from))
          (values t t))
-        ((and (name x) (name y))
+        ((and (node-name x) (node-name y))
          (cond (*nonUNA*
-                (if (eql (name x) (name y)) (values nil t) (values t t)))
+                (if (eql (node-name x) (node-name y)) (values nil t) (values t t)))
                (t (multiple-value-bind (result graph) (rdf-graph-equalp x y)
                     (if graph (values (not result) graph) (values nil nil))))))
         (t (multiple-value-bind (result graph) (rdf-graph-equalp x y)
@@ -243,8 +243,8 @@
         ((and (owl-thing-p x) (owl-thing-p y))
          (cond ((member x (slot-value y 'different-from))
                 t)
-               ((and (name x) (name y))
-                (if (eql (name x) (name y)) (values nil t) (values t t)))  ; <--
+               ((and (node-name x) (node-name y))
+                (if (eql (node-name x) (node-name y)) (values nil t) (values t t)))  ; <--
                (t nil)))                                                   ; <--
         ((and (typep x rdfs:|Literal|) (typep y rdfs:|Literal|))
          ;; fall here when not equal
@@ -307,17 +307,17 @@
                                                (slot-value x 'owl:|sameAs|)))
                                      (%same-as-of x)) :test #'owl-equalp)
                 (values nil t))
-               ((and (name x) (name y))
+               ((and (node-name x) (node-name y))
                 (cond (*nonUNA* (rdf-graph-different-p x y))
-                      (t (if (eql (name x) (name y)) (values nil t) (values t t)))))
+                      (t (if (eql (node-name x) (node-name y)) (values nil t) (values t t)))))
                (t (rdf-graph-different-p x y))))
         ;;
         ((and (typep x rdfs:|Literal|) (typep y rdfs:|Literal|))
          (values t t))
         ((and (rsc-object-p x) (rsc-object-p y))
-         (cond ((and (name x) (name y))
+         (cond ((and (node-name x) (node-name y))
                 (cond (*nonUNA* (rdf-graph-different-p x y))
-                      (t (if (eql (name x) (name y)) (values nil t) (values t t)))))
+                      (t (if (eql (node-name x) (node-name y)) (values nil t) (values t t)))))
                (t (rdf-graph-different-p x y))))
         ((and (symbolp x) (symbolp y))
          (cond ((and (object? x) (object? y))
@@ -378,13 +378,13 @@
                                                (slot-value x 'owl:|sameAs|)))
                                      (%same-as-of x)) :test #'owl-equalp)
                 nil)
-               ((and (name x) (name y))
-                (if (eql (name x) (name y)) nil nil))    ; <--
+               ((and (node-name x) (node-name y))
+                (if (eql (node-name x) (node-name y)) nil nil))    ; <--
                (t nil)))                                 ; <--
         ;;
         ((and (rsc-object-p x) (rsc-object-p y))
-         (cond ((and (name x) (name y))
-                (if (eql (name x) (name y)) nil nil))     ; <--
+         (cond ((and (node-name x) (node-name y))
+                (if (eql (node-name x) (node-name y)) nil nil))     ; <--
                (t nil)))                                  ; <--
         ;;
         ((and (symbolp x) (symbolp y))

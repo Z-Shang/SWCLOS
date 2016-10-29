@@ -158,7 +158,7 @@
   (progn ; Allegro CL's MOP doesn't have SETF methods for these APIs:
     (setf (class-direct-superclasses class) nil)
     (setf (class-precedence-list class) nil)
-    (setf (class-slots class) nil)))
+    (setf (class-direct-slots class) nil)))
 
 (defun most-specific-concepts-for-refining (classes)
   "This function is used for class refining for an instance. So, we treat only rigid classes.

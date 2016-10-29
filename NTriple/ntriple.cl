@@ -113,7 +113,7 @@
          (addTriple subject predicate (symbol-value object)))
         (t (let ((range (get-range predicate))) ;range == rdfs:Class
              (warn "Entail in ~S rdf:type ~S:~%..... ~S rdf:type ~S." 
-               subject object object (name range))
+               subject object object (node-name range))
              (addTriple object rdf:|type| range)
              (addTriple subject predicate (symbol-value object))))))
 
@@ -143,7 +143,7 @@
   (unless (object? object)
     (let ((range (get-range predicate))) ;range == rdfs:Class
       (warn "Entail in ~S rdf:type ~S:~%..... ~S rdf:type ~S." 
-        subject object object (name range))
+        subject object object (node-name range))
       (addTriple object rdf:|type| range)))
   (addTriple subject predicate (symbol-value object)))
 
@@ -155,7 +155,7 @@
   (unless (and (iri-boundp subject)(rsc-object-p (iri-value object)))
     (let ((range (get-range predicate))) ;range == rdfs:Class
       (warn "Entail in ~S rdf:type ~S:~%..... ~S rdf:type ~S." 
-        subject object object (name range))
+        subject object object (node-name range))
       (addTriple object rdf:|type| range)))
   (addTriple subject predicate (iri-value object)))
 
@@ -198,13 +198,13 @@
 ;;;
 
 (defmethod superclasses-of ((object rdfs:|Class|))
-  (mop:class-direct-superclasses object))
+  (class-direct-superclasses object))
 (defmethod subclasses-of ((object rdfs:|Class|))
-  (mop:class-direct-subclasses object))
+  (class-direct-subclasses object))
 
 (defmethod addTriple ((subject rdfs:|Class|) (predicate (eql rdfs:|subClassOf|)) (object rdfs:|Class|))
   ;; if subject is already subclass of object, nothing done.
-  (if (cl:subtypep subject object) subject
+  (if (c2cl:subtypep subject object) subject
     (let ((supers (superclasses-of subject)))
       (setq supers (most-specific-concepts (cons object supers)))
       (addClass (list (class-of subject)) subject supers '()))))
@@ -227,7 +227,7 @@
          (addTriple (symbol-value subject) predicate object))
         (t (let ((domain (get-domain predicate)))
              (warn "Entail in ~S rdfs:|subClassOf| ~S:~%..... ~S rdf:type ~S." 
-               subject object subject (name domain))
+               subject object subject (node-name domain))
              (addTriple subject rdf:|type| domain)
              (addTriple (symbol-value subject) predicate object)))))
 
@@ -240,7 +240,7 @@
          (addTriple (iri-value subject) predicate object))
         (t (let ((domain (get-domain predicate)))
              (warn "Entail in ~S rdfs:subClassOf ~S:~%..... ~S rdf:type ~S." 
-               subject object subject (name domain))
+               subject object subject (node-name domain))
              (addTriple subject rdf:|type| domain)
              (addTriple (iri-value subject) predicate object)))))
 
@@ -255,7 +255,7 @@
          (addTriple subject predicate (symbol-value object)))
         (t (let ((range (get-range predicate)))
              (warn "Entail in ~S rdfs:subClassOf ~S:~%..... ~S rdf:type ~S." 
-               subject object object (name range))
+               subject object object (node-name range))
              (addTriple object rdf:|type| range)
              (addTriple subject predicate (symbol-value object))))))
 
@@ -270,7 +270,7 @@
          (addTriple subject predicate (iri-value object)))
         (t (let ((range (get-range predicate)))
              (warn "Entail in ~S rdfs:subClassOf ~S:~%..... ~S rdf:type ~S." 
-               subject object object (name range))
+               subject object object (node-name range))
              (addTriple object rdf:|type| range)
              (addTriple subject predicate (iri-value object))))))
 
@@ -308,7 +308,7 @@
          (addTriple (symbol-value subject) predicate object))
         (t (let ((domain (get-domain predicate)))
              (warn "Entail in ~S ~S ~S:~%..... ~S rdf:type ~S." 
-               subject (name predicate) object subject (name domain))
+               subject (node-name predicate) object subject (node-name domain))
              (addTriple subject rdf:|type| domain)
              (addTriple (symbol-value subject) predicate object)))))
 
@@ -321,7 +321,7 @@
          (addTriple (iri-value subject) predicate object))
         (t (let ((domain (get-domain predicate)))
              (warn "Entail in ~S ~S ~S:~%..... ~S rdf:type ~S." 
-               subject (name predicate) object subject (name domain))
+               subject (node-name predicate) object subject (node-name domain))
              (addTriple subject rdf:|type| domain)
              (addTriple (iri-value subject) predicate object)))))
 
@@ -336,7 +336,7 @@
          (error "Range violation ~S for rdfs:subPropertyOf" object))
         (t (let ((range (get-range predicate)))
              (warn "Entail in ~S ~S ~S:~%..... ~S rdf:type ~S." 
-               subject (name predicate) object object (name range))
+               subject (node-name predicate) object object (node-name range))
              (addTriple object rdf:|type| range)
              (addTriple subject predicate (symbol-value object))))))
 
@@ -349,7 +349,7 @@
          (addTriple subject predicate (symbol-value object)))
         (t (let ((range (or (get-range predicate) |rdfs:Resource|)))
              (warn "Entail in ~S ~S ~S:~%..... ~S rdf:type ~S." 
-               subject (name predicate) object object (name range))
+               subject (node-name predicate) object object (node-name range))
              (addTriple object rdf:|type| range)
              (addTriple subject predicate (symbol-value object))))))
 
@@ -362,7 +362,7 @@
          (addTriple subject predicate (iri-value object)))
         (t (let ((range (or (get-range predicate) |rdfs:Resource|)))
              (warn "Entail in ~S ~S ~S:~%..... ~S rdf:type ~S." 
-               subject (name predicate) object object (name range))
+               subject (node-name predicate) object object (node-name range))
              (addTriple object rdf:|type| range)
              (addTriple subject predicate (iri-value object))))))
 
@@ -380,10 +380,10 @@
 (defmethod addTriple ((subject rdfs:|Class|) (predicate rdf:|Property|) object)
   (let ((domains (get-domain predicate)))
     (cond ((typep subject domains)
-           (addClass (list (class-of subject)) subject '() `((,(name predicate) ,object))))
+           (addClass (list (class-of subject)) subject '() `((,(node-name predicate) ,object))))
           ((atom domains)
-           (warn "Domain Entail: ~S rdf:|type| ~S." (name domains) object)
-           (addInstance domains subject `((,(name predicate) ,object))))
+           (warn "Domain Entail: ~S rdf:|type| ~S." (node-name domains) object)
+           (addInstance domains subject `((,(node-name predicate) ,object))))
           ((error 'domain-condition-unsatisfiable
              :format-control
              "CHECK DOMAIN of ~S to ~#[ none~; ~S~; ~S and ~S~:;~@{~#[~; and~] ~S~^,~}~]."
@@ -395,16 +395,16 @@
 
 (defmethod addTriple ((subject rdfs:|Resource|) (predicate rdf:|Property|) object)
   ;(format t "~%Adding ~S ~S ~S ." subject predicate object)
-  (let ((name (if (anonymous-p subject) (make-unique-nodeID "aa") (name subject)))
+  (let ((name (if (anonymous-p subject) (make-unique-nodeID "aa") (node-name subject)))
         (domains (get-domain predicate)))
     (setf (symbol-value name) subject)
     (cond ((null domains)
-           (addInstance (class-of subject) name `((,(name predicate) ,object))))
+           (addInstance (class-of subject) name `((,(node-name predicate) ,object))))
           ((typep subject domains)
-           (addInstance (class-of subject) name `((,(name predicate) ,object))))
+           (addInstance (class-of subject) name `((,(node-name predicate) ,object))))
           ((atom domains)
-           (warn "Domain Entail: ~S rdf:|type| ~S." (name domains) object)
-           (addInstance domains name `((,(name predicate) ,object))))
+           (warn "Domain Entail: ~S rdf:|type| ~S." (node-name domains) object)
+           (addInstance domains name `((,(node-name predicate) ,object))))
           ((error 'domain-condition-unsatisfiable
              :format-control
              "CHECK DOMAIN of ~S to ~#[ none~; ~S~; ~S and ~S~:;~@{~#[~; and~] ~S~^,~}~]."
@@ -430,12 +430,12 @@
            (addTriple (symbol-value subject) predicate object))
           ((setq domain (get-domain predicate))
            (warn "Entail in ~S ~S ~S:~%..... ~S rdf:|type| ~S." 
-             subject (name predicate) object subject (name domain))
+             subject (node-name predicate) object subject (node-name domain))
            (addTriple subject rdf:|type| domain)
            (addTriple (symbol-value subject) predicate object))
           ((typep object rdfs:|Resource|)
            (warn "Entail in ~S ~S ~S:~%..... ~S rdf:type rdfs:Resource."
-             subject (name predicate) object subject)
+             subject (node-name predicate) object subject)
            (addTriple subject rdf:|type| |rdfs:Resource|)
            (addTriple (symbol-value subject) predicate object))
           ((error "NOT YET")))))
@@ -453,12 +453,12 @@
            (addTriple (iri-value subject) predicate object))
           ((setq domain (get-domain predicate))
            (warn "Entail in ~S ~S ~S:~%..... ~S rdf:type ~S." 
-             subject (name predicate) object subject (name domain))
+             subject (node-name predicate) object subject (node-name domain))
            (addTriple subject rdf:|type| domain)
            (addTriple (iri-value subject) predicate object))
           ((typep object rdfs:|Resource|)
            (warn "Entail in ~S ~S ~S:~%..... ~S rdf:type rdfs:Resource."
-             subject (name predicate) object subject)
+             subject (node-name predicate) object subject)
            (addTriple subject rdf:|type| |rdfs:Resource|)
            (addTriple (iri-value subject) predicate object))
           ((error "NOT YET")))))
@@ -477,20 +477,20 @@
     (when (setq range (get-range predicate))
       (unless (typep object range)
         (error "Range violation:~S for ~S" object range))
-      (unless (cl:typep object range)
+      (unless (c2cl:typep object range)
         (warn "Entail in ~S ~S ~S:~%..... ~S rdf:type ~S"
-          subject (name predicate) object object range)
+          subject (node-name predicate) object object range)
         (addTriple object rdf:|type| range)))
     (cond ((object? subject)
            (addTriple (symbol-value subject) predicate object))
           ((setq domain (get-domain predicate))
            (warn "Entail in ~S ~S ~S:~%..... ~S rdf:type ~S." 
-             subject (name predicate) object
-             subject (name domain))
+             subject (node-name predicate) object
+             subject (node-name domain))
            (addTriple subject rdf:|type| domain)
            (addTriple (symbol-value subject) predicate object))
           (t (warn "Entail in ~S ~S ~S:~%..... ~S rdf:type rdfs:Resource"
-               subject (name predicate) object subject)
+               subject (node-name predicate) object subject)
              (addTriple subject rdf:|type| |rdfs:Resource|)
              (addTriple (symbol-value subject) predicate object)))))
 
@@ -505,20 +505,20 @@
     (when (setq range (get-range predicate))
       (unless (typep object range)
         (error "Range violation:~S for ~S" object range))
-      (unless (cl:typep object range)
+      (unless (c2cl:typep object range)
         (warn "Entail in ~S ~S ~S:~%..... ~S rdf:type ~S"
-          subject (name predicate) object object range)
+          subject (node-name predicate) object object range)
         (addTriple object rdf:|type| range)))
     (cond ((and (iri-boundp subject) (rsc-object-p (iri-value subject)))
            (addTriple (iri-value subject) predicate object))
           ((setq domain (get-domain predicate))
            (warn "Entail in ~S ~S ~S:~%..... ~S rdf:type ~S." 
-             subject (name predicate) object
-             subject (name domain))
+             subject (node-name predicate) object
+             subject (node-name domain))
            (addTriple subject rdf:|type| domain)
            (addTriple (iri-value subject) predicate object))
           (t (warn "Entail in ~S ~S ~S:~%..... ~S rdf:type rdfs:Resource"
-               subject (name predicate) object subject)
+               subject (node-name predicate) object subject)
              (addTriple subject rdf:|type| |rdfs:Resource|)
              (addTriple (iri-value subject) predicate object)))))
 
@@ -532,12 +532,12 @@
            (addTriple (symbol-value subject) predicate object))
           ((setq domain (get-domain predicate))
            (warn "Entail in ~S ~S ~S:~%..... ~S rdf:type ~S." 
-             subject (name predicate) object subject (name domain))
+             subject (node-name predicate) object subject (node-name domain))
            (addTriple subject rdf:|type| domain)
            (addTriple (symbol-value subject) predicate object))
           (t ;; very new input without any information of property
            (warn "Entail in ~S ~S ~S:~%..... ~S rdf:type rdfs:Resource"
-             subject (name predicate) object subject)
+             subject (node-name predicate) object subject)
            (addTriple subject rdf:|type| |rdfs:Resource|)
            (addTriple (symbol-value subject) predicate object)))))
 
@@ -551,12 +551,12 @@
            (addTriple (iri-value subject) predicate object))
           ((setq domain (get-domain predicate))
            (warn "Entail in ~S ~S ~S:~%..... ~S rdf:type ~S." 
-             subject (name predicate) object subject (name domain))
+             subject (node-name predicate) object subject (node-name domain))
            (addTriple subject rdf:|type| domain)
            (addTriple (iri-value subject) predicate object))
           (t ;; very new input without any information of property
            (warn "Entail in ~S ~S ~S:~%..... ~S rdf:type rdfs:Resource"
-             subject (name predicate) object subject)
+             subject (node-name predicate) object subject)
            (addTriple subject rdf:|type| |rdfs:Resource|)
            (addTriple (iri-value subject) predicate object)))))
 
@@ -573,7 +573,7 @@
              (cond ((null range) (error "Check it!"))
                    (t
                     (warn "Entail in ~S ~S ~S:~%..... ~S rdf:type ~S." 
-                      subject (name predicate) object object (name range))
+                      subject (node-name predicate) object object (node-name range))
                     (addTriple object rdf:|type| range)))))
          (addTriple subject rdf:|type| (symbol-value object))
          (addTriple subject predicate (symbol-value object)))
@@ -584,17 +584,17 @@
                   (addTriple subject predicate obj))
                  (t (unless (typep obj range)
                       (warn "Range entail in ~S ~S ~S:~%..... ~S rdf:type ~S." 
-                        subject (name predicate) object object (name range))
+                        subject (node-name predicate) object object (node-name range))
                       (addTriple obj rdf:|type| range))
                     (addTriple subject predicate obj)))))
         (t (let ((range nil))
              (cond ((setq range (get-range predicate))
                     (warn "Entail in ~S ~S ~S:~%..... ~S rdf:type ~S." 
-                      subject (name predicate) object object (name range))
+                      subject (node-name predicate) object object (node-name range))
                     (addTriple object rdf:|type| range)
                     (addTriple subject predicate (symbol-value object)))
                    (t (warn "Entail in ~S ~S ~S:~%..... ~S rdf:type rdfs:Resource." 
-                        subject (name predicate) object object)
+                        subject (node-name predicate) object object)
                       (addTriple object rdf:|type| |rdfs:Resource|)
                       (addTriple subject predicate (symbol-value object))))))))
 
@@ -610,7 +610,7 @@
          (unless (and (iri-boundp object) (rsc-object-p (iri-value object)))
            (let ((range (get-range predicate)))
              (warn "Entail in ~S ~S ~S:~%..... ~S rdf:type ~S." 
-               subject (name predicate) object object (name range))
+               subject (node-name predicate) object object (node-name range))
              (addTriple object rdf:|type| range)))
          (addTriple subject rdf:|type| (iri-value object))
          (addTriple subject predicate (iri-value object)))
@@ -619,11 +619,11 @@
         (t (let ((range nil))
              (cond ((setq range (get-range predicate))
                     (warn "Entail in ~S ~S ~S:~%..... ~S rdf:type ~S." 
-                      subject (name predicate) object object (name range))
+                      subject (node-name predicate) object object (node-name range))
                     (addTriple object rdf:|type| range)
                     (addTriple subject predicate (iri-value object)))
                    (t (warn "Entail in ~S ~S ~S:~%..... ~S rdf:type rdfs:Resource." 
-                        subject (name predicate) object object)
+                        subject (node-name predicate) object object)
                       (addTriple object rdf:|type| |rdfs:Resource|)
                       (addTriple subject predicate (iri-value object))))))))
 
@@ -827,10 +827,10 @@
 (/. baz1 bas baz2)
 
 (defun revert-slot (slotd)
-  (let ((role (mop:slot-definition-name slotd))
-        (filler (mop:slot-definition-initform slotd))
-        (readers (mop:slot-definition-readers slotd))
-        (writers (mop:slot-definition-writers slotd)))
+  (let ((role (slot-definition-name slotd))
+        (filler (slot-definition-initform slotd))
+        (readers (slot-definition-readers slotd))
+        (writers (slot-definition-writers slotd)))
     `(:name ,role :initargs (,role) :initform ,filler :type ,filler
             :readers ,readers :writers ,writers)))
 
@@ -844,7 +844,7 @@
   (assert (typep resource rdfs:|Resource|))
   (flet ((name-in-get-triple (rsc)
            (cond ((rsc-object-p rsc)
-                  (or (name rsc) (slot-value rsc 'rdf:|about|)))
+                  (or (node-name rsc) (slot-value rsc 'rdf:|about|)))
                  ((and (symbolp rsc) (nodeID? rsc)) rsc)
                  ((error "Cant happen!"))))
          (object-in-get-triple (rsc)
@@ -863,7 +863,7 @@
                                         `((,subject ,role ,filler)))
                                        ((rsc-object-p filler)
                                         (cond ((named-p filler)
-                                               `((,subject ,role ,(name filler))))
+                                               `((,subject ,role ,(node-name filler))))
                                               (t (let ((nodeid (make-unique-nodeID "gx")))
                                                    (setf (symbol-value nodeid) filler)
                                                    (cons
