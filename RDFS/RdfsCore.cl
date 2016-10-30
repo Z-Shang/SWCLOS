@@ -209,7 +209,7 @@
            (unless name
              (when id (setq name id))
              (when nodeID (setq name (nodeID2symbol nodeID))))
-           (add-form (list* (car form) `(:name ,name) (cdr form)) nil)))
+           (add-form (list* (car form) `(:name ,name) (cdr form)) nil))) ; old: lazy-add-form
         ((error "What ~S" description))))
 
 ;;;
@@ -451,7 +451,7 @@
                (cond ((subproperty-p (symbol-value role) rdfs:|subClassOf|)
                       (cond ((not (object? name))
                              (warn "Range entailX1 by ~S: ~S rdf:type ~S." role name (node-name range))
-                             (addObject range `((:name ,name))))
+                             (add-object range `((:name ,name))))
                             ((not (c2cl:typep (symbol-value name) range))
                              (warn "Range entailX1 by ~S: ~S rdf:type ~S." role name (node-name range))
                              (change-class (symbol-value name) range))
@@ -459,7 +459,7 @@
                      ((subproperty-p (symbol-value role) rdf:|type|)
                       (cond ((not (object? name))
                              (warn "Range entailX2 by ~S: ~S rdf:type ~S." role name (node-name range))
-                             (addObject range `((:name ,name))))
+                             (add-object range `((:name ,name))))
                             ((not (c2cl:typep (symbol-value name) range))
                              (warn "Range entailX2 by ~S: ~S rdf:type ~S." role name (node-name range))
                              (change-class (symbol-value name) range))
@@ -467,7 +467,7 @@
                      ((not (object? name))
                       ;;(error "Check it!")
                       (warn "Range entailX3 by ~S: ~S rdf:type ~S." role name (node-name range))
-                      (addObject range `((:name ,name))))
+                      (add-object range `((:name ,name))))
                      ((not (c2cl:typep (symbol-value name) range))
                       (error "Check it!")
                       (warn "Range entailX3 by ~S: ~S rdf:type ~S." role name (node-name range))
@@ -574,7 +574,7 @@
 
 (defun %add-form (type slots role)
   "subfunction for <%add-form>. To be here, <type> must be fixed.
-   This function creates an object with <type> and <slots> using <addObject>."
+   This function creates an object with <type> and <slots> using <add-object>."
   (let ((types (most-specific-concepts
                 (reverse
                  (cons type
@@ -591,30 +591,30 @@
   (setq slots (remove-if #'keywordp slots))
   (setq slots (remove 'xml:lang slots :key #'slot-role))
   (cond ((null slots)
-         (addObject type nil))
+         (add-object type nil))
         ((atom (car slots))  ; should be name
          (error "Cant happen!"))
         ((assoc :name slots)
          (when (or (eq role t) (eq role nil)) ;; top level input
            (accumulate-defined-name (assoc :name slots)))
-         (addObject type slots))
+         (add-object type slots))
         ((and (symbolp type) (string= (string type) "Ontology"))
          (let ((name (name-ontology (slot-filler (assoc 'rdf:|about| slots)))))
-           (addObject type (acons :name (list name) slots))))
+           (add-object type (acons :name (list name) slots))))
         ((assoc 'rdf:|about| slots)
          ;; if rdf:about attribute exists and no name, then name is set from rdf:|about| attribute.
          (let ((uri (slot-filler (assoc 'rdf:|about| slots))))
            (let ((name (unless (assoc :name slots) (uri2symbol uri))))
              (when (or (eq role t) (eq role nil)) ;; top level input
                (accumulate-defined-name name))
-             (addObject type (acons :name (list name) slots)))))
+             (add-object type (acons :name (list name) slots)))))
         ((assoc 'rdf:|ID| slots)
          (let ((name (slot-filler (assoc 'rdf:|ID| slots))))
            (when (or (eq role t) (eq role nil)) ;; top level input
              (accumulate-defined-name name))
-           (addObject type (acons :name (list name) slots))))
+           (add-object type (acons :name (list name) slots))))
         (t  ;; nil suppresses domain collec computing
-         (addObject type slots)))
+         (add-object type slots)))
   )
 
 (defun make-proxy (types)
@@ -656,21 +656,21 @@
         ((error "Cant happen!"))))
 
 ;;;
-;;;; addObject
+;;;; add-object
 ;;;
-;;; <addObject>s are a set of methods of which main purpose is to distinguish creating a class or 
-;;; creating an instance, and additionally recognize an instance of OneOf. See also <addObject> in OWL module. 
+;;; <add-object>s are a set of methods of which main purpose is to distinguish creating a class or 
+;;; creating an instance, and additionally recognize an instance of OneOf. See also <add-object> in OWL module. 
 ;;;
-;;; # <addObject>(rdfs:Class) - main routine
-;;; # <addObject>(rdfsClass)  - accepts only rdfs:Class, the body is same as the main routine above.
-;;; # <addObject>:around(rdfs:Class) - for OneOf processing, see OneOf module
-;;; # <addObject>:around(rdfsClass)  - same as <addObject>:around(rdfs:Class)
-;;; # <addObject>:before(rdfs:Class) - for container membership property
+;;; # <add-object>(rdfs:Class) - main routine
+;;; # <add-object>(rdfsClass)  - accepts only rdfs:Class, the body is same as the main routine above.
+;;; # <add-object>:around(rdfs:Class) - for OneOf processing, see OneOf module
+;;; # <add-object>:around(rdfsClass)  - same as <add-object>:around(rdfs:Class)
+;;; # <add-object>:before(rdfs:Class) - for container membership property
 ;;; Note that if there is no information on <type> or superclasses of an object, due to the forward reference, 
 ;;; the object is created as instance even though it is changed to a class later when the regular expression
 ;;; are stated.
 
-(defun addObject (type slot-forms)
+(defun add-object (type slot-forms)
   "<type> is a class or a meta-class except rdfs:Class. Every slot-filler is already objectized if it is an resource object.
    This method sets up QName's package in uri-namedspace from name in <slot-forms>, then calls <ensure-meta-absts> 
    to fix the meta class and abst classes for this object. Finally, calls <add-class> if the meta class or abst exists, else 

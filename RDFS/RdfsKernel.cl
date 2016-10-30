@@ -209,8 +209,7 @@
          (setf (getf initargs :direct-superclasses)
            (append (getf initargs :direct-superclasses) (list (load-time-value rdfs:|Literal|))))
          (apply #'call-next-method class initargs))
-        (t (call-next-method)))
-  )
+        (t (call-next-method))))
 
 ;;
 ;; Asyclic Property Terminology Error
@@ -237,8 +236,7 @@
      (let ((fcont (simple-condition-format-control condition))
            (args (simple-condition-format-arguments condition)))
        (format stream "metamodeling error: ~A" 
-         (apply #'format nil fcont args)))))
-  )
+         (apply #'format nil fcont args))))))
 
 ;;;
 ;;; Class Precedence List
@@ -694,6 +692,7 @@ Call to (METHOD SHARED-INITIALIZE :AFTER (RDF:|Property| T))
   (when initargs
     (shared-initialize-before-in-RDF instance slot-names initargs)
     (shared-initialize-before-in-OWL instance slot-names initargs)))
+
 (defun shared-initialize-before-in-RDF (instance slot-names initargs)
   ;(format t "~%shared-initialize-before-in-RDF(~S ~S ~S)" instance slot-names initargs)
   (let ((class (class-of instance)))
@@ -722,6 +721,7 @@ Call to (METHOD SHARED-INITIALIZE :AFTER (RDF:|Property| T))
                              filler
                              (find role (class-slots class) :key #'slot-definition-name)
                              oldval)))))))))
+
 (defun shared-initialize-before-in-OWL (instance slot-names initargs)
   (declare (ignore instance slot-names initargs))
   )

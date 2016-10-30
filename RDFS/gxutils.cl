@@ -103,13 +103,16 @@ Note that it is not cared that symbols are bound to resource objects or not."))
 (defmethod list-all-entities-in ((namespace string) &optional uri?)
   "When <namespace> is a string, recursively called with a uri of <namespace>."
   (list-all-entities-in (iri namespace) uri?))
+
 (defmethod list-all-entities-in ((namespace uri) &optional uri?)
   "When <namespace> is a uri, the related package is retrieved of <namespace>, then recursively called with the package."
   (let ((pkg (uri2package namespace)))
     (when pkg (list-all-entities-in pkg uri?))))
+
 (defmethod list-all-entities-in ((namespace symbol) &optional uri?)
   "When <namespace> is a non-nil symbol, recursively called with a package of <namespace>."
   (when namespace (list-all-entities-in (find-package namespace) uri?)))
+
 (defmethod list-all-entities-in ((namespace package) &optional uri?)
   "When <namespace> is a package, every external symbol in <namespace> is collected, 
    and it is returned as a list of symbol (when uri? is false) or uri (when uri? is true)."
@@ -177,8 +180,7 @@ Note that it is not cared that symbols are bound to resource objects or not."))
   (:documentation
    "get-slots <obj>
    returns a slot list of <obj>. Note that nil is returned if <obj> 
-   is not a resource.")
-  )
+   is not a resource."))
 
 (defmethod get-slots ((obj rdfs:|Class|))
   (slots-of obj))
@@ -236,7 +238,9 @@ Note that it is not cared that symbols are bound to resource objects or not."))
     (list (list 'rdf:|about| (get (slot-value mop 'rdfs:|label|) 'rdf:|about|)))))
 
 (defmethod get-about-slot ((mop rdfs:|Resource|))
-  (when (and (slot-exists-p mop 'rdfs:|label|) (slot-boundp mop 'rdfs:|label|) (get (slot-value mop 'rdfs:|label|) 'rdf:|about|))
+  (when (and (slot-exists-p mop 'rdfs:|label|)
+             (slot-boundp mop 'rdfs:|label|)
+             (get (slot-value mop 'rdfs:|label|) 'rdf:|about|))
     (list (list 'rdf:|about| (get (slot-value mop 'rdfs:|label|) 'rdf:|about|)))))
 
 (defun path-filler (mop path)
@@ -315,7 +319,7 @@ Note that it is not cared that symbols are bound to resource objects or not."))
              (format t "~%slotd=~S" slotd)
              (when slotd
                (let ((filler (%setfvalue value (slot-definition-type slotd) (cdr roles))))
-                 (addObject (symbol-value type) `((,(node-name (car roles)) ,filler)))))))))
+                 (add-object (symbol-value type) `((,(node-name (car roles)) ,filler)))))))))
 
 ;;
 ;;
@@ -345,6 +349,7 @@ Note that it is not cared that symbols are bound to resource objects or not."))
 
 (defmethod collect-direct-instances-of ((class symbol)) ;smh
   (collect-direct-instances-of (symbol-value class)))
+
 (defmethod collect-direct-instances-of ((class rdfs:|Class|)) ;smh
   (class-direct-instances class))
 
@@ -474,6 +479,7 @@ Note that it is not cared that symbols are bound to resource objects or not."))
 
 (defun list-all-resources (&optional with-system-rsc-object-p)
   (%list-all-resources rdfs:|Resource| with-system-rsc-object-p))
+
 (defun %list-all-resources (root with-system-rsc-object-p)
   (case (class-name root)
     ((rdfsClass rdf-node) nil)
@@ -586,6 +592,7 @@ Note that it is not cared that symbols are bound to resource objects or not."))
    (remove-duplicates
     (mappend #'same-as-of 
              (mappend #'(lambda (obj) (%get-value obj role)) (same-as-of object))))))
+
 (defun %get-value (object role)
   "rdfs7 + inverserole"
   (declare (optimize (speed 3) (safety 0)))

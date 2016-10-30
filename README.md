@@ -23,6 +23,7 @@ OWL Full Processor on top of Common Lisp Object System (CLOS)
 * defTriple &rarr; def-triple
 * addClass &rarr; add-class
 * addForm &rarr; add-form
+* addObject &rarr; add-object
 * addInstance &rarr; add-instance
 * addTriple &rarr; add-triple
 * addRdfXml &rarr; add-rdf/xml
