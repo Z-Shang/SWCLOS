@@ -145,9 +145,12 @@
 (defun destroy (class)
   (change-class class (find-class 'destroyed-class))
   (loop for super in (class-direct-superclasses class)
-	do (setf #-allegro (class-direct-subclasses super)
-		 #+allegro (slot-value super 'excl::direct-subclasses)
-		 (remove class (class-direct-subclasses super))))
+     do (progn
+          #+allegro
+          (setf (slot-value super 'excl::direct-subclasses)
+                (remove class (class-direct-subclasses super)))
+          #+lispworks
+          (setf (class-direct-subclasses super) (remove class (class-direct-subclasses super)))))
   #+allegro
   (progn
     (setf (slot-value class 'excl::direct-superclasses) nil)
