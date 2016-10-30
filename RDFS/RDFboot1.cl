@@ -72,13 +72,17 @@ rdfs:|Resource|."))
 ;;; phenomenum, |rdfs:Resource| is used instead of rdfs:|Resource| in forward-referencing. 
 ;;; |rdfs:Resource| prevents to create wasteful slots at rdfs:|Resource| instances. 
 ;;;
-(defparameter |rdfs:Resource| ; note: this symbol is NOT in package "rdfs" but "gx"!
-  (defclass |rdfs:Resource| (rdfs:|Resource|) () (:metaclass rdfs:|Class|))
-  "|rdfs:Resource| is a pseudo rdfs:|Resource| in order to work around the slot inheritance of temporal definition.
+
+(defclass |rdfs:Resource| (rdfs:|Resource|) ()
+  (:metaclass rdfs:|Class|)
+  (:documentation "|rdfs:Resource| is a pseudo rdfs:|Resource| in order to work around the slot inheritance of temporal definition.
 The rule of rdf4 entails a subject and an object as an instance of rdfs:|Resource|. However the proactive application of
 this rule causes the slot definition inheritance to the instances of rdfs:|Class| and rdfs:|Datatype| and amounts to 
 wasteful slots in every objects. To cope with this problem, rdf4 treats |rdfs:Resource| metaobject instead of 
-rdfs:|Resource|.")
+rdfs:|Resource|."))
+
+(defvar |rdfs:Resource| ; note: this symbol is NOT in package "rdfs" but "gx"!
+  (find-class '|rdfs:Resource|))
 
 ;;; 
 ;;;; Then, we proceed slot definitions.

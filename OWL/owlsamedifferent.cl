@@ -147,7 +147,6 @@
                                      (setf (slot-value s 'same-as) sames)))
                  sames))))))
 
-(without-redefinition-warnings
 (defun definitely-%owl-same-p (x y &optional pairs)
   "returns true if <x> and <y> is defined as the same in OWL semantics.
    <x> and <y> should be neither a symbol nor an iri."
@@ -175,7 +174,6 @@
          (and (eq (lang x) (lang y)) (equal (content x) (content y))))
         ((and (c2cl:typep x 'rdf:|XMLLiteral|) (c2cl:typep y 'rdf:|XMLLiteral|))
          (and (eq (class-of x) (class-of y)) (equal (value-of x) (value-of y))))))
-)
 
 (defun definitely-owl-same-p (x y &optional pairs)
   "returns true if <x> and <y> is defined as the same in OWL semantics.
@@ -187,7 +185,6 @@
         ((iri-p x) (definitely-owl-same-p (iri-value x) y pairs))
         ((iri-p y) (definitely-owl-same-p x (iri-value y) pairs))))
 
-(without-redefinition-warnings
 (defmethod %owl-same-p ((x rdfs:|Resource|) (y rdfs:|Resource|) &optional pairs)
   "Non-resolution version. This is used in <owl-equalp> and <owl-equivalent-p>."
   (declare (optimize (speed 3) (safety 0)))
@@ -199,7 +196,6 @@
         (t ;; else check in rdf graph equality
          (%rdf-equalp x y))
         ))
-)
 
 (defun definitely-%%owl-different-p (x y)
   (cond ((member x (slot-value y 'different-from))
