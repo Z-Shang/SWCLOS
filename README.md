@@ -8,6 +8,12 @@ OWL Full Processor on top of Common Lisp Object System (CLOS)
 * Allegro CL Free Express Edition 10.0
 * LispWorks 6.x, 7.0
 
+## Other supported platforms in progress
+
+* CMU Common Lisp
+* Steel Bank Common Lisp
+* GNU CLISP
+
 ## API changes
 
 * defConcept &rarr; def-concept
