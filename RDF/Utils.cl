@@ -286,24 +286,12 @@ but optimized for vectors."
 	  (return (subseq string-buffer 0 (fill-pointer string-buffer)))))
 
 ;;; a portable excl:find-external-format based on flexi-streams
-(declaim (inline find-external-format))
 (defun find-external-format (code)
   (cond ((eq code :default) :utf-8)
 	(t code)))
 
 ;;; a portable excl:without-redefinition-warnings
 (defmacro without-redefinition-warnings (&body body)
-  #+allegro
-  `(excl:without-redefinition-warnings ,@body)
-  #+lispworks
-  `(let ((dspec:*redefinition-action* :quiet)) ,@body)
-  #+sbcl
-  `(locally
-       (declare (sb-ext:muffle-conditions sb-kernel:redefinition-warning))
-     (handler-bind
-	 ((sb-kernel:redefinition-warning #'muffle-warning))
-       ,@body))
-  #-(or allegro lispworks sbcl)
   `(progn ,@body))
 
 ;;; a portable excl:without-package-locks
@@ -318,7 +306,6 @@ but optimized for vectors."
     #-(or allegro lispworks sbcl clisp cmu) progn
     ,@body))
 
-(declaim (inline symbol-equal))
 (defun symbol-equal (sym1 sym2)
   (string-equal (symbol-name sym1) (symbol-name sym2)))
 
