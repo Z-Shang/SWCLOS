@@ -679,21 +679,23 @@ from <value>. For example, if <datatype> is xsd:integer '010' as <value> is tran
 10, an instance of cl:integer, then 10^^xsd:integer is made, in which the value is 10."
   (setq value (string-trim '(#\Space #\Tab #\Newline) value))
   (ecase datatype
-    ((xsd:|float| xsd:|decimal| xsd:|integer| 
-                xsd:|long| xsd:|int| xsd:|short| xsd:|byte|
-                xsd:|nonPositiveInteger| xsd:|negativeInteger| 
-                xsd:|nonNegativeInteger| xsd:|unsignedLong| xsd:|unsignedInt| xsd:|unsignedShort| xsd:|unsignedByte| 
-                xsd:|positiveInteger|)
+    ((xsd:|float| xsd:|integer| xsd:|long| xsd:|int| xsd:|short| xsd:|byte|
+      xsd:|nonPositiveInteger| xsd:|negativeInteger|
+      xsd:|nonNegativeInteger| xsd:|unsignedLong|
+      xsd:|unsignedInt| xsd:|unsignedShort| xsd:|unsignedByte|
+      xsd:|positiveInteger|)
      (^^ (read-from-string value) (symbol-value datatype)))
-    (xsd:|double| (^^ (read-from-string (format nil "~Ad0" value)) (symbol-value datatype)))
-    (xsd:|decimal| (^^ (rational (read-from-string (format nil "~Ad0" value))) (symbol-value datatype)))
+    (xsd:|double| (^^ (read-from-string (format nil "~Ad0" value))
+		      (symbol-value datatype)))
+    (xsd:|decimal| (^^ (rational (read-from-string (format nil "~Ad0" value)))
+		       (symbol-value datatype)))
     (xsd:|string| (make-instance (symbol-value datatype) :value value))
     (xsd:|anyURI| (iri value))
     (xsd:|boolean| (cond ((string= value "1") t)
-                       ((string= value "0") nil)
-                       ((string-equal value "true") t)
-                       ((string-equal value "false") nil)
-                       ((error "Illegal value for datatype ~S:~S" datatype value))))
+			 ((string= value "0") nil)
+			 ((string-equal value "true") t)
+			 ((string-equal value "false") nil)
+			 ((error "Illegal value for datatype ~S:~S" datatype value))))
     (xsd:|duration| (parse-as-duration value nil))
     (xsd:|anySimpleType| (error "Did you define new xsd type?"))
     (rdf:|XMLLiteral| (error "Not Yet!"))))

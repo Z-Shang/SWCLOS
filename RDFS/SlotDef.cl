@@ -65,6 +65,7 @@ by OWL module. This value directs the default class for slot definition. See
 (defclass Property-direct-slot-definition (standard-direct-slot-definition)
   ((subject-type :initarg :subject-type :accessor slot-definition-subject-type))
   (:documentation "defines a subject-type option."))
+
 (defclass Property-effective-slot-definition (standard-effective-slot-definition)
   ((subject-type :initarg :subject-type :accessor slot-definition-subject-type))
   (:documentation "An instance of this class has a subject-type option in which a class of 
@@ -76,6 +77,7 @@ subject in triple is stored."))
    (mincardinality :initarg :mincardinality :initform () 
                    :accessor slot-definition-mincardinality))
   (:documentation "defines a max and min cardinality options."))
+
 (defclass OwlProperty-effective-slot-definition (Property-effective-slot-definition)
   ((maxcardinality :initarg :maxcardinality :initform () 
                    :accessor slot-definition-maxcardinality)
