@@ -25,3 +25,15 @@
 ;; redefine rdfsClass
 (defclass rdfsClass (|Class|) ()
   (:metaclass rdf-node))
+
+#|
+
+Well, SBCL's behaviour might not be optimal, but this code is definitely
+not "totally legal": AMOP specifies that "portable metaobject classes
+cannot be redefined".
+
+Best wishes,
+
+Christophe
+
+|#
