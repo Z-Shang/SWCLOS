@@ -77,9 +77,9 @@
 (defpackage :gx
   (:use :closer-common-lisp :named-readtables :puri)
   (:import-from
-    #+allegro :excl #+(or clisp ecl lispworks) :clos #+sbcl :sb-pcl #+cmu :pcl
-    #-(or allegro cmu clisp ecl lispworks sbcl) :mop
-    #:name)
+    #+allegro :excl #+(or clisp lispworks) :clos #+sbcl :sb-pcl #+cmu :pcl
+    #-(or allegro cmu clisp lispworks sbcl) :mop
+    #:name #:compute-effective-slot-definition-initargs)
   (:shadow #:typep #:subtypep #:type-of)
   (:documentation "http://www.TopOntologies.com/tools/SWCLOS#"))
 

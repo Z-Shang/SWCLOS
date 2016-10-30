@@ -458,9 +458,8 @@ and instance of owl:Class."))
 
 (without-redefinition-warnings
 
-#+allegro
-(defmethod excl::compute-effective-slot-definition-initargs ((class rdfs:|Class|) direct-slotds)
-  (declare (optimize (speed 3) (safety 0)))
+(defmethod compute-effective-slot-definition-initargs ((class rdfs:|Class|) #+lispworks name direct-slotds)
+  #+lispworks (declare (ignore name))
   (let ((initargs (call-next-method)))
     (let ((type (getf initargs ':type)))
       (when (consp type)
@@ -473,24 +472,7 @@ and instance of owl:Class."))
               ((error "Cant happen!")))
         (setf (getf initargs ':type) type)))
     (%compute-effective-slot-definition-initargs 
-     class (class-name class) (slot-definition-name (car direct-slotds)) direct-slotds initargs)))
-
-#+lispworks
-(defmethod clos::compute-effective-slot-definition-initargs ((class rdfs:|Class|) name direct-slotds)
-  (declare (ignore name))
-  (let ((initargs (call-next-method)))
-    (let ((type (getf initargs ':type)))
-      (when (consp type)
-        (cond ((eq (car type) 'and)
-               ; this 'and' comes from standard routine in ACL
-               (check-simple-disjoint-pair-p-in-slot-types class (cdr type))
-               ;(setq type (most-specific-concepts-for-slotd-type (cdr type)))
-               ;(setq type (compute-effective-slot-definition-type type))
-               )
-              ((error "Cant happen!")))
-        (setf (getf initargs ':type) type)))
-    (%compute-effective-slot-definition-initargs 
-     class (class-name class) (slot-definition-name (car direct-slotds)) direct-slotds initargs)))
+      class (class-name class) (slot-definition-name (car direct-slotds)) direct-slotds initargs)))
 
 (defun %compute-effective-slot-definition-initargs (class class-name slot-name direct-slotds initargs)
   (declare (optimize (speed 3) (safety 0)))
@@ -901,7 +883,7 @@ and instance of owl:Class."))
 (def-property owl::|priorVersion|)     ; just for suppression of entailment warning
 
 (eval-when (:load-toplevel)
-  (read-rdf-file #'addRdfXml "OWL:OWL.rdf"))
+  (read-rdf-file #'add-rdfxml "OWL:OWL.rdf"))
 
 ;;; ==================================================================================
 ;;;
