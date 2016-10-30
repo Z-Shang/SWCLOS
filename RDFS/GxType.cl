@@ -481,13 +481,14 @@ cases, each value is compared with each slot name."
                      :test #'(lambda (cc dd)
                                (or (%clos-subtype-p cc dd) (%clos-subtype-p dd cc))))))
 |#
+
 (defun check-instance-sharing (c1 c2 &optional visited)
   "checks disjointWith constraint of <c1> against <c2> and its subclasses."
   (cond ((member c2 visited) nil)
         ((or (%clos-subtype-p c1 c2) (%clos-subtype-p c2 c1)) c2)
         ((some #'(lambda (sub) (check-instance-sharing c1 sub (cons c2 visited)))
-               (class-direct-subclasses c2)))
-        ))
+               (class-direct-subclasses c2)))))
+
 (defun %disjoint-p (c d)
   (cond ((and (rdf-class-p c) (rdf-class-p d))
          (cond ((or (%clos-subtype-p c d) (%clos-subtype-p d c))
@@ -523,10 +524,10 @@ cases, each value is compared with each slot name."
                          (%clos-subtype-p c (symbol-value 'xsd:|negativeInteger|))))
                 (values t t))
                ;; implicit disjointness of datatype
-               ((and (%clos-subtype-p c xsd:|anySimpleType|)
-                     (%clos-subtype-p d xsd:|anySimpleType|))
+               ((and (%clos-subtype-p c (symbol-value 'xsd:|anySimpleType|))
+                     (%clos-subtype-p d (symbol-value 'xsd:|anySimpleType|)))
                 (loop with dsubs = (cons d (collect-all-subs d))
-		      for csub in (cons c (collect-all-subs c))
+                      for csub in (cons c (collect-all-subs c))
                     do (loop for dsub in dsubs
                            when (or (%clos-subtype-p csub dsub) (%clos-subtype-p dsub csub))
                            do (return-from %disjoint-p (values nil t))))
@@ -540,46 +541,51 @@ cases, each value is compared with each slot name."
                     (values nil t))
                    (t (values t t)))
            (values nil nil)))
-        (t (typecase c
-             (forall (typecase d
-                       (forall (error "Not Yet!"))
-                       (exists (error "Not Yet!"))
-                       (fills (error "Not Yet!"))
-                       (rdfs:|Class| (disjoint-p (forall-filler c) d))
-                       (rdfs:|Resource| (error "Not Yet!"))
-                       (t nil)))
-             (exists (typecase d
-                       (forall (error "Not Yet!"))
-                       (exists (error "Not Yet!"))
-                       (fills (error "Not Yet!"))
-                       (rdfs:|Class| (error "Not Yet!"))
-                       (rdfs:|Resource| (error "Not Yet!"))
-                       (t nil)))
-             (fills (typecase d
-                          (forall (error "Not Yet!"))
-                          (exists (error "Not Yet!"))
-                          (fills (cond ((and (equivalent-property-p (fills-role c) (fills-role d))
-                                                 (disjoint-p (fills-filler c) (fills-filler d)))
-                                            (values t t))
-                                           (t (values nil t))))
-                          (rdfs:|Class| (error "Not Yet!"))
-                          (rdfs:|Resource| (error "Not Yet!"))
-                          (t nil)))
-             (rdfs:|Class| (typecase d
-                           (forall (disjoint-p c (forall-filler d)))
-                           (exists (error "Not Yet!"))
-                           (fills (error "Not Yet!"))
-                           (rdfs:|Class| (error "Not Yet!"))
-                           (t nil)))
-             (rdfs:|Resource| (typecase d
-                              (forall (error "Not Yet!"))
-                              (exists (error "Not Yet!"))
-                              (fills (error "Not Yet!"))
-                              (rdfs:|Class| (error "Not Yet!"))
-                              (rdfs:|Resource| (error "Not Yet!"))
-                              (t nil)))
-             (t nil)
-             ))))
+        (t
+	 (typecase c
+	   (forall
+	    (typecase d
+	      (forall (error "Not Yet!"))
+	      (exists (error "Not Yet!"))
+	      (fills (error "Not Yet!"))
+	      (rdfs:|Class| (disjoint-p (forall-filler c) d))
+	      (rdfs:|Resource| (error "Not Yet!"))
+	      (t nil)))
+	   (exists
+	    (typecase d
+	      (forall (error "Not Yet!"))
+	      (exists (error "Not Yet!"))
+	      (fills (error "Not Yet!"))
+	      (rdfs:|Class| (error "Not Yet!"))
+	      (rdfs:|Resource| (error "Not Yet!"))
+	      (t nil)))
+	   (fills
+	    (typecase d
+	      (forall (error "Not Yet!"))
+	      (exists (error "Not Yet!"))
+	      (fills (cond ((and (equivalent-property-p (fills-role c) (fills-role d))
+				 (disjoint-p (fills-filler c) (fills-filler d)))
+			    (values t t))
+			   (t (values nil t))))
+	      (rdfs:|Class| (error "Not Yet!"))
+	      (rdfs:|Resource| (error "Not Yet!"))
+	      (t nil)))
+	   (rdfs:|Class|
+	    (typecase d
+	      (forall (disjoint-p c (forall-filler d)))
+	      (exists (error "Not Yet!"))
+	      (fills (error "Not Yet!"))
+	      (rdfs:|Class| (error "Not Yet!"))
+	      (t nil)))
+	   (rdfs:|Resource|
+	    (typecase d
+	      (forall (error "Not Yet!"))
+	      (exists (error "Not Yet!"))
+	      (fills (error "Not Yet!"))
+	      (rdfs:|Class| (error "Not Yet!"))
+	      (rdfs:|Resource| (error "Not Yet!"))
+	      (t nil)))
+	   (t nil)))))
 
 (defun collect-all-subs (class)
   "returns all subclasses of <class> but <class> itself. 
@@ -681,11 +687,13 @@ A subclass of this class is a metaclass.")
    (filler :initarg :filler :accessor forall-filler))
   (:metaclass cl:standard-class)
   (:documentation "type slot constraint metaclass for universal value constraints"))
+
 (defclass exists (slot-type-constraint)
   ((role :initarg :role :accessor exists-role)
    (filler :initarg :filler :accessor exists-filler))
   (:metaclass cl:standard-class)
   (:documentation "type slot constraint metaclass for full existential constraints"))
+
 (defclass fills (slot-type-constraint)
   ((role :initarg :role :accessor fills-role)
    (filler :initarg :filler :accessor fills-filler))
@@ -701,6 +709,7 @@ A subclass of this class is a metaclass.")
              (or (node-name (forall-filler obj))
                  (get-form (forall-filler obj))))))
         (t (call-next-method))))
+
 (defmethod print-object ((obj exists) stream)
   (cond ((and (exists-role obj)
               (exists-filler obj))
@@ -710,6 +719,7 @@ A subclass of this class is a metaclass.")
              (or (node-name (exists-filler obj))
                  (get-form (exists-filler obj))))))
         (t (call-next-method))))
+
 (defmethod print-object ((obj fills) stream)
   (cond ((and (fills-role obj)
               (fills-filler obj))
