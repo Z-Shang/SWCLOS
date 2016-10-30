@@ -29,8 +29,8 @@
 (in-package :gx)
 
 (eval-when (:compile-toplevel :load-toplevel :execute)
-  (export '(add-Object add-Form add-Instance add-Class def-Resource def-Property def-Concept 
-	    def-Individual subproperty-p add-Rdf-Xml)))
+  (export '(add-object add-form add-instance add-class def-resource def-property def-concept
+	    def-individual subproperty-p add-rdf/xml)))
 
 (declaim (inline create-slot slot-role slot-forms slot-filler get-filler))
 
@@ -166,7 +166,7 @@
   (cond ((assoc 'rdf:|type| args) (expand-def 'rdfs:|Resource| name args))
         (t (expand-def '|rdfs:Resource| name args))))
 
-(defun add-rdfxml (description)
+(defun add-rdf/xml (description)
   (cond ((|Description|-p description)
          (let* ((form (|Description|-form description))
                 (about (second (assoc 'rdf:|about| (cdr form))))
@@ -188,7 +188,7 @@
            (add-form (list* (car form) `(:name ,name) (cdr form)) nil)))
         ((error "What ~S" description))))
 
-(defun lasy-add-rdfxml (description)
+(defun lasy-add-rdf/xml (description)
   "This function lazily <add-form> when it is forced.
    <delay> must be explicitly called with <force> function."
   (cond ((|Description|-p description)
@@ -217,7 +217,7 @@
 ;;;
 ;;; The defining macro at the top level mentioned above internally produces the code for input form 
 ;;; in S-expression and calls function <add-form> with it.
-;;; Reading RDF/XML file also makes a sequence of input forms in S-expression (See <add-rdfxml> and <Description-form>), 
+;;; Reading RDF/XML file also makes a sequence of input forms in S-expression (See <add-rdf/xml> and <Description-form>), 
 ;;; and such input form is processed by <add-form>.
 ;;;
 ;;; Input form in S-expression has recursive structures. The BNF syntax for defining an RDF resource in S-expression is as follows.

@@ -883,7 +883,7 @@ and instance of owl:Class."))
 (def-property owl::|priorVersion|)     ; just for suppression of entailment warning
 
 (eval-when (:load-toplevel)
-  (read-rdf-file #'add-rdfxml "OWL:OWL.rdf"))
+  (read-rdf-file #'add-rdf/xml "OWL:OWL.rdf"))
 
 ;;; ==================================================================================
 ;;;
