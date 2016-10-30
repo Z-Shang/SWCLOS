@@ -49,6 +49,7 @@
    This is required for the namespace interning. See also, 
    \<a href='http://www.franz.com/support/documentation/8.1/doc/operators/uri/parse-uri.htm'\>parse-uri\</a\>
    in ACL document."
+  (declare (ignore args))
   (let ((parsed (parse-uri thing)))
     #-:allegro-v9.0
     (etypecase thing
@@ -255,6 +256,8 @@ package slot and uri to symbol name mapping environment slot.")
 (defun ask-user-for-string (prompt string1 option1 option2 prompt2)
   "This function is used in <ask-user-package-name> and <ask-user-symbol-name>."
   #+:common-graphics (cg:ask-user-for-string prompt string1 option1 option2 prompt2)
+  #-:common-graphics
+  (declare (ignore string1 option1 option2))
   #-:common-graphics
   (progn
     (format t "~%~A ~A:" prompt prompt2)

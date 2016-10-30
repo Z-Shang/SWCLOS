@@ -318,11 +318,11 @@ but optimized for vectors."
 ;;; To be re-defined in RDFS:GxType.cl
 (proclaim '(notinline typep subtypep type-of))
 
-(defun typep (obj type &optional env)
-  (c2cl:typep obj type env))
+(defun typep (obj type)
+  (c2cl:typep obj type))
 
-(defun subtypep (sub super &optional env)
-  (c2cl:subtypep sub super env))
+(defun subtypep (sub super)
+  (c2cl:subtypep sub super))
 
 (defun type-of (object)
   (cl:type-of object)) ; cl:type-of is never re-defined in closer-mop
