@@ -19,3 +19,5 @@ OWL Full Processor on top of Common Lisp Object System (CLOS)
 * addForm &rarr; add-form
 * addInstance &rarr; add-instance
 * addTriple &rarr; add-triple
+* addRdfXml &rarr; add-rdfxml
+* lasyAddRdfXml &rarr; lasy-add-rdfxml

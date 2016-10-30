@@ -166,8 +166,7 @@
   (cond ((assoc 'rdf:|type| args) (expand-def 'rdfs:|Resource| name args))
         (t (expand-def '|rdfs:Resource| name args))))
 
-(defun addRdfXml (description)
-  ;;(format t "~%~S" description)
+(defun add-rdfxml (description)
   (cond ((|Description|-p description)
          (let* ((form (|Description|-form description))
                 (about (second (assoc 'rdf:|about| (cdr form))))
@@ -186,11 +185,10 @@
            (unless name
              (when id (setq name id))
              (when nodeID (setq name (nodeID2symbol nodeID))))
-           ;(format t "~%~S" (list* (car form) `(:name ,name) (cdr form)))
            (add-form (list* (car form) `(:name ,name) (cdr form)) nil)))
         ((error "What ~S" description))))
 
-(defun lasyAddRdfXml (description)
+(defun lasy-add-rdfxml (description)
   "This function lazily <add-form> when it is forced.
    <delay> must be explicitly called with <force> function."
   (cond ((|Description|-p description)
@@ -211,8 +209,7 @@
            (unless name
              (when id (setq name id))
              (when nodeID (setq name (nodeID2symbol nodeID))))
-           ;(format t "~%~S" (list* (car form) `(:name ,name) (cdr form)))
-           (lasyAddForm (list* (car form) `(:name ,name) (cdr form)) nil)))
+           (add-form (list* (car form) `(:name ,name) (cdr form)) nil)))
         ((error "What ~S" description))))
 
 ;;;
@@ -220,7 +217,7 @@
 ;;;
 ;;; The defining macro at the top level mentioned above internally produces the code for input form 
 ;;; in S-expression and calls function <add-form> with it.
-;;; Reading RDF/XML file also makes a sequence of input forms in S-expression (See <addRdfXml> and <Description-form>), 
+;;; Reading RDF/XML file also makes a sequence of input forms in S-expression (See <add-rdfxml> and <Description-form>), 
 ;;; and such input form is processed by <add-form>.
 ;;;
 ;;; Input form in S-expression has recursive structures. The BNF syntax for defining an RDF resource in S-expression is as follows.
