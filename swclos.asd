@@ -11,6 +11,8 @@
 ;;; Copyright (c) 2003, 2004, 2006 by Galaxy Express Corporation
 ;;; 
 ;;; Copyright (c) 2007, 2008, 2009 Seiji Koide
+;;;
+;;; Copyright (c) 2016  University of Bologna (Author: Chun Tian)
 
 ;;; ASDF system definition.
 ;;; This file must be used without compiling.

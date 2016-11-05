@@ -8,9 +8,10 @@
 ;;; This code is written by Seiji Koide at Galaxy Express Corporation, Japan,
 ;;; for the realization of the MEXT IT Program in Japan,
 ;;;
-;;; Copyright (c) 2004 by Galaxy Express Corporation
-;;; 
-;;; Copyright (c) 2008 Seiji Koide
+;;; Copyright (c) 2004  Galaxy Express Corporation
+;;; Copyright (c) 2008  Seiji Koide
+;;; Copyright (c) 2016  University of Bologna, Italy (Author: Chun Tian)
+;;;
 ;;
 ;; History
 ;; -------

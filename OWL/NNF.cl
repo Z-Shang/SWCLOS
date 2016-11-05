@@ -3,7 +3,9 @@
 ;;;; NNF transformation module
 ;;;
 ;;; This program is borrowed from AIMA
-;;;  2008, 2009 (c) Seiji Koide
+;;;
+;;; Copyright (c) 2008, 2009  Seiji Koide
+;;; Copyright (c) 2016  University of Bologna, Italy (Author: Chun Tian)
 ;;;
 ;; History
 ;; -------

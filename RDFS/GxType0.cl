@@ -9,12 +9,9 @@
 ;;; for the realization of the MEXT IT Program in Japan.
 ;;;
 ;;; Copyright (c) 2002-2005 Galaxy Express Corporation
-;;; 
 ;;; Copyright (c) 2007-2008, 2009, 2012 Seiji Koide
+;;; Copyright (c) 2016  University of Bologna, Italy (Author: Chun Tian)
 ;;;
-;; History
-;; -------
-;;
 ;;; ==================================================================================
 
 (eval-when (:execute :load-toplevel :compile-toplevel)

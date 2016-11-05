@@ -10,6 +10,7 @@
 ;;;
 ;;; Copyright (c) 2002,2004 by Galaxy Express Corporation, Japan.
 ;;; Copyright (c) 2008-2009 Seiji Koide.
+;;; Copyright (c) 2016  University of Bologna, Italy (Author: Chun Tian)
 ;;;
 ;; History
 ;; -------

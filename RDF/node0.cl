@@ -1,4 +1,7 @@
 ;;;; -*- Mode: common-lisp; syntax: common-lisp; package: gx; base: 10 -*-
+;;;
+;;; Copyright (c) 2016  University of Bologna, Italy (Author: Chun Tian)
+;;;
 
 (in-package :gx)
 

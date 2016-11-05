@@ -11,6 +11,8 @@
 ;;;
 ;;; Copyright (c) 2007, 2008, 2010, 2014 Seiji Koide
 ;;;
+;;; Copyright (c) 2016  University of Bologna, Italy (Author: Chun Tian)
+;;;
 ;; History
 ;; -------
 ;; 2014.05.21    Find-package-from-namespace is defined.

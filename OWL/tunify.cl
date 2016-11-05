@@ -7,7 +7,9 @@
 ;;; by Peter Norvig, published by Morgan Kaufmann, 1992.
 ;;;
 ;;; This program is integrated to SWCLOS, an OWL processor on CLOS.
-;;;  2008,2009 (c) Seiji Koide
+;;;
+;;; Copyright (c) 2008,2009  Seiji Koide
+;;; Copyright (c) 2016  University of Bologna, Italy (Author: Chun Tian)
 ;;
 ;; History
 ;; -------

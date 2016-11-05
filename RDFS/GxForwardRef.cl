@@ -1,13 +1,10 @@
 ;;;-*- Mode: common-lisp; syntax: common-lisp; package: gx; base: 10 -*-
-;;
-;; Forward reference module 
-;;
-;; Copyright (c) 2007 Seiji Koide
-;;
-;; History
-;; -------
-;; 2009.09.04    name RDFSclass is changed to _rdfsClass.
-;; Nov. 2 2007    file created
+;;;
+;;; Forward reference module 
+;;;
+;;; Copyright (c) 2007 Seiji Koide
+;;; Copyright (c) 2016  University of Bologna, Italy (Author: Chun Tian)
+;;;
 
 (eval-when (:execute :load-toplevel :compile-toplevel)
   (require :gxtype)

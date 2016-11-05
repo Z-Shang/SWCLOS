@@ -4,7 +4,8 @@
 ;;;
 ;;; This code is written by Seiji Koide.
 ;;;
-;;; Copyright (c) 2009 Seiji Koide
+;;; Copyright (c) 2009  Seiji Koide
+;;; Copyright (c) 2016  University of Bologna, Italy (Author: Chun Tian)
 ;;;
 ;; History
 ;; -------

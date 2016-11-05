@@ -9,12 +9,9 @@
 ;;; for the realization of the MEXT IT Program in Japan.
 ;;;
 ;;; Copyright (c) 2002-2005 Galaxy Express Corporation
-;;; 
 ;;; Copyright (c) 2007, 2009 Seiji Koide
+;;; Copyright (c) 2016  University of Bologna, Italy (Author: Chun Tian)
 ;;;
-;; History
-;; -------
-;; 2008.11.05    File created and slot definition parts are moved here from RDFBoot.
 ;;; ==================================================================================
 
 (cl:provide :slotdef)

@@ -5,6 +5,7 @@
 ;;; This code is written by Seiji Koide.
 ;;; 
 ;;; Copyright (c) 2007, 2010 Seiji Koide
+;;;
 ;;
 ;; History
 ;; -------

@@ -9,13 +9,11 @@
 ;;; for the realization of the MEXT IT Program in Japan.
 ;;;
 ;;; Copyright (c) 2002-2005 Galaxy Express Corporation
-;;; 
 ;;; Copyright (c) 2007-2010 Seiji Koide
+;;; Copyright (c) 2016  University of Bologna, Italy (Author: Chun Tian)
 ;;;
-;; History
-;; -------
-;;
-;;; ==================================================================================
+;;; =================================================================================
+
 ;;; The aim of this file is to establish the complex relation of meta-circularity in RDF 
 ;;; incrementally step by step. Loading this file yealds the following hierachical structure 
 ;;; at the end.
@@ -72,13 +70,14 @@
 ;;;; rdfsClass & rdfs:Class
 ;;; rdfsClass is invented in order to realize the rdfs:Class membership loop. Namely, the class of 
 ;;; rdfs:Class is rdfs:Class itself in RDF(S) semantics. In SWCLOS rdfs:Class is actually the 
-;;; class of rdfs:Class, because rdfs:Class is a superclass of rdfsClass and rdfsClass is a class of 
+;;; class of rdfsClass, because rdfs:Class is a superclass of rdfsClass and rdfsClass is a class of 
 ;;; rdfs:Class. Thus, all methods are for instances of rdfs:Class is effective for rdfs:Class itself. 
 
 (defclass rdfsClass (rdf-node) () ; this is redefined later.
   (:metaclass rdf-node))
 
 (defclass rdfs:|Class| (rdf-node) ()
-  (:metaclass rdfsClass))
+  (:metaclass rdfsClass)
+  (:documentation "rdfsClass is a class of rdfs:Class"))
 
 (cl:provide :rdfboot0)

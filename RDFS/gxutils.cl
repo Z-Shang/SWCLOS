@@ -5,13 +5,10 @@
 ;;; IT Program Project in Japan: 
 ;;;          Building Operation-Support System for Large-scale System using IT
 ;;;
-;;; Copyright (c) 2002, 2003 by Galaxy Express Corporation
+;;; Copyright (c) 2002, 2003  Galaxy Express Corporation
+;;; Copyright (c) 2008  Seiji Koide
+;;; Copyright (c) 2016  University of Bologna, Italy (Author: Chun Tian)
 ;;;
-;;; Copyright (c) 2008 Seiji Koide
-;;;
-;; History
-;; -------
-;;
 
 (eval-when (:execute :load-toplevel :compile-toplevel)
   (require :rdfparser)
