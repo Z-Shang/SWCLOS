@@ -12,16 +12,17 @@
 ;;; 
 ;;; Copyright (c) 2007-2010 Seiji Koide
 ;;;
+;;; Copyright (c) 2016  University of Bologna (Author: Chun Tian)
 
 (eval-when (:execute :load-toplevel :compile-toplevel)
   (require :rdfboot0))
 
 (in-package :gx)
 
-;; redefined rdfsClass (TODO: SBCL crashed here)
+;; TODO: redefined rdfsClass (TODO: SBCL crashed here)
 (defclass rdfsClass (rdfs:|Class|) ()
   (:metaclass rdf-node)
-  (:documentation "This is the proxy of rdfs:|Class| in order to make the membership loop."))
+  (:documentation "rdfs:Class is a superclass of rdfsClass. This is the proxy of rdfs:|Class| in order to make the membership loop."))
 
 ;; Now we got a twisted relation between rdfs:|Class| and rdfsClass.
 
@@ -34,6 +35,7 @@
   (:documentation "Every resource in RDF(S) universe including classes is an instance of 
 rdfs:|Resource|."))
 
+;; TODO: re-defined metaobject classes again!
 (defclass rdfs:|Class| (rdfs:|Resource| rdf-node) ()
   (:metaclass rdfsClass)
   (:documentation "This is rdfs:|Class|, and it is a class of all classes in RDF(S) universe."))
@@ -75,7 +77,9 @@ rdfs:|Resource|."))
 
 (defclass |rdfs:Resource| (rdfs:|Resource|) ()
   (:metaclass rdfs:|Class|)
-  (:documentation "|rdfs:Resource| is a pseudo rdfs:|Resource| in order to work around the slot inheritance of temporal definition.
+  (:documentation "|rdfs:Resource| is a pseudo rdfs:|Resource| in order to work around the slot inheritance of
+ temporal definition.
+
 The rule of rdf4 entails a subject and an object as an instance of rdfs:|Resource|. However the proactive application of
 this rule causes the slot definition inheritance to the instances of rdfs:|Class| and rdfs:|Datatype| and amounts to 
 wasteful slots in every objects. To cope with this problem, rdf4 treats |rdfs:Resource| metaobject instead of 
@@ -228,16 +232,15 @@ rdfs:|Resource|."))
 ;;; owl:|ObjectProperty|.
 ;;;
 
-(defparameter rdf:|Property|
-  (defclass rdf:|Property| (rdfs:|Resource|)
-    ((slotds :initarg :slotds :initform ()
-             :documentation "slotds keeps <domain property> pair.")
-     )                          ; see rdf:Property Final
-    (:metaclass rdfs:|Class|)
-    (:documentation "an instance of rdf:Property has a registory for slotds."))
+(defclass rdf:|Property| (rdfs:|Resource|)
+  ((slotds :initarg :slotds :initform ()
+	   :documentation "slotds keeps <domain property> pair.")) ; see rdf:Property Final
+  (:metaclass rdfs:|Class|)
+  (:documentation "an instance of rdf:Property has a registory for slotds."))
+
+(defvar rdf:|Property| (find-class 'rdf:|Property|)
   "every property in RDF(S) is an instance of rdf:Property. An instance of this class
-has a place holder for all related slot definitions."
-  )
+has a place holder for all related slot definitions.")
 
 (defmethod print-object ((obj rdf:|Property|) stream)
   (cond ((not (slot-exists-p obj 'name))
@@ -268,10 +271,12 @@ has a place holder for all related slot definitions."
 ;;;; rdfs:|Datatype| 
 ;;;
 
-(defparameter rdfs:|Datatype|
-  (defclass rdfs:|Datatype| (rdfs:|Class|) 
-    ((form :initarg :form :accessor type-form))
-    (:metaclass rdfs:|Class|))
+(defclass rdfs:|Datatype| (rdfs:|Class|) 
+  ((form :initarg :form :accessor type-form))
+  (:metaclass rdfs:|Class|))
+
+(defvar rdfs:|Datatype| (find-class 'rdfs:|Datatype|)
   "rdfs:|Datatype| is a subclass of and an instance of rdfs:|Class|.")
+
 
 (cl:provide :rdfboot1)
