@@ -62,6 +62,8 @@
 (defmethod print-object ((object rdf:|inLang|) stream)
   (format stream "\"~A\"@~A" (content object) (lang object)))
 
+(defgeneric equals (obj1 obj2))
+
 (defmethod equals ((obj1 rdf:|inLang|) (obj2 rdf:|inLang|))
   "Two plane literal with lang are equal if langs are equal and contents are equal." 
   (and (equal (lang obj1) (lang obj2))

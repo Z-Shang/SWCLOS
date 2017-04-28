@@ -48,11 +48,11 @@
 
 (defun collect-used-packaged-from (x)
   (remove-duplicates
-   (loop for resource in x
-       with name and slots and cls
+   (loop with name and slots and cls
+       for resource in x
        do (setq cls (class-of resource))
-         (setq name (node-name resource))
-         (setq slots (collect-instance-slots resource))
+          (setq name (node-name resource))
+          (setq slots (collect-instance-slots resource))
        append (append ;(when (and (node-name cls) (not (nodeID-p cls))) (list (symbol-package (node-name cls))))
                (when (and (node-name cls) (not (eq (node-name cls) '|rdfs:Resource|)))
                  (list (symbol-package (node-name cls))))
@@ -420,8 +420,8 @@
 
 (defun collect-instance-slots (instance)
   "returns instance slots with slot form (role filler1 ...)"
-  (loop for slot in (class-slots (class-of instance))
-      with role and filler 
+  (loop with role and filler
+      for slot in (class-slots (class-of instance))
       when (and (c2cl:typep slot 'Property-effective-slot-definition)
                 (slot-boundp instance (setq role (slot-definition-name slot)))
                 (slot-value instance role))

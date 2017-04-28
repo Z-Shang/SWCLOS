@@ -207,6 +207,8 @@
   (declare (ignore x y pairs))
   nil)
 
+(defgeneric %owl-same-p (x y &optional pairs))
+
 (defmethod %owl-same-p (x y &optional pairs)
   "Non resolution version. This is used in <owl-equalp> and <owl-equivalent-p>."
   (declare (ignore pairs))

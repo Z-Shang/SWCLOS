@@ -28,7 +28,18 @@
   (export '(add-object add-form add-instance add-class def-resource def-property def-concept
 	    def-individual subproperty-p add-rdf/xml)))
 
+;;;
+;;;; Slots := (role . forms) | (role filler)
+;;;
+
 (declaim (inline create-slot slot-role slot-forms slot-filler get-filler))
+
+(defun create-slot (role filler) (declare (inline)) (list role filler))
+(defun slot-role (slot) (declare (inline)) (first slot))
+(defun slot-forms (slot) (declare (inline)) (rest slot))
+(defun slot-filler (slot) (declare (inline)) (second slot))
+(defun get-filler (slots role) (declare (inline)) (slot-filler (assoc role slots)))
+
 
 ;;;; Top Level Macro and Intermediate Layers out of Three Layers in RDF(S) and OWL Definition
 ;;;
@@ -697,9 +708,12 @@
   (ensure-meta-absts-using-class (class-of class) class slot-forms domains)
   )
 
+(defgeneric ensure-meta-absts-using-class (meta class slot-forms domains))
+
 (defmethod ensure-meta-absts-using-class (meta class slot-forms domains)
   (declare (ignore meta class slot-forms domains))
   (error "Can't happen!"))
+
 (defmethod ensure-meta-absts-using-class ((meta rdfs:|Class|) (class rdfs:|Resource|) slot-forms domains)
   (declare (ignore meta class slot-forms demains))
   "<class> must be an instance."
@@ -1173,7 +1187,8 @@
             (new-props nil)
             (operated nil))
         (when (setq new-props (set-difference properties slot-names :test #'eq))
-          (loop for prop in new-props with new-domain
+          (loop with new-domain
+              for prop in new-props
               when (property? prop)
               do (reinitialize-instance
                   class
@@ -1190,10 +1205,12 @@
 
 (defun collect-domains-from-initargs (class initargs)
   " returns a list of domains for <class>."
+  (declare (ignore class))
   (let ((properties (collect-props-from-initargs initargs)))
     (when properties
       (let ((domains nil))
-        (loop for prop in properties with domain
+        (loop with domain
+            for prop in properties
             when (property? prop)
             do (when (setq domain (get-domain (symbol-value prop)))
                  (cond ((consp domain)
@@ -1295,16 +1312,6 @@
   "reads <str> with language option in RDF, and returns an instance of rdf:inLang. See also, <lang-env>."
   (cond ((null lang-env) str)
         (t (make-instance 'rdf:|inLang| :lang lang-env :content str))))
-
-;;;
-;;;; Slots := (role . forms) | (role filler)
-;;;
-
-(defun create-slot (role filler) (declare (inline)) (list role filler))
-(defun slot-role (slot) (declare (inline)) (first slot))
-(defun slot-forms (slot) (declare (inline)) (rest slot))
-(defun slot-filler (slot) (declare (inline)) (second slot))
-(defun get-filler (slots role) (declare (inline)) (slot-filler (assoc role slots)))
 
 ;;;
 ;;;; Containers in RDF
