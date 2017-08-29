@@ -478,8 +478,8 @@ and instance of owl:Class."))
   (declare (optimize (speed 3) (safety 0)))
   (cond ((member-if #'owl-property-direct-slotd-p direct-slotds)
          (setq initargs `(:subject-type ,class ,@initargs))
-         (loop for slotd in direct-slotds
-             with maxc and minc and initform and initfunc
+         (loop with maxc and minc and initform and initfunc
+             for slotd in direct-slotds
              as slotd-maxc = (and (slot-exists-p slotd 'maxcardinality)
                                   (slot-definition-maxcardinality slotd))
              and
@@ -894,9 +894,9 @@ and instance of owl:Class."))
 ;;; Then, we add owl:Functional&InverseFunctionalProperty
 ;;;
 (add-class `(,rdfs:|Class|) '|owl:FunctionalProperty|
-          `(,(symbol-value 'owl:|FunctionalProperty|) ,(symbol-value 'owl:|ObjectProperty|)))
+           `(,(symbol-value 'owl:|FunctionalProperty|) ,(symbol-value 'owl:|ObjectProperty|)))
 (add-class `(,rdfs:|Class|) 'owl::Functional&InverseFunctionalProperty
-          `(,(symbol-value '|owl:FunctionalProperty|) ,(symbol-value 'owl:|InverseFunctionalProperty|)))
+           `(,(symbol-value '|owl:FunctionalProperty|) ,(symbol-value 'owl:|InverseFunctionalProperty|)))
 
 ;;;; We add some new axioms for OWL.
 ;;;

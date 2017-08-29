@@ -167,7 +167,8 @@ Note that it is not cared that symbols are bound to resource objects or not."))
                                             (t filler)))))))
 
 (defun slots-of (ins)
-  (loop for role in (collect-prop-names-from (class-of ins)) with filler
+  (loop with filler
+      for role in (collect-prop-names-from (class-of ins))
       when (and (slot-boundp ins role)
                 (setq filler (slot-value ins role)))
       collect (cond ((consp filler) (cons role filler))
@@ -230,6 +231,8 @@ Note that it is not cared that symbols are bound to resource objects or not."))
       when (tree->list spec #'specs->list visited)
       collect it))
 
+(defgeneric get-about-slot (mop))
+
 (defmethod get-about-slot ((mop rdf:|Property|))
   (when (get (slot-value mop 'rdfs:|label|) 'rdf:|about|)
     (list (list 'rdf:|about| (get (slot-value mop 'rdfs:|label|) 'rdf:|about|)))))
@@ -245,7 +248,6 @@ Note that it is not cared that symbols are bound to resource objects or not."))
    returns the filler for <path> in <mop>. A path is a list of roles, and 
    path-filler follows that list in order, using get-filler. A role is a 
    property object."
-  ;(format t "~%Path-filler:~S ~S" mop path)
   (cond ((null mop) nil)
         ((and (symbolp mop) (object? mop) (c2cl:typep (symbol-value mop) 'gx::shadowed-class))
          (car (class-direct-superclasses (symbol-value mop))))
@@ -253,7 +255,8 @@ Note that it is not cared that symbols are bound to resource objects or not."))
          (car (class-direct-superclasses mop)))
         ((null path) (mkatom mop))
         ((consp mop)
-         (loop for m in mop with result
+         (loop with result
+             for m in mop
              when (setq result (path-filler m path))
              return result))
         (t (let ((specifier (car path)))
@@ -322,11 +325,15 @@ Note that it is not cared that symbols are bound to resource objects or not."))
 ;;
 ;;
 
+(defgeneric collect-direct-subtypes (class))
+
 (defmethod collect-direct-subtypes ((class symbol))
   (collect-direct-subtypes (symbol-value class)))
 
 (defmethod collect-direct-subtypes ((class rdfs:|Class|))
   (class-direct-subclasses class))
+
+(defgeneric collect-all-subtypes (class))
 
 (defmethod collect-all-subtypes ((class symbol))
   (collect-all-subtypes (symbol-value class)))
@@ -338,17 +345,23 @@ Note that it is not cared that symbols are bound to resource objects or not."))
                append (cond ((eq sub (find-class 'rdfsClass)) (list rdfs:|Class|))
                             (t (collect-all-subtypes sub)))))))
 
+(defgeneric collect-all-subsumed-types (class))
+
 (defmethod collect-all-subsumed-types ((class symbol))
   (collect-all-subsumed-types (symbol-value class)))
 
 (defmethod collect-all-subsumed-types ((class rdfs:|Class|))
   (collect-all-subtypes class))
 
+(defgeneric collect-direct-instances-of (class))
+
 (defmethod collect-direct-instances-of ((class symbol)) ;smh
   (collect-direct-instances-of (symbol-value class)))
 
 (defmethod collect-direct-instances-of ((class rdfs:|Class|)) ;smh
   (class-direct-instances class))
+
+(defgeneric all-instances-generator (class))
 
 (defmethod all-instances-generator ((class symbol)) ; added smh
   (all-instances-generator (symbol-value class)))
@@ -375,6 +388,8 @@ Note that it is not cared that symbols are bound to resource objects or not."))
                                  (mapcar #'collect-all-supers (class-direct-superclasses class)))))
              (pushnew class supers)))))
 
+(defgeneric collect-all-extensions-of (property))
+
 (defmethod collect-all-extensions-of ((property symbol))
   (when (not (null property))
     (collect-all-extensions-of (symbol-value property))))
@@ -384,6 +399,8 @@ Note that it is not cared that symbols are bound to resource objects or not."))
   (let ((collector (list nil)))
     (collect-all-extensions-of-1 property collector)
     (remove-duplicates (cdr collector) :test #'equalp)))
+
+(defgeneric collect-all-extensions-of-1 (property collector))
 
 (defmethod collect-all-extensions-of-1 ((property rdf:|Property|) collector)
   (declare (optimize (speed 3) (safety 0)))
@@ -401,6 +418,8 @@ Note that it is not cared that symbols are bound to resource objects or not."))
     ;; for multiple appearances.
     (loop for superproperty in (slot-value property 'subproperty)
         do (collect-all-extensions-of-1 superproperty collector))))
+
+(defgeneric all-extensions-of-generator (property))
 
 ;; added smh
 (defmethod all-extensions-of-generator ((property symbol))
@@ -611,7 +630,8 @@ Note that it is not cared that symbols are bound to resource objects or not."))
 
 (defun %get-hasfiller-inherited (class role)
   (declare (optimize (speed 3) (safety 0)))
-  (loop for slotd in (class-slots class) with found
+  (loop with found
+      for slotd in (class-slots class)
       when (and (eq (slot-definition-name slotd) role)
                 (let ((type (slot-definition-type slotd)))
                   (setq found
@@ -624,6 +644,8 @@ Note that it is not cared that symbols are bound to resource objects or not."))
 ;;
 ;; put-value
 ;;
+
+(defgeneric put-value (object role value))
 
 (defmethod put-value ((object rdfs:|Class|) (role (eql rdf:|type|)) value)
   (declare (ignore value))

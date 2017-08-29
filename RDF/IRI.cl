@@ -233,6 +233,8 @@ it must be escaped for gen-delims characters except #\: and #\@. In this version
 ;;; changed to <iri> and interned. When <thing> is a string, an instance of <iri> is created and 
 ;;; interned. 
 
+(defgeneric iri (thing))
+
 (defmethod iri ((thing iri))
   "returns interned <thing> for class <gx:iri>."
   (intern-uri thing))

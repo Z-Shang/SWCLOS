@@ -41,6 +41,8 @@
   "rdf:XMLLiteral is a subclass of rdfs:Literal and an instance of rdfs:Datatype.
    An instance has a value of XMLLiteral data.")
 
+(defgeneric value-of (x))
+
 (defmethod value-of ((x rdf:|PlainLiteral|))
   "retrieves a value of XMLLiteral data."
   (slot-value x 'value))

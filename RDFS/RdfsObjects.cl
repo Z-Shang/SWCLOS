@@ -839,6 +839,7 @@ An RDF statement is the statement made by a token of an RDF triple.")
                    (iri (slot-value (symbol-value 'xsd:|duration|) 'rdf:|about|))))
   (symbol-value 'xsd:|duration|))
 
+(eval-when (:load-toplevel :execute)
 (defmethod print-object ((obj xsd:|duration|) stream)
   "This method is not intended to be used by users."
   (princ "P" stream)
@@ -851,6 +852,7 @@ An RDF statement is the statement made by a token of an RDF triple.")
     (when hh (princ hh stream) (princ "H" stream))
     (when mi (princ mi stream) (princ "M" stream))
     (when ss (princ ss stream) (princ "S" stream))))
+)
 
 ;===========================================================================================
 

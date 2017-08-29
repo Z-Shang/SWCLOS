@@ -644,6 +644,8 @@ Call to (METHOD SHARED-INITIALIZE :AFTER (RDF:|Property| T))
 				 (not (eq initargs :flags)))
 			`(,initargs ,(slot-value slotd name))))))))
 
+(defgeneric make-this-supers (class superclasses))
+
 (defmethod make-this-supers ((class rdfs:|Class|) superclasses)
   "returns MSCs of <old-supers> and <new-supers>."
   (cond ((or (eq class rdfs:|Resource|) (eq class |rdfs:Resource|))
@@ -950,7 +952,8 @@ Checks the residual mclasses of all instances of <class>."
     (let* ((new-class-slotds (class-slots new-class))
            (old-class (class-of instance))
            (old-class-slotds (class-slots old-class))
-           (added (loop for slotd in old-class-slotds with role
+           (added (loop with role
+                      for slotd in old-class-slotds
                       when (and (property-effective-slotd-p slotd)
                                 (slot-boundp instance (setq role (slot-definition-name slotd)))
                                 (slot-value instance role)
@@ -1147,6 +1150,9 @@ Checks the residual mclasses of all instances of <class>."
                          ((error "Cant happen! Debug!"))))
                  (slot-value-with-cardinality-check)))))))
 |#
+
+(defgeneric cardinality-ok-p (value slotd))
+
 (defmethod cardinality-ok-p (value slotd)
   (declare (ignore value slotd))
   t)
@@ -1154,6 +1160,8 @@ Checks the residual mclasses of all instances of <class>."
 ;;
 ;;
 ;;
+
+(defgeneric collect-all-instances-of (class))
 
 (defmethod collect-all-instances-of ((class symbol)) ;smh
   (collect-all-instances-of (symbol-value class)))

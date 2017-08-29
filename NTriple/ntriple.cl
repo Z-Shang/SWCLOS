@@ -197,8 +197,11 @@
 ;;;; <Class> rdfs:subClassOf <Class>
 ;;;
 
+(defgeneric superclasses-of (object))
 (defmethod superclasses-of ((object rdfs:|Class|))
   (class-direct-superclasses object))
+
+(defgeneric subclasses-of (object))
 (defmethod subclasses-of ((object rdfs:|Class|))
   (class-direct-subclasses object))
 
@@ -415,7 +418,8 @@
 
 (defun collect-domaind (slots)
   "collects domain information from properties in <slots>."
-  (loop for slot in slots with domain
+  (loop with domain
+      for slot in slots
       when (setq domain (and (boundp (slot-role slot))
                              (get-domain (symbol-value (slot-role slot)))))
       collect (if (and (symbolp domain) (boundp domain)) (symbol-value domain) domain)))

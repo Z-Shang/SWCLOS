@@ -100,6 +100,8 @@
 ;;;; Domain Value
 ;;;
 
+(defgeneric domain-value (property))
+
 (defmethod domain-value ((property rdf:|Property|))
   "retrieve the domain value of <property>, or returns nil if not exists.
    Note that this method is refined for owl:ObjectProperty."
@@ -182,6 +184,8 @@
 ;;;
 ;;;;  Range Value
 ;;;
+
+(defgeneric range-value (property))
 
 (defmethod range-value ((property rdf:|Property|))
   "retrieve the range value of <property>, or returns nil if not exists.

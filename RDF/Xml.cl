@@ -165,6 +165,8 @@
 (cl:deftype |anySimpleType| () "xsd:boolean, xsd:anyURI, xsd:string, xsd:float, xsd:double, or xsd:decimal"
   '(cl:or |boolean| |anyURI| |string| |float| |double| |decimal|))
 
+(cl:deftype |duration| () "duration (structure of simple values)" 't)
+
 ;(cl:declaim (cl:special nonPositiveInteger nonNegativeInteger anySimpleType))
 
 #|

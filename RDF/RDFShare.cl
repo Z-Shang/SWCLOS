@@ -134,11 +134,6 @@
 ;;; ----------------------------------------------------------------------------------
 ;;; [5]    Name    ::=    NameStartChar (NameChar)* 
 ;;; ----------------------------------------------------------------------------------
-(defun read-Name (stream)
-  "reads a name from <stream> and returns it as string."
-  (declare (optimize (speed 3) (safety 1)))
-  (coerce (%read-Name stream) 'cl:string))
-
 (defun %read-Name (stream)
   "reads a name from <stream> and returns characters in list."
   (declare (optimize (speed 3) (safety 1)))
@@ -152,15 +147,16 @@
               do (setq c (getnext-char stream))))
     (putback-char c stream)
     name))
+
+(defun read-Name (stream)
+  "reads a name from <stream> and returns it as string."
+  (declare (optimize (speed 3) (safety 1)))
+  (coerce (%read-Name stream) 'cl:string))
+
 ;;;
 ;;; ----------------------------------------------------------------------------------
 ;;; [4]    NCName    ::=    NCNameStartChar NCNameChar* /* An XML Name, minus the ":" */ 
 ;;; ----------------------------------------------------------------------------------
-(defun read-NCName (stream)
-  "reads a NCname from <stream> and returns it as string. The token must be NCName."
-  (declare (optimize (speed 3) (safety 1)))
-  (coerce (%read-NCName stream) 'cl:string))
-
 (defun %read-NCName (stream)
   "reads a NCName from <stream> and returns chars in list."
   (declare (optimize (speed 3) (safety 1)))
@@ -175,6 +171,11 @@
     (putback-char c stream)
     (coerce name 'cl:string)))
 
+(defun read-NCName (stream)
+  "reads a NCname from <stream> and returns it as string. The token must be NCName."
+  (declare (optimize (speed 3) (safety 1)))
+  (coerce (%read-NCName stream) 'cl:string))
+
 (defun read-quoted-NCName (stream)
   "reads a quoted NCName from <stream> and returns the NCName as string."
   (declare (optimize (speed 3) (safety 1)))
@@ -187,11 +188,6 @@
 ;;; ----------------------------------------------------------------------------------
 ;;; [7]    Nmtoken    ::=    (NameChar)+ 
 ;;; ----------------------------------------------------------------------------------
-(defun read-Nmtoken (stream)
-  "reads a Nmtoken from <stream> and returns it as string."
-  (declare (optimize (speed 3) (safety 1)))
-  (coerce (%read-Nmtoken stream) 'cl:string))
-
 (defun %read-Nmtoken (stream)
   "reads a Nmtoken from <stream> and returns chars in list."
   (declare (optimize (speed 3) (safety 1)))
@@ -203,15 +199,16 @@
               collect c))
     (putback-char c stream)
     name))
+
+(defun read-Nmtoken (stream)
+  "reads a Nmtoken from <stream> and returns it as string."
+  (declare (optimize (speed 3) (safety 1)))
+  (coerce (%read-Nmtoken stream) 'cl:string))
+
 ;;;
 ;;; ----------------------------------------------------------------------------------
 ;;; [81]    EncName    ::=    [A-Za-z] ([A-Za-z0-9._] | '-')* 
 ;;; ----------------------------------------------------------------------------------
-(defun read-EncName (stream)
-  "reads a EncName from <stream> and returns it as string."
-  (declare (optimize (speed 3) (safety 1)))
-  (coerce (%read-EncName stream) 'cl:string))
-
 (defun %read-EncName (stream)
   "reads a EncName from <stream> and returns chars in list."
   (declare (optimize (speed 3) (safety 1)))
@@ -226,6 +223,11 @@
               do (setq c (getnext-char stream))))
     (putback-char c stream)
     name))
+
+(defun read-EncName (stream)
+  "reads a EncName from <stream> and returns it as string."
+  (declare (optimize (speed 3) (safety 1)))
+  (coerce (%read-EncName stream) 'cl:string))
 
 ;;
 ;; XML Reader
@@ -458,6 +460,38 @@
          (skipbl stream)
          (list (prog1 (read-PubidLiteral stream) (skipbl stream))
                   (read-SystemLiteral stream)))))
+
+;;;
+;;; ----------------------------------------------------------------------------------
+;;; [70]    EntityDecl   ::=    GEDecl | PEDecl 
+;;; [71]    GEDecl       ::=    '<!ENTITY' S Name S EntityDef S? '>' 
+;;; [72]    PEDecl       ::=    '<!ENTITY' S '%' S Name S PEDef S? '>' 
+;;; [73]    EntityDef    ::=    EntityValue | (ExternalID NDataDecl?) 
+;;; ----------------------------------------------------------------------------------
+(defun EntityDecl? (stream)
+  "returns true if EntityDecl is detected from <stream>."
+  (declare (optimize (speed 3) (safety 1)))
+  (match-pattern-p "<!ENTITY" stream))
+
+(defun parse-EntityDecl (stream)
+  "reads EntityDecl from <stream> and registers the declaration."
+  (declare (optimize (speed 3) (safety 1)))
+  (assert-pattern "<!ENTITY" stream)
+  (skipbl stream)
+  (cond ((match-pattern-p "% " stream)
+         (skipbl stream)
+         (read-Name stream)
+         (skipbl stream)
+         (error "Not Yet!"))
+        (t (let ((Name (read-Name stream)) quoted)
+             (skipbl stream)
+             (setq quoted (read-quoted-string stream))
+             (unless (and (cdr (assoc Name *entity-decls* :test #'string=))
+                          (string= (cdr (assoc Name *entity-decls* :test #'string=)) quoted))
+               (setq *entity-decls* (acons Name quoted *entity-decls*))))))
+  (skipbl stream)
+  (assert (char= #\> (getnext-char stream))))
+
 ;;;
 ;;; ----------------------------------------------------------------------------------
 ;;; [29]    markupdecl    ::=    elementdecl | AttlistDecl | EntityDecl | 
@@ -580,36 +614,6 @@ no <*default-namespace*> and no <*base-uri*>, the string is returned."
                  (t (setq QName Prefix)))) ; returns a string
           (t (setq QName Prefix)))         ; returns a string
     QName))
-;;;
-;;; ----------------------------------------------------------------------------------
-;;; [70]    EntityDecl   ::=    GEDecl | PEDecl 
-;;; [71]    GEDecl       ::=    '<!ENTITY' S Name S EntityDef S? '>' 
-;;; [72]    PEDecl       ::=    '<!ENTITY' S '%' S Name S PEDef S? '>' 
-;;; [73]    EntityDef    ::=    EntityValue | (ExternalID NDataDecl?) 
-;;; ----------------------------------------------------------------------------------
-(defun EntityDecl? (stream)
-  "returns true if EntityDecl is detected from <stream>."
-  (declare (optimize (speed 3) (safety 1)))
-  (match-pattern-p "<!ENTITY" stream))
-
-(defun parse-EntityDecl (stream)
-  "reads EntityDecl from <stream> and registers the declaration."
-  (declare (optimize (speed 3) (safety 1)))
-  (assert-pattern "<!ENTITY" stream)
-  (skipbl stream)
-  (cond ((match-pattern-p "% " stream)
-         (skipbl stream)
-         (read-Name stream)
-         (skipbl stream)
-         (error "Not Yet!"))
-        (t (let ((Name (read-Name stream)) quoted)
-             (skipbl stream)
-             (setq quoted (read-quoted-string stream))
-             (unless (and (cdr (assoc Name *entity-decls* :test #'string=))
-                          (string= (cdr (assoc Name *entity-decls* :test #'string=)) quoted))
-               (setq *entity-decls* (acons Name quoted *entity-decls*))))))
-  (skipbl stream)
-  (assert (char= #\> (getnext-char stream))))
 
 ;;;
 ;;;; Peeping File Coding
