@@ -307,16 +307,16 @@ This function returns a S-expression of <x>. If <x> is a comment, nil is returne
     (cond ((or (string-equal "rdfz" file-type)
 	       (string-equal "owlz" file-type))
 	   (gzip-stream:with-open-gzip-file (input-stream pathname :direction :input)
-	     (read-rdf-file-inner accepter-fun input-stream code)))
+	     (%read-rdf-file accepter-fun input-stream code)))
 	  (t
 	   (with-open-file (input-stream pathname :direction :input)
-	     (read-rdf-file-inner accepter-fun input-stream code)))))
+	     (%read-rdf-file accepter-fun input-stream code)))))
   (let ((refered (set-difference *referenced-resources* *defined-resources* :key #'car)))
     (when refered
       (warn "REFERENCED BUT NOT DEFINED RESOURCES: ~{~S ~}" refered)))
   :done)
 
-(defun read-rdf-file-inner (accepter-fun input-stream code)
+(defun %read-rdf-file (accepter-fun input-stream code)
   (let* ((stream (flexi-streams:make-flexi-stream input-stream
 						  :external-format (find-external-format code)))
 	 (*line-number* 1)
