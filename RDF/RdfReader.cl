@@ -304,8 +304,9 @@ This function returns a S-expression of <x>. If <x> is a comment, nil is returne
   (setq code (or (peep-XMLDecl-code-from-file file) code))
   (let* ((pathname (pathname file))
 	 (file-type (pathname-type pathname)))
-    (cond ((string-equal "gz" file-type)
-	   (gzip-stream:with-open-gzip-file (stream pathname :direction :input)
+    (cond ((or (string-equal "rdfz" file-type)
+	       (string-equal "owlz" file-type))
+	   (gzip-stream:with-open-gzip-file (input-stream pathname :direction :input)
 	     (read-rdf-file-inner accepter-fun input-stream code)))
 	  (t
 	   (with-open-file (input-stream pathname :direction :input)

@@ -878,12 +878,12 @@ and instance of owl:Class."))
 ;;;; Here OWL rdf file is read.
 ;;;
 
-(def-property owl::|imports|)          ; just for suppression of entailment warning
-(def-property owl::|versionInfo|)      ; just for suppression of entailment warning
-(def-property owl::|priorVersion|)     ; just for suppression of entailment warning
+(def-property owl:|imports|)          ; just for suppression of entailment warning
+(def-property owl:|versionInfo|)      ; just for suppression of entailment warning
+(def-property owl:|priorVersion|)     ; just for suppression of entailment warning
 
 (eval-when (:load-toplevel)
-  (read-rdf-file #'add-rdf/xml "OWL:OWL.rdf"))
+  (read-rdf-file #'add-rdf/xml #p"OWL:OWL.rdf"))
 
 ;;; ==================================================================================
 ;;;

@@ -38,9 +38,9 @@
               :type :wild)))))
 
 (defvar *owl-directory*
-  (merge-pathnames (make-pathname :directory (append (pathname-directory *swclos-directory*)
-                                                     (list "OWL")))
-                   *swclos-directory*))
+  (make-pathname :directory (append (pathname-directory *swclos-directory*)
+				    (list "OWL"))
+		 :defaults *swclos-directory*))
 
 (eval-when (:execute)
   (setf (logical-pathname-translations "OWL")
@@ -51,7 +51,33 @@
               :directory (append (pathname-directory *owl-directory*)
                                  (list :wild-inferiors))
               :name :wild
-              :type :wild)))))
+              :type :wild))
+	  )))
+
+(defvar *cyc-directory*
+  (make-pathname :directory (append (pathname-directory *swclos-directory*)
+				    (list "opencyc"))
+		 :defaults *swclos-directory*))
+
+(eval-when (:execute)
+  (setf (logical-pathname-translations "CYC")
+        `(("**;*.owlz"
+           ,(make-pathname
+              :host (pathname-host *cyc-directory*)
+              :device (pathname-device *cyc-directory*)
+              :directory (append (pathname-directory *cyc-directory*)
+                                 (list :wild-inferiors))
+              :name :wild
+              :type "owl.gz"))
+	  ("**;*.*"
+           ,(make-pathname
+              :host (pathname-host *cyc-directory*)
+              :device (pathname-device *cyc-directory*)
+              :directory (append (pathname-directory *cyc-directory*)
+                                 (list :wild-inferiors))
+              :name :wild
+              :type :wild))
+	  )))
 
 (defsystem :swclos
     :name "SWCLOS"
