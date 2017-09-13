@@ -170,10 +170,12 @@
                          ;; now we obtained C's models, then all of them satisfy D's constraint?
                          (satisfy-model var models* drs))))))))))
 
-(defun generate-models (var prop cmax types alls exists fillers xxx)
+(defun generate-models (var prop cmax types alls exists fillers unknown-arg)
+  (declare (ignore var prop cmax types alls exists fillers unknown-arg))
   (error "not implemented"))
 
 (defun satisfy-model (var models drs)
+  (declare (ignore var models drs))
   (error "not implemented"))
 
 ;; (subsumed-p vin:DryWine vin:TableWine)
@@ -691,7 +693,8 @@
     (when supers
       (check-simple-disjoint-pair-p-in-supers name supers))
     (when (and (null slot-names) (not (null initargs))) ; reinitialize
-      (loop for (role newval) on initargs by #'cddr with oldval
+      (loop with oldval
+	    for (role newval) on initargs by #'cddr
           when (and (or (eq role 'owl:|intersectionOf|) (eq role 'owl:|unionOf|))
                     (slot-exists-p class role)
                     (slot-boundp class role)
@@ -850,7 +853,8 @@
                            do (pushnew (cons inv-funprop instance) (slot-value val 'inverse-funprop-inverse)
                                        :test #'equal)))
                 ;; symmetric property adds the subject to the object's slot. See rdfp3.
-                (loop for symprop in (collect-owl-role-name-if #'symmetric-property-p instance) with symprop-val
+                (loop with symprop-val
+		      for symprop in (collect-owl-role-name-if #'symmetric-property-p instance)
                     when (setq symprop-val 
                                (and (slot-boundp instance symprop) (slot-value instance symprop)))
                     do 
@@ -858,7 +862,8 @@
                            do (setf (slot-value val symprop) instance)))
 
                 ;; transitive property registers its inverse. See rdfp4.
-                (loop for trans-prop in (collect-owl-role-name-if #'transitive-property-p instance) with inv-transitive
+                (loop with inv-transitive
+		      for trans-prop in (collect-owl-role-name-if #'transitive-property-p instance)
                     when (setq inv-transitive
                                (and (slot-boundp instance trans-prop) (slot-value instance trans-prop)))
                     do (loop for invt in (mklist inv-transitive)

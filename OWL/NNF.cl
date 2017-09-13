@@ -117,6 +117,7 @@
 
 ;; TODO
 (defun ->prefix (string)
+  (declare (ignore string))
   (error "not implemented"))
 
 ;;

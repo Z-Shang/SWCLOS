@@ -573,8 +573,8 @@ and instance of owl:Class."))
         ((member-if #'property-direct-slotd-p direct-slotds)
          ;; if a slotd is property slotd, add subject-type option.
          (setq initargs `(:subject-type ,class ,@initargs))
-         (loop for slotd in direct-slotds
-             with initform and initfunc
+         (loop with initform and initfunc
+	       for slotd in direct-slotds
              as 
                slotd-initfunc = (slot-definition-initfunction slotd) and
                slotd-initform = (slot-definition-initform slotd)

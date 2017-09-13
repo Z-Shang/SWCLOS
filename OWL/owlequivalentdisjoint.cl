@@ -335,7 +335,8 @@ instersection, then returns false."
                  (warn 'disjointwith-condition-unsatiafiable-warning
                    :format-control "~S is equivalent to ~S."
                    :format-arguments `(,class ,equiv))
-                 (loop for disjoint in disjoints with result
+                 (loop with result
+		       for disjoint in disjoints
                      do (cond ((setq result (check-instance-sharing class disjoint))
                                (cerror "Anyway accept this inconsistency on disjointness."
                                        'disjointwith-condition-unsatiafiable
@@ -348,7 +349,8 @@ instersection, then returns false."
                                (pushnew class (slot-value disjoint 'disjoint-classes)))
                               (t (pushnew disjoint (slot-value class 'disjoint-classes))
                                  (pushnew class (slot-value disjoint 'disjoint-classes))))))
-          (t (loop for disjoint in disjoints with result
+          (t (loop with result
+		   for disjoint in disjoints
                  do (cond ((setq result (check-instance-sharing class disjoint))
                            (cerror "Anyway accept this inconsistency on disjointness."
                                    'disjointwith-condition-unsatiafiable
@@ -762,8 +764,8 @@ instersection, then returns false."
                ;; implicit disjointness of datatype
                ((and (%clos-subtype-p c xsd:|anySimpleType|)
                      (%clos-subtype-p d xsd:|anySimpleType|))
-                (loop for csub in (cons c (collect-all-subs c)) 
-                    with dsubs = (cons d (collect-all-subs d))
+                (loop with dsubs = (cons d (collect-all-subs d))
+		      for csub in (cons c (collect-all-subs c)) 
                     do (loop for dsub in dsubs
                            when (or (%clos-subtype-p csub dsub) (%clos-subtype-p dsub csub))
                            do (return-from %disjoint-p (values nil t))))
