@@ -17,7 +17,6 @@
 (eval-when (:compile-toplevel :load-toplevel :execute)
   (export 'variable?))
 
-;;.............................................................................................
 ;;
 ;; Convert Expressions to Normal Form from AIMA
 ;;
@@ -115,6 +114,10 @@
   "Canonicalize a sentence into proper logical form."
   (cond ((stringp sentence) (->prefix sentence))
         (t sentence)))
+
+;; TODO
+(defun ->prefix (string)
+  (error "not implemented"))
 
 ;;
 ;;

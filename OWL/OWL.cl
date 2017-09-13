@@ -113,7 +113,6 @@
         (and (setq ddisjuncts (union-of d))
              (some #'(lambda (dsub) (subsumed-p-without-equivalency c dsub)) ddisjuncts)))))
 
-
 (defun %intersection1-subsumed-p (var conjuncts d)
   "This function directly computes conjuncts instead of C's intersection. This is useful to compute 
    conjunction (and) without creating an intersection class."
@@ -121,6 +120,7 @@
     (cond (dintersections                ; if C is subsumed by D's intersections
            (%intersection12-subsumed-p var conjuncts dintersections))
           (t (error "Not Yet!")))))
+
 (defun %intersection12-subsumed-p (var conjuncts dintersections)
   (loop for c in conjuncts
       unless (class-finalized-p c)
@@ -164,10 +164,17 @@
                            (fillers (loop for cn in crs
                                         when (c2cl:typep cn 'fills)
                                         collect (fills-filler cn))))
-                       (let ((models* (generate-models (or var (new-variable "gx")) prop cmax types alls exists fillers nil)))
+                       (let ((models* (generate-models (or var (new-variable "gx"))
+                                                       prop cmax types alls exists fillers nil)))
                          (format t "~%models*:~S" models*)
                          ;; now we obtained C's models, then all of them satisfy D's constraint?
                          (satisfy-model var models* drs))))))))))
+
+(defun generate-models (var prop cmax types alls exists fillers xxx)
+  (error "not implemented"))
+
+(defun satisfy-model (var models drs)
+  (error "not implemented"))
 
 ;; (subsumed-p vin:DryWine vin:TableWine)
 ;; (subsumed-p vin:DryWhiteWine vin:WhiteNonSweetWine)
@@ -678,7 +685,6 @@
 
 (defmethod shared-initialize :before ((class owl:|Class|) slot-names &rest initargs
                                       &key (name nil))
-  ;(format t "~%SHARED-INITIALIZE:BEFORE(owl:Class) ~S ~S ~S" class slot-names initargs)
   (let ((supers (append (mklist (getf initargs 'rdfs:|subClassOf|))
                         (getf initargs 'owl:|intersectionOf|))))
     (when supers
@@ -895,9 +901,6 @@
          ;; satisfiability check for oneOf individual
          (let ((oneof (find-if #'owl-oneof-p  (class-precedence-list (class-of instance)))))
            (when oneof
-             ;(format t "~%SHARED-INITIALIZE :AFTER ~S ~S ~S" instance slot-names initargs)
-             ;(format t "~%CLASS = ~S" (class-of instance))
-             ;(format t "~%MCLASSES = ~S" (mclasses instance))
              (let ((ones (slot-value oneof 'owl:|oneOf|)))
                (cond ((member instance ones :test #'%owl-same-p) nil) ; nothing done
                      (t (let ((others (remove instance ones :test #'definitely-owl-different-p)))
