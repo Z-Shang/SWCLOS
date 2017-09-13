@@ -625,8 +625,14 @@ no <*default-namespace*> and no <*base-uri*>, the string is returned."
 
 (defun peep-XMLDecl-code-from-file (file)
   "peeps <file> and returns a character code declared in XMLDecl."
-  (with-open-file (stream (pathname file))
-    (%peep-XMLDecl-code stream)))
+  (let* ((pathname (pathname file))
+	 (file-type (pathname-type pathname)))
+    (cond ((string-equal "gz" file-type)
+	   (gzip-stream:with-open-gzip-file (stream pathname :direction :input)
+	     (%peep-XMLDecl-code stream)))
+	  (t ; read as text file
+	   (with-open-file (stream pathname :direction :input)
+	     (%peep-XMLDecl-code stream))))))
 
 (defun peep-XMLDecl-code-from-string (rdf-string)
   "peeps <rdf-string> and returns a character code declared in XMLDecl."

@@ -523,7 +523,8 @@
 ;;;
 
 (defun shared-initialize-after-for-complementOf (class complements)
-  (loop for complement in complements with result
+  (loop with result
+	for complement in complements
       unless (eql class owl:|Nothing|)  ; owl:Nothing is complement to any object.
       do (cond ((setq result (check-instance-sharing class complement))
                 (error 'complementof-condition-unsatiafiable

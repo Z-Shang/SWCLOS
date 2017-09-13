@@ -249,7 +249,6 @@ This function returns a S-expression of <x>. If <x> is a comment, nil is returne
   (let ((*autoepistemic-local-closed-world* nil))
     #'(lambda (reader)
         (labels ((accept-loop (element reader)
-                              ;(format t "~%Reading ... ~S" element)
                               (cond ((null element)     ; initial calling and null attributes
                                      (funcall reader #'(lambda (elm rdr) (accept-loop elm rdr))))
                                     ((consp element)    ; attributes in top envelop
@@ -303,31 +302,38 @@ This function returns a S-expression of <x>. If <x> is a comment, nil is returne
    the set difference of <*referenced-resources*> and <*defined-resources*> is printed."
   (unless file (return-from read-rdf-file nil))
   (setq code (or (peep-XMLDecl-code-from-file file) code))
-  #+debug (format t "~%Encoding:~S" code)
-  (with-open-file (input-stream (pathname file))
-    (let* ((stream (flexi-streams:make-flexi-stream input-stream
-						    :external-format (find-external-format code)))
-           (*line-number* 1)
-           (*line-pos* 0)
-           (*pos* 0)
-           (*default-namespace* nil)
-           (*base-uri* *base-uri*)
-           (reader (make-rdfxml-reader stream))
-           (accept (make-accepter-for-rdf accepter-fun)))
-      (flush-buf)
-      (catch 'RDF-completed
-             (loop (funcall accept reader)))))
+  (let* ((pathname (pathname file))
+	 (file-type (pathname-type pathname)))
+    (cond ((string-equal "gz" file-type)
+	   (gzip-stream:with-open-gzip-file (stream pathname :direction :input)
+	     (read-rdf-file-inner accepter-fun input-stream code)))
+	  (t
+	   (with-open-file (input-stream pathname :direction :input)
+	     (read-rdf-file-inner accepter-fun input-stream code)))))
   (let ((refered (set-difference *referenced-resources* *defined-resources* :key #'car)))
-    ;(warn "Defined resources: ~{~S ~}" *defined-resources*)
-    ;(warn "Referenced resources: ~{~S ~}" *referenced-resources*)
     (when refered
       (warn "REFERENCED BUT NOT DEFINED RESOURCES: ~{~S ~}" refered)))
   :done)
 
+(defun read-rdf-file-inner (accepter-fun input-stream code)
+  (let* ((stream (flexi-streams:make-flexi-stream input-stream
+						  :external-format (find-external-format code)))
+	 (*line-number* 1)
+	 (*line-pos* 0)
+	 (*pos* 0)
+	 (*default-namespace* nil)
+	 (*base-uri* *base-uri*)
+	 (reader (make-rdfxml-reader stream))
+	 (accept (make-accepter-for-rdf accepter-fun)))
+    (flush-buf)
+    (catch 'RDF-completed
+      (loop (funcall accept reader)))))
+
 (defun read-rdf-from-string (accepter-fun rdf-string)  ; no code optional parameter for string-stream
-  (unless rdf-string (return-from read-rdf-from-string nil))
-  (when (equal rdf-string "") (return-from read-rdf-from-string nil))
-  (unless (stringp rdf-string) (return-from read-rdf-from-string nil))
+  (when (or (null rdf-string)
+	    (not (stringp rdf-string))
+	    (string= rdf-string ""))
+    (return-from read-rdf-from-string nil))
   (let ((code (peep-XMLDecl-code-from-string rdf-string)))
     (when code (warn "external code is directed in RDF/XML string, but it has no effect for string input."))
     (with-input-from-string (stream rdf-string)
@@ -340,8 +346,6 @@ This function returns a S-expression of <x>. If <x> is a comment, nil is returne
         (catch 'RDF-completed
                (loop (funcall accept reader)))))
     (let ((refered (set-difference *referenced-resources* *defined-resources* :key #'car)))
-      ;(warn "Defined resources: ~{~S ~}" *defined-resources*)
-      ;(warn "Referenced resources: ~{~S ~}" *referenced-resources*)
       (when refered
         (warn "REFERENCED BUT NOT DEFINED RESOURCES: ~{~S ~}" refered)))
     'done))
@@ -358,6 +362,7 @@ This function returns a S-expression of <x>. If <x> is a comment, nil is returne
     (format t "~%RDF/XML format file name? ")
     (let ((filename (read-line t)))
       (if (zerop (length filename)) nil filename))))
+
 ;;;
 ;;;; Reader Macro '<' for URI, and '_' for nodeID
 ;;;
@@ -407,6 +412,7 @@ This function returns a S-expression of <x>. If <x> is a comment, nil is returne
 (defun lang-tag-char-p (char)
   (and char (alpha-char-p char) ;(lower-case-p char)
        ))
+
 (defun sub-tag-char-p (char)
   (and char (or (and (alpha-char-p char) ;(lower-case-p char)
                      )

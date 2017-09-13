@@ -290,9 +290,18 @@ but optimized for vectors."
   (cond ((eq code :default) :utf-8)
 	(t code)))
 
-;;; a portable excl:without-redefinition-warnings
+;;; from closer-mop code
+#-(or allegro lispworks)
 (defmacro without-redefinition-warnings (&body body)
   `(progn ,@body))
+  
+#+allegro
+(defmacro without-redefinition-warnings (&body body)
+  `(excl:without-redefinition-warnings ,@body))
+
+#+lispworks
+(defmacro without-redefinition-warnings (&body body)
+  `(let ((dspec:*redefinition-action* :quiet)) ,@body))
 
 ;;; a portable excl:without-package-locks
 (defmacro without-package-locks (&body body)

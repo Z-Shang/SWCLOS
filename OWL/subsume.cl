@@ -415,7 +415,8 @@
     (setq bindings
           (extend-bindings successor (cons (skolem-constant successor) predecessor)  ; skolemize successor
                            bindings))
-    (loop for atom in atoms with kbindings = +no-bindings+ do
+    (loop with kbindings = +no-bindings+
+	  for atom in atoms do
         (progn 
           (multiple-value-setq (bindings cbindings kbindings)
             (unify `(,role ,predecessor ,successor) atom bindings cbindings))
@@ -764,8 +765,8 @@
               (and (cond ((intersection-subsumed-p type1 (args type2))
                           (values t t))
                          (t (values nil nil))))
-              (or (loop for t2 in (args type2)
-                      with known = t ; C < (A v B)  <=>  (C < A) v (C < B)
+              (or (loop with known = t ; C < (A v B)  <=>  (C < A) v (C < B)
+			for t2 in (args type2)
                       do (multiple-value-bind (val1 val2) (subsumed-p type1 t2)
                            ;; if true then immediately return with true
                            (when val1 (return-from %owl-subtypep (values t t)))
@@ -829,7 +830,8 @@
                ;; C < (A v B)  <=>  (C < A) v (C < B)
                ((and (eq (op type1) 'not) (eq (op type2) 'or))
                 ;; (subsumed-p type1 (or t1 t2 ...))
-                (loop for t2 in (args type2) with known = t
+                (loop with known = t
+		      for t2 in (args type2) 
                     do (multiple-value-bind (val1 val2) (subsumed-p type1 t2)
                          (when val1 (return-from %owl-subtypep (values t t)))
                          (setq known (and known val2)))
@@ -845,7 +847,8 @@
                ;;      (A ^ B) < C  <=>  (A < C) v (B < C)
                ((and (eq (car type1) 'and) (eq (car type2) 'not))
                 ;; (subsumed-p (and t1 t2 ...) type2)
-                (loop for t1 in (cdr type1) with known = t
+                (loop with known = t
+		      for t1 in (cdr type1)
                     do (multiple-value-bind (val1 val2) (subsumed-p t1 type2)
                          (when val1 (return-from %owl-subtypep (values t t)))
                          (setq known (and known val2)))
@@ -862,7 +865,8 @@
                 (values t t))
                ((and (eq (op type1) 'and) (eq (op type2) 'or))
                 ;; (A ^ B) < (C v D) <=>  (A < C) v (A < D)  v  (B < C) v (B < D) 
-                (loop for t1 in (args type1) with known = t
+                (loop with known = t
+		      for t1 in (args type1)
                     do (loop for t2 in (args type2)
                            do (multiple-value-bind (val1 val2) (subsumed-p t1 t2)
                                 (when val1 (return-from %owl-subtypep (values t t)))

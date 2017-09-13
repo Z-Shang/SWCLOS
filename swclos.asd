@@ -61,7 +61,7 @@
   :licence "SWCLOS"
   :description "SWCLOS is an OWL Full processor on top of CLOS."
   :long-description "This code is written at Galaxy Express Corporation, Japan, for the realization of the MEXT IT Program in Japan, and is maintained by Seiji Koide."
-  :depends-on (:puri :flexi-streams :closer-mop :named-readtables :deflate)
+  :depends-on (:puri :flexi-streams :closer-mop :named-readtables :gzip-stream)
   :default-component-class cl-source-file.cl
   :components
   ((:module "RDF"
