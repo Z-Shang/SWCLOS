@@ -10,7 +10,7 @@
 ;;;
 ;;; Copyright (c) 2002, 2003, 2004, Galaxy Express Corporation
 ;;; Copyright (c) 2007-2008, Seiji Koide
-;;; Copyright (c) 2016  University of Bologna, Italy (Author: Chun Tian)
+;;; Copyright (c) 2016-2017, Chun Tian (University of Bologna, Italy)
 ;;;
 
 (eval-when (:execute :load-toplevel :compile-toplevel)
@@ -621,8 +621,7 @@
              (accumulate-defined-name name))
            (add-object type (acons :name (list name) slots))))
         (t  ;; nil suppresses domain collec computing
-         (add-object type slots)))
-  )
+         (add-object type slots))))
 
 (defun make-proxy (types)
   (let* ((metas
@@ -685,7 +684,8 @@
    the metaclass and abst classes. To suppress domain computing, supply nil."
   (when (c2cl:subtypep type 'rdfs:|Container|) ;type = rdf:Alt,rdf:Seq,rdf:Bag, etc.
     (check-ordinal-properties slot-forms))
-  (let ((name (second (assoc ':name slot-forms))))
+  (let ((name (or (second (assoc ':name slot-forms))
+		  (gensym "anonymousClass"))))
     (setq slot-forms (remove (assoc ':name slot-forms) slot-forms :test #'eq))
     (multiple-value-bind (metas absts)
         (ensure-meta-absts type slot-forms nil)
