@@ -90,13 +90,13 @@
   :depends-on (:puri :flexi-streams :closer-mop :named-readtables :gzip-stream)
   :default-component-class cl-source-file.cl
   :components
-  ((:module "RDF"
+  ((:file "packages")
+   (:module "RDF"          :depends-on ("packages")
     :components
-    ((:file "packages")
-     (:file "Utils"        :depends-on ("packages"))
-     (:file "RdfIO"        :depends-on ("packages"))
-     (:file "IRI"          :depends-on ("packages"))
-     (:file "Xml"          :depends-on ("packages"))
+    ((:file "Utils")
+     (:file "RdfIO")
+     (:file "IRI")
+     (:file "Xml")
      (:file "rdferror"     :depends-on ("Utils"))
      (:file "NameSpace"    :depends-on ("IRI"))
      (:file "Literal"      :depends-on ("Utils" "Xml"))
