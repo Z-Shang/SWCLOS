@@ -369,6 +369,7 @@ instersection, then returns false."
 ;;; values decide the disjointness. Namely, if two values for such complete relational properties 
 ;;; are disjoint, then the arguments are disjoint.
 
+(without-redefinition-warnings ; stub at RDFS/GxType.cl
 (defun %owl-disjoint-p (c1 c2)
   "special rules of disjointness in OWL.
    This function is used internally in routines of default reasoning for disjointness.
@@ -408,6 +409,7 @@ instersection, then returns false."
                    ((some #'(lambda (s) (%owl-disjoint-p c1 s)) supers2)
                     (values t t))
                    (t (values nil nil)))))))
+) ; without-redefinition-warnings
 
 (defun check-simple-disjoint-pair-p-in-supers (name supers)
   "simply checks the satifiability among <supers> of <class>."
