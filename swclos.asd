@@ -56,7 +56,7 @@
 
 (defvar *cyc-directory*
   (make-pathname :directory (append (pathname-directory *swclos-directory*)
-				    (list "opencyc"))
+				    (list "CYC"))
 		 :defaults *swclos-directory*))
 
 (eval-when (:execute)
