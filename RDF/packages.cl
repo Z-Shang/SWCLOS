@@ -13,6 +13,7 @@
 (cl:defpackage :xml
   (:use ) ; supressing using common lisp package
   (:export lang ))
+
 (cl:defpackage :_                 ; this package is provided for nodeID symbol.
   (:use ) ; supressing using common lisp package
   )
@@ -74,7 +75,8 @@
 
 ;; note: the package "gx-user" is defined in "RDFS:gxutils.cl"
 
-(defpackage :gx
+(defpackage :swclos
+  (:nicknames :gx)
   (:use :closer-common-lisp :named-readtables :puri)
   #-(or clozure ecl)
   (:import-from

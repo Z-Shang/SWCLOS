@@ -11,7 +11,7 @@
 ;;;
 ;;; Copyright (c) 2007, 2008, 2010, 2014 Seiji Koide
 ;;;
-;;; Copyright (c) 2016  University of Bologna, Italy (Author: Chun Tian)
+;;; Copyright (c) 2016, 2017  Chun Tian (University of Bologna, Italy)
 ;;;
 ;; History
 ;; -------
@@ -391,6 +391,7 @@ package slot and uri to symbol name mapping environment slot.")
 
 (defvar *default-namespace* nil
   "Default name space IRI in current time. This value is set by <read-rdf-from-http> and <read-rdf-file>.")
+
 (defvar *base-uri* nil
   "Base URI that is indicated in XML file. This value is set by <read-rdf-from-http>, <read-rdf-file>, and <read-rdf-from-string>.")
 
@@ -456,13 +457,12 @@ package slot and uri to symbol name mapping environment slot.")
 
 (defun symbol2QNameString (symbol)
   "transforms <symbol> to QName string in the current namespace."
-  ;(format t "~%Default namespace package =~S" (uri-namedspace-package *default-namespace*))
   (cond ((eql (symbol-package symbol) (uri-namedspace-package *default-namespace*))
          (symbol-name symbol))
         (t (concatenate 'cl:string (package-name (symbol-package symbol)) ":" (symbol-name symbol)))))
 
 ;;;
-;;;; Symbol to URI
+;;; Symbol to URI
 ;;;
 
 (defun symbol2uri (symbol)
@@ -497,31 +497,28 @@ package slot and uri to symbol name mapping environment slot.")
 
 (defun name-ontology (ontouri)
   "transforms <ontouri> to special symbol of which string is equal to <ontouri>."
-;;;  (when (null-iri-p ontouri)
-;;;    (cond (*default-namespace* (setq ontouri (iri *default-namespace*)))
-;;;          (*base-uri* (setq ontouri (iri *base-uri*)))
-;;;          (t (error "Cant happen!"))))
-  ;(format t "~%*default-namespace* = ~S" *default-namespace*)
-  ;(format t "~%*base-uri* = ~S" *base-uri*)
-  ;(format t "~%ontouri = ~S" ontouri)
-  (when (and *base-uri* (string= (render-uri ontouri nil) (render-uri *base-uri* nil)))
-    (let ((pkg (uri-namedspace-package
-                (set-uri-namedspace (format nil "~A#" (render-uri ontouri nil))))))
+  (when (and *base-uri*
+	     (string= (render-uri ontouri nil)
+		      (render-uri *base-uri* nil)))
+    (let* ((ns (set-uri-namedspace (format nil "~A#" (render-uri ontouri nil))))
+	   (pkg (uri-namedspace-package ns)))
       (unless pkg (setq pkg (uri2package ontouri)))
       (return-from name-ontology (intern "Ontology" pkg))))
-  (when (and *default-namespace* (string= (render-uri ontouri nil) (render-uri *default-namespace* nil)))
-    (let ((pkg (uri-namedspace-package (set-uri-namedspace *default-namespace*))))
+  (when (and *default-namespace*
+	     (string= (render-uri ontouri nil)
+		      (render-uri *default-namespace* nil)))
+    (let* ((ns (set-uri-namedspace *default-namespace*))
+	   (pkg (uri-namedspace-package ns)))
       (unless pkg (setq pkg (uri2package ontouri)))
       (return-from name-ontology (intern "Ontology" pkg))))
   (let ((pkg (uri2package ontouri)))
     (when (null pkg)
       (setq pkg (funcall *uri2symbol-package-mapping-fun* ontouri)))
-    (make-symbol (render-uri ontouri nil))
-    ))
+    (make-symbol (render-uri ontouri nil))))
 
 (defun find-package-from-namespace (namespace)
   (find namespace (list-all-packages) :test #'string= :key #'(lambda (pkg) (documentation pkg t))))
-  
+
 ;; End of module
 ;; --------------------------------------------------------------------
 ;;;
