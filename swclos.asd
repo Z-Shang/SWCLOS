@@ -134,7 +134,10 @@
     :components
     ((:file "ntriple")
      (:file "ntparser")
-     (:file "ntwriter")))))
+     (:file "ntwriter")))
+   (:module "opencyc"      :depends-on ("OWL")
+    :components
+    ((:file "opencyc")))))
 
 (in-package #:cl-user)
 (format t "~%=========== System Description ================")
