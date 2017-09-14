@@ -55,9 +55,9 @@
   (let ((parsed (parse-uri thing)))
     #-:allegro-v9.0
     (etypecase thing
-      (string (when (char= #\# (last-char thing)) (setf (uri-fragment parsed) "")))
-      (uri nil)  ; nothing done
-      )
+      (string (when (char= #\# (last-char thing))
+		(setf (uri-fragment parsed) "")))
+      (uri nil))  ; nothing done
     (cond ((and (uri-host parsed) (null (uri-path parsed)))
            (copy-uri parsed :path "/"))
           (t parsed))))
@@ -182,7 +182,7 @@ package slot and uri to symbol name mapping environment slot.")
 
 (defvar *uri2symbol-name-mapping-fun* 'default-uri2symbol-name-mapping-fun
   "a function to be invoked when uri to symbol name mapping is irregular.")
-(defvar *uri2symbol-package-mapping-fun* 'default-uri2symbol-package-mapping-fun
+(defvar *uri2symbol-package-mapping-fun* 'auto-uri2symbol-package-mapping-fun
   "a function to be invoked when uri to symbol package mapping is irregular.")
 
 (defun uri2symbol (uri)
@@ -307,6 +307,12 @@ package slot and uri to symbol name mapping environment slot.")
             name)))))
   )
 
+(defun auto-uri2symbol-package-mapping-fun (uri)
+  (let* ((pkg-name (uri-host uri))
+	 (found (find-package (string-upcase pkg-name))))
+    (or found
+	(make-package (string-upcase pkg-name) :use nil))))
+
 (defun default-uri2symbol-package-mapping-fun (uri)
   "This function is bound to <*uri2symbol-name-mapping-fun*> as default. This function just makes a query for users."
   (let ((pkg (ask-user-package-name uri)))
@@ -330,7 +336,7 @@ package slot and uri to symbol name mapping environment slot.")
         (t (ask-user-symbol-name uri))))                       ; string or nil
 
 (defparameter *file-types*
-  '("rdf" "rdfs" "owl" "xml" "htm" "html" "txt"))
+  '("rdf" "rdfs" "owl" "xml" "htm" "html" "txt" "rdfz" "owlz"))
 
 (defun %%uri2symbol (uri)
   "Even if <uri> has no fragment, plausible separation is done by this function. In short, 
