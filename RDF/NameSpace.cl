@@ -255,17 +255,29 @@ package slot and uri to symbol name mapping environment slot.")
 ;;;
 ;;;; Query for Users
 
+;;; return values: pkg str2 button enter
 (defun ask-user-for-string (prompt string1 option1 option2 prompt2)
   "This function is used in <ask-user-package-name> and <ask-user-symbol-name>."
-  #+:common-graphics (cg:ask-user-for-string prompt string1 option1 option2 prompt2)
-  #-:common-graphics
-  (declare (ignore string1 option1 option2))
-  #-:common-graphics
+  (declare (ignorable string1 option1 option2))
+  #+common-graphics (cg:ask-user-for-string prompt string1 option1 option2 prompt2)
+  #+(and lispworks capi)
+  (cond ((env:tty-environment-p)
+	 (format t "~%~A ~A:" prompt prompt2)
+	 (let ((str (read-line t)))
+	   (if (zerop (length str))
+	       (values str nil "" nil)
+	     (values str nil "" t))))
+	(t
+	 (multiple-value-bind (str enter)
+	     (capi:prompt-for-string (format nil "~A ~A:" prompt prompt2))
+	   (values str nil "" enter))))
+  #-(or common-graphics	(and lispworks capi))
   (progn
     (format t "~%~A ~A:" prompt prompt2)
     (let ((str (read-line t)))
-      (if (zerop (length str)) (values str nil "" nil)
-        (values str nil "" t)))))
+      (if (zerop (length str))
+	  (values str nil "" nil)
+	(values str nil "" t)))))
 
 (let ((ask-user-pkg-name-canceled nil)
       (force-cancel nil))

@@ -300,8 +300,6 @@
                                           (c2cl:subtypep 'xsd:|anyURI| range)) ; Seiji 2008/08/06
                                      (and (consp range)
                                           (every #'(lambda (cls) (c2cl:subtypep 'xsd:|anyURI| cls)) range)))))
-                          ;(format t "~%Form ~S with role ~S" form role)
-                          ;(format t "~%  Constraint ~S" (get-range-constraint-from role))
                           form)
                          ((eq (get role :datatype) 'xsd:|anyURI|) (error "Cant happen!") ; old edition?
                           form)
@@ -344,9 +342,7 @@
                      (@ (@ (second form) (third form)))))
                   (t (when (and (second form) (atom (second form)))
                        (setf (second form) `(:name ,(second form))))
-                     ;(format t "~%Form:~S" form)
                      (let ((domains (most-specific-concepts (collect-domains (mapcar #'car (cdr form))))))
-                       ;(format t "~%Domains:~S" domains)
                        (loop for cls in (cdr (assoc 'rdf:|type| (cdr form)))
                            do (cond ((symbolp cls))
                                     ((uri-p cls) (setq cls (uri2symbol cls)))
@@ -390,7 +386,6 @@
                                          obj))))
                              (slots (aggregate-slots (cdr form)))
                              (obj nil))
-                         ;(format t "~%Class:~S" class)
                          (cond ((and (assoc 'owl:|oneOf| slots) (assoc :name slots))
                                 (setq obj
                                       (%add-form class (mapcar #'form2slot (remove (assoc 'owl:|oneOf| slots) slots)) role))
