@@ -10,7 +10,7 @@
 ;;;
 ;;; Copyright (c) 2003, 2004, 2006 by Galaxy Express Corporation
 ;;; Copyright (c) 2007, 2008, 2009, 2010 Seiji Koide
-;;; Copyright (c) 2016  University of Bologna, Italy (Author: Chun Tian)
+;;; Copyright (c) 2016-2017 Chun Tian (University of Bologna, Italy)
 ;;;
 ;; History
 ;; -------
@@ -26,7 +26,7 @@
 ;;;; Functional Property
 ;;;
 
-;;; owl:FunctionalProperty is an instance of rdfs:|Class|.
+;;; owl:FunctionalProperty is an instance of rdfs:Class.
 ;;; ----------------------------------------------------------------------------------
 ;;; (rdfs:Class owl:FunctionalProperty
 ;;;             (rdfs:label "FunctionalProperty")
@@ -47,17 +47,17 @@
   (and (standard-instance-p obj)
        (let ((class (class-of obj)))
          (cond ((eq class (load-time-value 
-                           (symbol-value 'owl:|FunctionalProperty|))))
+                           (symbol-value '|owl|:|FunctionalProperty|))))
                ((class-finalized-p class)
                 (and (member (load-time-value
-                              (symbol-value 'owl:|FunctionalProperty|))
+                              (symbol-value '|owl|:|FunctionalProperty|))
                              (class-precedence-list class)
                              :test #'eq)
                      t))
                ((labels ((walk-partial-cpl (c)
                            (let ((supers (class-direct-superclasses c)))
                              (when (member (load-time-value
-                                            (symbol-value 'owl:|FunctionalProperty|))
+                                            (symbol-value '|owl|:|FunctionalProperty|))
                                            supers
                                            :test #'eq)
                                (return-from functional-property-p t))
@@ -68,14 +68,14 @@
 
 ;;;
 ;;;; Inverse Functional Property
-;;; owl:InverseFunctionalProperty is an instance of rdfs:|Class|.
+;;; owl:InverseFunctionalProperty is an instance of rdfs:Class.
 ;;; ----------------------------------------------------------------------------------
 ;;; (rdfs:Class owl:InverseFunctionalProperty
 ;;;             (rdfs:label "InverseFunctionalProperty")
 ;;;             (rdfs:subClassOf owl:ObjectProperty))
 ;;; ----------------------------------------------------------------------------------
 ;;; An instance of owl:InversefunctionalProperty may not be an instance of 
-;;; owl:ObjectProperty. Then, the range value may not be owl:Thing and may be rdfs:|Literal|.
+;;; owl:ObjectProperty. Then, the range value may not be owl:Thing and may be rdfs:Literal.
 
 (defun inverse-functional-property-p (obj)
   "Is this <obj> an instance of owl:InverseFunctionalProperty?"
@@ -84,13 +84,13 @@
   (and (standard-instance-p obj)
        (let ((class (class-of obj)))
          (cond ((eq class (load-time-value 
-                          (symbol-value 'owl:|InverseFunctionalProperty|))))
+                          (symbol-value '|owl|:|InverseFunctionalProperty|))))
                ((not (class-finalized-p class))
                 (labels ((walk-partial-cpl (c)
                            (let ((supers (class-direct-superclasses c)))
                              (when (member
                                     (load-time-value 
-                                     (symbol-value 'owl:|InverseFunctionalProperty|))
+                                     (symbol-value '|owl|:|InverseFunctionalProperty|))
                                     supers
                                     :test #'eq)
                                (return-from inverse-functional-property-p t))
@@ -99,7 +99,7 @@
                   (walk-partial-cpl class)
                   nil))
                (t (and (member (load-time-value 
-                                (symbol-value 'owl:|InverseFunctionalProperty|))
+                                (symbol-value '|owl|:|InverseFunctionalProperty|))
                                (class-precedence-list class)
                                :test #'eq)
                        t))))))
@@ -134,9 +134,7 @@
 
 ;; slot same-as includes same individuals including itself against instance.
 (defun shared-initialize-after-for-sameAs (instance newsames)
-  ;(format t "~%shared-initialize-after-for-sameAs(~S ~S)" instance newsames)
   (let ((oldsames (slot-value instance 'same-as)))
-    ;(format t "~%Oldsames:~S" oldsames)
     (let ((sames (adjoin instance (union oldsames newsames)))
           (diffs ()))
       (cond ((setq diffs (intersection sames sames :test #'definitely-owl-different-p))
@@ -171,9 +169,9 @@
                   (inverse-functional-property-equal-p
                    x y :test #'(lambda (a b) (definitely-%owl-same-p a b (cons (cons x y) pairs))))))
          t)
-        ((and (c2cl:typep x 'rdf:|inLang|) (c2cl:typep y 'rdf:|inLang|))
+        ((and (c2cl:typep x '|rdf|:|inLang|) (c2cl:typep y '|rdf|:|inLang|))
          (and (eq (lang x) (lang y)) (equal (content x) (content y))))
-        ((and (c2cl:typep x 'rdf:|XMLLiteral|) (c2cl:typep y 'rdf:|XMLLiteral|))
+        ((and (c2cl:typep x '|rdf|:|XMLLiteral|) (c2cl:typep y '|rdf|:|XMLLiteral|))
          (and (eq (class-of x) (class-of y)) (equal (value-of x) (value-of y))))))
 ) ; without-redefinition-warnings
 
@@ -187,7 +185,7 @@
         ((iri-p x) (definitely-owl-same-p (iri-value x) y pairs))
         ((iri-p y) (definitely-owl-same-p x (iri-value y) pairs))))
 
-(defmethod %owl-same-p ((x rdfs:|Resource|) (y rdfs:|Resource|) &optional pairs)
+(defmethod %owl-same-p ((x |rdfs|:|Resource|) (y |rdfs|:|Resource|) &optional pairs)
   "Non-resolution version. This is used in <owl-equalp> and <owl-equivalent-p>."
   (declare (optimize (speed 3) (safety 0)))
   (cond ((definitely-%owl-same-p x y pairs))
@@ -244,7 +242,7 @@
                ((and (node-name x) (node-name y))
                 (if (eql (node-name x) (node-name y)) (values nil t) (values t t)))  ; <--
                (t nil)))                                                   ; <--
-        ((and (typep x rdfs:|Literal|) (typep y rdfs:|Literal|))
+        ((and (typep x |rdfs|:|Literal|) (typep y |rdfs|:|Literal|))
          ;; fall here when not equal
          t)
         (t nil)))
@@ -261,7 +259,7 @@
            (values t t)))
         ((and (owl-thing-p x) (owl-thing-p y))
          (definitely-%%owl-different-p x y))
-        ((and (typep x rdfs:|Literal|) (typep y rdfs:|Literal|))
+        ((and (typep x |rdfs|:|Literal|) (typep y |rdfs|:|Literal|))
          ;; fall here when not equal
          (values t t))
         (t (values nil nil))))
@@ -286,7 +284,7 @@
              (values nil t)
            (values t t)))
         ((and (owl-oneof-p x) (owl-oneof-p y))
-         (if (%oneof-equivalent (slot-value x 'owl:|oneOf|) (slot-value y 'owl:|oneOf|))
+         (if (%oneof-equivalent (slot-value x '|owl|:|oneOf|) (slot-value y '|owl|:|oneOf|))
              (values nil t) (values t t)))
         ((and (owl-class-p x) (owl-class-p y)
               (or (%owl-equivalent-p x y)
@@ -297,12 +295,12 @@
         ((and (owl-thing-p x) (owl-thing-p y))
          (cond ((member x (slot-value y 'different-from))
                 (values t t))
-               ((member x (append (mklist (and (slot-boundp y 'owl:|sameAs|)
-                                               (slot-value y 'owl:|sameAs|)))
+               ((member x (append (mklist (and (slot-boundp y '|owl|:|sameAs|)
+                                               (slot-value y '|owl|:|sameAs|)))
                                      (%same-as-of y)) :test #'owl-equalp)
                 (values nil t))
-               ((member y (append (mklist (and (slot-boundp x 'owl:|sameAs|)
-                                               (slot-value x 'owl:|sameAs|)))
+               ((member y (append (mklist (and (slot-boundp x '|owl|:|sameAs|)
+                                               (slot-value x '|owl|:|sameAs|)))
                                      (%same-as-of x)) :test #'owl-equalp)
                 (values nil t))
                ((and (node-name x) (node-name y))
@@ -310,7 +308,7 @@
                       (t (if (eql (node-name x) (node-name y)) (values nil t) (values t t)))))
                (t (rdf-graph-different-p x y))))
         ;;
-        ((and (typep x rdfs:|Literal|) (typep y rdfs:|Literal|))
+        ((and (typep x |rdfs|:|Literal|) (typep y |rdfs|:|Literal|))
          (values t t))
         ((and (rsc-object-p x) (rsc-object-p y))
          (cond ((and (node-name x) (node-name y))
@@ -347,13 +345,13 @@
              (if (equalp (value-of x) (value-of y))    ; equalp treats 1 and 1.0
                  nil t)
            t))   ; disjoint data type
-        ((and (typep x rdfs:|Literal|) (typep y rdfs:|Literal|))
+        ((and (typep x |rdfs|:|Literal|) (typep y |rdfs|:|Literal|))
          t)
         ((and (owl-restriction-p x) (owl-restriction-p y))
          (if (%owl-restriction-equal x y)
              nil t))
         ((and (owl-oneof-p x) (owl-oneof-p y))
-         (if (%oneof-equivalent (slot-value x 'owl:|oneOf|) (slot-value y 'owl:|oneOf|))
+         (if (%oneof-equivalent (slot-value x '|owl|:|oneOf|) (slot-value y '|owl|:|oneOf|))
              nil t))
         ((and (property-p x) (property-p y)
               (member x (equivalent-property-of y)))
@@ -368,12 +366,12 @@
         ((and (owl-thing-p x) (owl-thing-p y))
          (cond ((member x (slot-value y 'different-from))
                 t)
-               ((member x (append (mklist (and (slot-boundp y 'owl:|sameAs|)
-                                               (slot-value y 'owl:|sameAs|)))
+               ((member x (append (mklist (and (slot-boundp y '|owl|:|sameAs|)
+                                               (slot-value y '|owl|:|sameAs|)))
                                      (%same-as-of y)) :test #'owl-equalp)
                 nil)
-               ((member y (append (mklist (and (slot-boundp x 'owl:|sameAs|)
-                                               (slot-value x 'owl:|sameAs|)))
+               ((member y (append (mklist (and (slot-boundp x '|owl|:|sameAs|)
+                                               (slot-value x '|owl|:|sameAs|)))
                                      (%same-as-of x)) :test #'owl-equalp)
                 nil)
                ((and (node-name x) (node-name y))

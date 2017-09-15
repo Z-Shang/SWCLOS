@@ -171,7 +171,7 @@
    the symbol <name> and the object."
   (assert (symbolp name))
   (cond ((assoc '|rdf|:|type| args) (expand-def '|rdfs|:|Resource| name args))
-        (t (expand-def '||rdfs|:Resource| name args))))
+        (t (expand-def '|rdfs:Resource| name args))))
 
 (defun add-rdf/xml (description)
   (cond ((|Description|-p description)
@@ -372,7 +372,7 @@
                                              (symbol (symbol-value cls))
                                              (uri (symbol-value (uri2symbol cls)))
                                              (cons (add-form cls))))
-                                       (if domains (car domains) (symbol-value '||rdfs|:Resource|))))
+                                       (if domains (car domains) (symbol-value '|rdfs:Resource|))))
                                     ((consp (car form))
                                      (car (most-specific-concepts
                                            (append domains (mapcar #'symbol-value (reverse (car form)))))))
@@ -1095,7 +1095,7 @@
         (symbol-package name)))
     (flet ((ensure-multiple-classes (classes obj)
                                     (cond ((null (cdr classes)) obj)
-                                          (t ;(format t "~%ENSUREING ~S ~S" classes obj)
+                                          (t
                                            (let ((shadow (make-shadow (class-of obj) classes)))
                                              (cond ((eql (class-of obj) shadow) obj)
                                                    (t (warn "Multiple classing with ~S for ~S" classes obj)
@@ -1112,7 +1112,7 @@
              (format t "~%Redefining ~S with classes:~S~%    slots:~S in add-instance" name classes slots)
              ;; If name is a blank node ID, definitely it is bound to an default object.
              ;; Therefore the control always falls here, and the object is anonymous.
-             (let ((mclasses (substitute |rdfs|:|Resource| ||rdfs|:Resource| (mclasses obj))))
+             (let ((mclasses (substitute |rdfs|:|Resource| |rdfs:Resource| (mclasses obj))))
                (cond ((every #'(lambda (cls) (c2cl:typep obj cls)) classes)
                       (when initargs
                         (format t "~%Reinitializing ~S with ~S" obj initargs)
@@ -1142,8 +1142,6 @@
                       (ensure-multiple-classes classes obj))
                      (t ;; for pizza ontology isBase in Functional and InverseFunctional
                       (let ((new-classes (most-specific-concepts (append classes mclasses))))
-                        ;(format t "~%Old-classes ~S" mclasses)
-                        ;(format t "~%New-classes ~S" new-classes)
                         (warn "Redefine ~S to independent multiple classes ~S"
                           (symbol-value name) (mapcar #'node-name classes))
                         (let ((shadow (make-shadow (class-of (symbol-value name)) new-classes)))
@@ -1153,7 +1151,6 @@
                           (symbol-value name)
                           ))))))
             ((and name (null obj) (not (boundp name)))  ; new name and may be ensured to multiple classes.
-             ;(format t "~%NEW NAME ~S" name)
              (set-iri-value
               (ensure-multiple-classes
                classes (apply #'make-instance (car classes) :name name initargs))))

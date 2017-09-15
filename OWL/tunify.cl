@@ -8,8 +8,8 @@
 ;;;
 ;;; This program is integrated to SWCLOS, an OWL processor on CLOS.
 ;;;
-;;; Copyright (c) 2008,2009  Seiji Koide
-;;; Copyright (c) 2016  University of Bologna, Italy (Author: Chun Tian)
+;;; Copyright (c) 2008, 2009  Seiji Koide
+;;; Copyright (c) 2016-2017  Chun Tian (University of Bologna, Italy)
 ;;
 ;; History
 ;; -------
@@ -114,13 +114,13 @@
            (cond ((and (symbolp x) (resource? x)) (class-of (symbol-value x)))
                  ((%instance-p x) (class-of x))
                  ((rdf-class-p x) (class-of x))
-                 (t (symbol-value 'owl:|Thing|))))
+                 (t (symbol-value '|owl|:|Thing|))))
           ((%instance-p val) (class-of val))
           ((rdf-class-p val) (class-of val))
           ((and (symbolp val) (resource? val)) (class-of (symbol-value val)))
           ((skolem-p val) (error "Not Yet!"))
           ((consp val) (conjunction val))  ; if a list then it should be a conjunction.
-          (t (symbol-value 'owl:|Thing|)))))
+          (t (symbol-value '|owl|:|Thing|)))))
 
 ;;;
 ;;; A variable is a symbol whose name starts with character #\?.
@@ -643,14 +643,14 @@
 
 
 #|
-(def-property Knows (rdf:|type| owl:|ObjectProperty|)
+(def-property Knows (rdf:|type| |owl|:|ObjectProperty|)
   (rdfs:|domain| Human))
-(def-resource Human (rdf:|type| owl:|Class|))
-(def-resource Mother (rdf:|type| owl:|Class|)
+(def-resource Human (rdf:|type| |owl|:|Class|))
+(def-resource Mother (rdf:|type| |owl|:|Class|)
   (rdfs:|subClassOf| Human))
-(def-resource Pet (rdf:|type| owl:|Class|)
-  (owl:|disjointWith| Human))
-(def-resource Cat (rdf:|type| owl:|Class|)
+(def-resource Pet (rdf:|type| |owl|:|Class|)
+  (|owl|:|disjointWith| Human))
+(def-resource Cat (rdf:|type| |owl|:|Class|)
   (rdfs:|subClassOf| Pet))
 (def-individual John (rdf:|type| Human)
   (Knows Jane))
@@ -690,13 +690,13 @@
 ;; (Intersect {a a1 a2} {a aa1 aa2})     -> (or (and (a1 = aa1) (a2 = aa2)) (and (a1 = aa2) (a2 = aa1)))
 
 #|
-(def-property workAt (rdf:|type| owl:|ObjectProperty|)
+(def-property workAt (rdf:|type| |owl|:|ObjectProperty|)
   (rdfs:|domain| Person)
   (rdfs:|range| Office))
-(def-property liveAt (rdf:|type| owl:|ObjectProperty|)
+(def-property liveAt (rdf:|type| |owl|:|ObjectProperty|)
   (rdfs:|domain| Person)
   (rdfs:|range| Residence))
-(def-property location (rdf:|type| owl:|ObjectProperty|)
+(def-property location (rdf:|type| |owl|:|ObjectProperty|)
   (rdfs:|domain| Building)
   (rdfs:|range| Address))
 
@@ -819,7 +819,7 @@
 |#
 
 #|
-(def-property locatedIn (rdf:|type| owl:|TransitiveProperty|)
+(def-property locatedIn (rdf:|type| |owl|:|TransitiveProperty|)
   (rdfs:|range| Region))
 (def-individual EU (rdf:|type| Region))
 (def-individual German (rdf:|type| Region)
@@ -829,23 +829,23 @@
 (def-individual UK (rdf:|type| Region)
   (locatedIn EU))
 
-(def-resource EUCity (rdf:|type| owl:|Class|)
-  (owl:|intersectionOf| City
-                      (owl:|Restriction| (owl:|onProperty| locatedIn)
-                                       (owl:|hasValue| EU))))
+(def-resource EUCity (rdf:|type| |owl|:|Class|)
+  (|owl|:|intersectionOf| City
+                      (|owl|:|Restriction| (|owl|:|onProperty| locatedIn)
+                                       (|owl|:|hasValue| EU))))
 
-(def-resource GermanCity (rdf:|type| owl:|Class|)
-  (owl:|intersectionOf| City
-                      (owl:|Restriction| (owl:|onProperty| locatedIn)
-                                       (owl:|hasValue| German))))
-(def-resource FrenchCity (rdf:|type| owl:|Class|)
-  (owl:|intersectionOf| City
-                      (owl:|Restriction| (owl:|onProperty| locatedIn)
-                                       (owl:|hasValue| French))))
-(def-resource UKCity (rdf:|type| owl:|Class|)
-  (owl:|intersectionOf| City
-                      (owl:|Restriction| (owl:|onProperty| locatedIn)
-                                       (owl:|hasValue| UK))))
+(def-resource GermanCity (rdf:|type| |owl|:|Class|)
+  (|owl|:|intersectionOf| City
+                      (|owl|:|Restriction| (|owl|:|onProperty| locatedIn)
+                                       (|owl|:|hasValue| German))))
+(def-resource FrenchCity (rdf:|type| |owl|:|Class|)
+  (|owl|:|intersectionOf| City
+                      (|owl|:|Restriction| (|owl|:|onProperty| locatedIn)
+                                       (|owl|:|hasValue| French))))
+(def-resource UKCity (rdf:|type| |owl|:|Class|)
+  (|owl|:|intersectionOf| City
+                      (|owl|:|Restriction| (|owl|:|onProperty| locatedIn)
+                                       (|owl|:|hasValue| UK))))
 
 (def-resource City (rdfs:|subClassOf| Region))
 
@@ -864,19 +864,19 @@
   (hasFrightTo Frankfurt)
   (locatedIn UK))
 
-(def-property withVehicle (rdf:|type| owl:|ObjectProperty|)
+(def-property withVehicle (rdf:|type| |owl|:|ObjectProperty|)
   (rdfs:|domain| Travel)
   (rdfs:|range| Vehcle))
-(def-property departFrom (rdf:|type| owl:|ObjectProperty|)
+(def-property departFrom (rdf:|type| |owl|:|ObjectProperty|)
   (rdfs:|domain| Travel)
   (rdfs:|range| Region))
-(def-property departTo (rdf:|type| owl:|ObjectProperty|)
+(def-property departTo (rdf:|type| |owl|:|ObjectProperty|)
   (rdfs:|domain| Travel)
   (rdfs:|range| Region))
 
-(def-property withTrain (rdf:|type| owl:|ObjectProperty|)
+(def-property withTrain (rdf:|type| |owl|:|ObjectProperty|)
   (rdfs:|subPropertyOf| withVehicle))
-(def-resource withAirPlane (rdf:|type| owl:|ObjectProperty|)
+(def-resource withAirPlane (rdf:|type| |owl|:|ObjectProperty|)
   (rdfs:|subPropertyOf| withVehicle))
 
 |#
