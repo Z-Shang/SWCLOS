@@ -456,7 +456,7 @@ This function returns a S-expression of <x>. If <x> is a comment, nil is returne
              ))))
 
 (defreadtable RDF
-  (:merge :standard)
+  (:merge :modern)
   (:macro-char #\< #'double-angle-bracket-reader t)
   (:macro-char #\_ #'single-underscore-reader t)
   (:macro-char #\" #'|rdf|::read-string nil))
