@@ -101,11 +101,11 @@
 ;;; be needed to add owl:ObjectProperty with owl:FunctionalProperty as follows.
 ;;; ----------------------------------------------------------------------------------
 ;;;  (def-property vin::hasMaker 
-;;;    (rdf:|type| owl:FunctionalProperty owl:ObjectProperty))
+;;;    (|rdf|:|type| |owl|:|FunctionalProperty| owl:ObjectProperty))
 ;;;
 ;;;  (def-property vin::producesWine
-;;;    (rdf:|type| owl:InverseFunctionalProperty)
-;;;    (owl:inverseOf vin::hasMaker))
+;;;    (|rdf|:|type| owl:InverseFunctionalProperty)
+;;;    (|owl|:|inverseOf| vin::hasMaker))
 ;;; ----------------------------------------------------------------------------------
 
 (eval-when (:execute :load-toplevel :compile-toplevel)

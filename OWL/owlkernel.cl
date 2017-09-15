@@ -911,6 +911,7 @@ and instance of owl:Class."))
 
 ;;; For OWL Full, an owl class also inherit owl:|Thing|
 (add-class `(,(class-of |owl|:|Class|)) '|owl|:|Class| `(,|owl|:|Thing|) ())
+
 #|
 (apply #'ensure-class-using-class (find-class 'shadowed-class) 'shadowed-class
        :direct-superclasses `(,|owl|:|Class|)
@@ -920,21 +921,27 @@ and instance of owl:Class."))
 (reinitialize-instance
  (symbol-value '|owl|:|allValuesFrom|)
  '|rdfs|:|domain| (load-time-value (symbol-value '|owl|:|allValuesFromRestriction|)))
+
 (reinitialize-instance
  (symbol-value '|owl|:|someValuesFrom|)
  '|rdfs|:|domain| (load-time-value (symbol-value '|owl|:|someValuesFromRestriction|)))
+
 (reinitialize-instance 
  (symbol-value '|owl|:|hasValue|)
  '|rdfs|:|domain| (load-time-value (symbol-value '|owl|:|hasValueRestriction|)))
+
 (reinitialize-instance 
  (symbol-value '|owl|:|minCardinality|)
  '|rdfs|:|domain| (load-time-value (symbol-value '|owl|:|cardinalityRestriction|)))
+
 (reinitialize-instance 
  (symbol-value '|owl|:|maxCardinality|)
  '|rdfs|:|domain| (load-time-value (symbol-value '|owl|:|cardinalityRestriction|)))
+
 (reinitialize-instance 
  (symbol-value '|owl|:|cardinality|)
  '|rdfs|:|domain| (load-time-value (symbol-value '|owl|:|cardinalityRestriction|)))
+
 (eval-when (:execute :load-toplevel)
   (let ((slots
          (remove '|owl|:|allValuesFrom|
