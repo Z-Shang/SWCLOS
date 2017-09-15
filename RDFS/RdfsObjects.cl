@@ -417,7 +417,7 @@ An RDF statement is the statement made by a token of an RDF triple.")
 
 ;===========================================================================================
 ;;;
-;;;; rdfs:|Datatype|, |rdf|:|PlainLiteral|, and rdf:|XMLLiteral|
+;;;; rdfs:Datatype, rdf:PlainLiteral, and rdf:XMLLiteral
 ;;;
 
 (reinitialize-instance |rdfs|:|Datatype|
@@ -427,6 +427,7 @@ An RDF statement is the statement made by a token of an RDF triple.")
                        '|rdfs|:|isDefinedBy| (iri "http://www.w3.org/2000/01/rdf-schema#")
                        '|rdfs|:|comment| "The class of RDF datatypes."
                        '|rdfs|:|subClassOf| |rdfs|:|Class|)
+
 (setf (iri-value (setf (slot-value (symbol-value '|rdfs|:|Datatype|) '|rdf|:|about|)
                    (iri (slot-value (symbol-value '|rdfs|:|Datatype|) '|rdf|:|about|))))
   (symbol-value '|rdfs|:|Datatype|))
@@ -438,12 +439,13 @@ An RDF statement is the statement made by a token of an RDF triple.")
                        '|rdfs|:|isDefinedBy| (iri "http://www.w3.org/TR/rdf-plain-literal/")
                        '|rdfs|:|comment| "The class of plain (i.e. untyped) literal values."
                        '|rdfs|:|subClassOf| |rdfs|:|Literal|)
+
 (setf (iri-value (setf (slot-value (symbol-value '|rdf|:|PlainLiteral|) '|rdf|:|about|)
                    (iri (slot-value (symbol-value '|rdf|:|PlainLiteral|) '|rdf|:|about|))))
   (symbol-value '|rdf|:|PlainLiteral|))
 
 (defmethod print-object ((object |rdf|:|XMLLiteral|) stream)
-  "This method is not intended to use by programmer. XMLLiteral data is printed as 1^^xsd:|nonNegativeInteger|."
+  "This method is not intended to use by programmer. XMLLiteral data is printed as 1^^xsd:nonNegativeInteger."
   (format stream "~W^^~S"
     (format nil "~A" (slot-value object 'value))
     (class-name (class-of object))))
@@ -916,6 +918,7 @@ An RDF statement is the statement made by a token of an RDF triple.")
                        '|rdfs|:|isDefinedBy| (iri "http://www.w3.org/1999/02/22-rdf-syntax-ns#")
                        '|rdfs|:|comment| "The class of RDF Lists."
                        '|rdfs|:|subClassOf| |rdfs|:|Resource|)
+
 (setf (iri-value (setf (slot-value (symbol-value '|rdf|:|List|) '|rdf|:|about|)
                    (iri (slot-value (symbol-value '|rdf|:|List|) '|rdf|:|about|))))
   (symbol-value '|rdf|:|List|))
