@@ -89,7 +89,7 @@ This function returns a S-expression of <x>. If <x> is a comment, nil is returne
              (assert (null (cdr value)))
              (list name (read-as-datatype (car value) datatype)))
             (lang
-             (cons name (mapcar #'(lambda (val) (cons '@ (list val (intern lang "keyword"))))
+             (cons name (mapcar #'(lambda (val) (cons '@ (list val (intern lang :keyword))))
                           (make-form value))))
             (t (cons name (make-form value)))))))
 
@@ -142,7 +142,7 @@ This function returns a S-expression of <x>. If <x> is a comment, nil is returne
       (setq nodeID (nodeID2symbol nodeID))
       (remf attrs '|rdf|:|nodeID|))
     (when lang
-      (when (stringp lang) (setq lang (intern lang "keyword")))
+      (when (stringp lang) (setq lang (intern lang :keyword)))
       (remf attrs '|xml|:|lang|))
     (setq attrs (loop for (prop val) on attrs by #'cddr
                     collect (cond ((and (boundp prop) (c2cl:typep (symbol-value prop) '|rdf|:|Property|))

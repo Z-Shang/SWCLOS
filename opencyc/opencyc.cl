@@ -1,3 +1,7 @@
+;;;-*- Mode: common-lisp; syntax: common-lisp; package: gx; base: 10 -*-
+;;;
+;;; Copyright (c) 2017  Chun Tian (University of Bologna, Italy)
+
 (in-package :gx)
 
 ;; > (translate-logical-pathname #p"CYC:opencyc-latest.owlz")
