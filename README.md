@@ -6,7 +6,7 @@ OWL Full Processor on top of Common Lisp Object System (CLOS)
 ## Supported platforms
 
 * Allegro CL Free Express Edition 10.0
-* LispWorks 6.x, 7.0
+* LispWorks 6.1, 7.0
 
 ## Other supported platforms in progress
 
