@@ -9,22 +9,18 @@
 ;;; for the realization of the MEXT IT Program in Japan.
 ;;;
 ;;; Copyright (c) 2003, 2004, 2006 by Galaxy Express Corporation
-;;; 
 ;;; Copyright (c) 2007, 2008, 2009 Seiji Koide
-;;;
-;;; Copyright (c) 2016  University of Bologna (Author: Chun Tian)
+;;; Copyright (c) 2016-2017 Chun Tian (University of Bologna, Italy)
 
 ;;; ASDF system definition.
 ;;; This file must be used without compiling.
 
-(defpackage gx-system (:use :common-lisp :asdf))  
+(defpackage gx-system
+  (:use :common-lisp :asdf))
  
 (in-package :gx-system)
 
-(defvar *swclos-directory*
-  (make-pathname :host (pathname-host *load-truename*)
-                 :device (pathname-device *load-truename*)
-                 :directory (pathname-directory *load-truename*)))
+(defvar *swclos-directory* *load-truename*)
 
 (eval-when (:execute)
   (setf (logical-pathname-translations "SWCLOS")
@@ -79,14 +75,15 @@
               :type :wild))
 	  )))
 
-(defsystem :swclos
-    :name "SWCLOS"
+(defsystem swclos
+  :name "SWCLOS"
   :author "Seiji Koide <SeijiKoide@aol.com>"
   :maintainer "Chun Tian (binghe) <binghe.lisp@gmail.com>"
-  :version "2.0.0"
+  :version "3.0.0"
   :licence "SWCLOS"
   :description "SWCLOS is an OWL Full processor on top of CLOS."
-  :long-description "This code is written at Galaxy Express Corporation, Japan, for the realization of the MEXT IT Program in Japan, and is maintained by Seiji Koide."
+  :long-description "This code is written at Galaxy Express Corporation, Japan,
+for the realization of the MEXT IT Program in Japan, and is maintained by Seiji Koide."
   :depends-on (:puri :flexi-streams :closer-mop :named-readtables :gzip-stream)
   :default-component-class cl-source-file.cl
   :components
