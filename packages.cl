@@ -7,19 +7,20 @@
 
 (cl:provide :swclospackages)
 
-(cl:defpackage :xmlns
+(cl:defpackage "xmlns"
   (:use ) ; supressing using common lisp package
   )
-(cl:defpackage :xml
+
+(cl:defpackage "xml"
   (:use ) ; supressing using common lisp package
-  (:export lang ))
+  (:export "lang"))
 
 (cl:defpackage :_                 ; this package is provided for nodeID symbol.
   (:use ) ; supressing using common lisp package
   )
 
-(cl:defpackage :xsd
-  (:nicknames :xs)
+(cl:defpackage "xsd"
+  (:nicknames "xs")
   (:use :puri)
   (:export "string" "boolean" "decimal" "float" "double" "dataTime" "time" "date"
            "gYearMonth" "gYear" "gMonthDay" "gDay" "gMonth" "hexBinary" "base64Binary"
@@ -31,12 +32,12 @@
            "duration-minute" "duration-second")
   (:documentation "http://www.w3.org/2001/XMLSchema#"))
 
-(cl:defpackage :dc
+(cl:defpackage "dc"
   (:use ) ; supressing using common lisp package
   (:export "contributor" "coverage" "creator" "date" "description" "format" "identifier"
            "language" "publisher" "relation" "rights" "source" "subject" "title" "type"))
 
-(cl:defpackage :rdf
+(cl:defpackage "rdf"
   (:use ) ; supressing using common lisp package
   (:export "about"
            "XMLDatatype"
@@ -48,15 +49,14 @@
            _1 _2 _3 _4 _5 _6 _7 _8 _9)
   (:documentation "http://www.w3.org/1999/02/22-rdf-syntax-ns#"))
 
-(cl:defpackage :rdfs
+(cl:defpackage "rdfs"
   (:use ) ; supressing using common lisp package
   (:export "Resource" "Class" "subClassOf" "subPropertyOf" "seeAlso" "domain" "range"
            "isDefinedBy" "range" "domain" "Literal" "Container" "label" "comment" "member"
            "ContainerMembershipProperty" "Datatype")
   (:documentation "http://www.w3.org/2000/01/rdf-schema#"))
 
-(defpackage :owl
-    (:nicknames |owl|)
+(defpackage "owl"
     (:use ) ; supressing using common lisp package
     (:export "Class" "Thing" "Nothing" "Restriction" "onProperty" "allValuesFrom" "someValuesFrom" "hasValue"
              "minCardinality" "maxCardinality" "cardinality"

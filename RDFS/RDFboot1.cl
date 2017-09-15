@@ -10,7 +10,7 @@
 ;;;
 ;;; Copyright (c) 2002-2005 Galaxy Express Corporation
 ;;; Copyright (c) 2007-2010 Seiji Koide
-;;; Copyright (c) 2016  University of Bologna, Italy (Author: Chun Tian)
+;;; Copyright (c) 2016-2017 Chun Tian (University of Bologna, Italy)
 ;;;
 
 (eval-when (:execute :load-toplevel :compile-toplevel)
@@ -18,36 +18,38 @@
 
 (in-package :gx)
 
-;; TODO: redefined rdfsClass (TODO: SBCL crashed here)
-(defclass rdfsClass (rdfs:|Class|) ()
+;; Redefining rdfsClass (defined in RDFboot0.cl)
+;; TODO: SBCL crashed here, as "AMOP specifies that "portable metaobject classes cannot be redefined".
+
+(defclass rdfsClass (|rdfs|:|Class|) ()
   (:metaclass rdf-node)
-  (:documentation "rdfs:Class is a superclass of rdfsClass. This is the proxy of rdfs:|Class| in order to make the membership loop."))
+  (:documentation "rdfs:Class is a superclass of rdfsClass. This is the proxy of rdfs:Class in order to make the membership loop."))
 
 ;; Now we got a twisted relation between rdfs:|Class| and rdfsClass.
 
 ;;;
-;;;; rdfs:|Resource|
+;;;; rdfs:Resource
 ;;; At initial stage of booting, kernel classes are defined without slots to let class-changing easy.
 
-(defclass rdfs:|Resource| (gnode) ()
-  (:metaclass rdfs:|Class|)
+(defclass |rdfs|:|Resource| (gnode) ()
+  (:metaclass |rdfs|:|Class|)
   (:documentation "Every resource in RDF(S) universe including classes is an instance of 
-rdfs:|Resource|."))
+rdfs:Resource."))
 
 ;; TODO: re-defined metaobject classes again!
-(defclass rdfs:|Class| (rdfs:|Resource| rdf-node) ()
+(defclass |rdfs|:|Class| (|rdfs|:|Resource| rdf-node) ()
   (:metaclass rdfsClass)
-  (:documentation "This is rdfs:|Class|, and it is a class of all classes in RDF(S) universe."))
+  (:documentation "This is rdfs:Class, and it is a class of all classes in RDF(S) universe."))
 
-(defparameter rdfs:|Class|
-  (find-class 'rdfs:|Class|)
-  "This is rdfs:|Class| and it is a class of all classes in RDF(S) universe.")
+(defparameter |rdfs|:|Class|
+  (find-class '|rdfs|:|Class|)
+  "This is rdfs:Class and it is a class of all classes in RDF(S) universe.")
 
-(defparameter rdfs:|Resource|
-  (find-class 'rdfs:|Resource|)
-  "rdfs:|Resource| is the top class in the RDF universe, but subclass of gnode actually.")
+(defparameter |rdfs|:|Resource|
+  (find-class '|rdfs|:|Resource|)
+  "rdfs:Resource is the top class in the RDF universe, but subclass of gnode actually.")
 
-(defmethod print-object ((obj rdfs:|Resource|) stream)
+(defmethod print-object ((obj |rdfs|:|Resource|) stream)
   (cond ((not (slot-exists-p obj 'name))
          (call-next-method))
         ((and (slot-boundp obj 'name)
@@ -70,19 +72,19 @@ rdfs:|Resource|."))
 ;;; it would causes the slot definitions at rdfs:|Resource|. Then, when a proper definition comes up, 
 ;;; the slot definitions would be created at the proper class. As a result, rdfs:|Resource| would 
 ;;; become to have wasteful slot definitions for many objects in the universe. To work around this 
-;;; phenomenum, |rdfs:Resource| is used instead of rdfs:|Resource| in forward-referencing. 
-;;; |rdfs:Resource| prevents to create wasteful slots at rdfs:|Resource| instances. 
+;;; phenomenum, |rdfs:Resource| is used instead of rdfs:Resource in forward-referencing. 
+;;; |rdfs:Resource| prevents to create wasteful slots at rdfs:Resource instances. 
 ;;;
 
-(defclass |rdfs:Resource| (rdfs:|Resource|) ()
-  (:metaclass rdfs:|Class|)
-  (:documentation "|rdfs:Resource| is a pseudo rdfs:|Resource| in order to work around the slot inheritance of
+(defclass |rdfs:Resource| (|rdfs|:|Resource|) ()
+  (:metaclass |rdfs|:|Class|)
+  (:documentation "|rdfs:Resource| is a pseudo rdfs:Resource in order to work around the slot inheritance of
  temporal definition.
 
-The rule of rdf4 entails a subject and an object as an instance of rdfs:|Resource|. However the proactive application of
-this rule causes the slot definition inheritance to the instances of rdfs:|Class| and rdfs:|Datatype| and amounts to 
+The rule of rdf4 entails a subject and an object as an instance of rdfs:Resource. However the proactive application of
+this rule causes the slot definition inheritance to the instances of rdfs:Class and rdfs:Datatype and amounts to 
 wasteful slots in every objects. To cope with this problem, rdf4 treats |rdfs:Resource| metaobject instead of 
-rdfs:|Resource|."))
+rdfs:Resource."))
 
 (defvar |rdfs:Resource| ; note: this symbol is NOT in package "rdfs" but "gx"!
   (find-class '|rdfs:Resource|))
@@ -96,42 +98,42 @@ rdfs:|Resource|."))
 ;;; This method is customized to return an appropriate slot definition class in SWCLOS, i.e., 
 ;;; <Property-direct-slot-definition> or <OwlProperty-direct-slot-definition>. Namely, if an 
 ;;; indicator in initargs is not a keyword, it must be a property name. The name of rdf, rdfs, 
-;;; and owl propertes are embeded in this routine. In other case, if the domain includes 'owl:|Restriction|', 
-;;; then Property-direct-slot-definition is returned. If the property is an instance of 'owl:|ObjectProperty|', 
+;;; and owl propertes are embeded in this routine. In other case, if the domain includes 'owl:Restriction', 
+;;; then Property-direct-slot-definition is returned. If the property is an instance of 'owl:ObjectProperty', 
 ;;; then OwlProperty-direct-slot-definition is returned, else if the defalut value is returned.
 
-(defmethod direct-slot-definition-class ((class rdfs:|Class|) &rest initargs)
+(defmethod direct-slot-definition-class ((class |rdfs|:|Class|) &rest initargs)
   "If <initargs> include non-keyword indicators for slot initarg or include a property name as slot name, 
     then returns Property-direct-slot-definition or OwlProperty-direct-slot-definition metaobject."
   ;; this code is shared by OWL.
   (if (keywordp (car (getf initargs :initargs))) (call-next-method)
     (case (getf initargs :name)
-      ((rdf:|about| rdf:|ID| xml:lang) (call-next-method))
-      ((rdf:|type| rdfs:|subClassOf| rdfs:|label| rdfs:|isDefinedBy| rdfs:|comment| 
-                 rdfs:|domain| rdfs:|range| rdfs:|subPropertyOf| rdfs:|member| rdf:|value| 
-                 rdf:|first| rdf:|rest| rdf:|object| rdf:|subject| rdf:|predicate|  
-                 owl:|oneOf| owl:|intersectionOf| owl:|unionOf| 
-                 owl:|allValuesFrom| owl:|hasValue| owl:|someValuesFromRestriction| 
-                 owl:|cardinality| owl:|maxCardinality| owl:|minCardinality|
-                 owl:|onProperty| owl:|distinctMembers| owl:|differentFrom| owl:|sameAs| 
-                 owl:|equivalentProperty| owl:|equivalentClass| 
-                 owl:|complementOf| owl:|disjointWith|
-                 owl:|inverseOf|)           ; Note owl:|inverseOf| is an instance of rdf:Property
+      ((|rdf|:|about| |rdf|:|ID| |xml|:|lang|) (call-next-method))
+      ((|rdf|:|type| |rdfs|:|subClassOf| |rdfs|:|label| |rdfs|:|isDefinedBy| |rdfs|:|comment| 
+        |rdfs|:|domain| |rdfs|:|range| |rdfs|:|subPropertyOf| |rdfs|:|member| |rdf|:|value| 
+	|rdf|:|first| |rdf|:|rest| |rdf|:|object| |rdf|:|subject| |rdf|:|predicate|  
+	|owl|:|oneOf| |owl|:|intersectionOf| |owl|:|unionOf| 
+	|owl|:|allValuesFrom| |owl|:|hasValue| |owl|:|someValuesFromRestriction| 
+	|owl|:|cardinality| |owl|:|maxCardinality| |owl|:|minCardinality|
+	|owl|:|onProperty| |owl|:|distinctMembers| |owl|:|differentFrom| |owl|:|sameAs| 
+	|owl|:|equivalentProperty| |owl|:|equivalentClass| 
+	|owl|:|complementOf| |owl|:|disjointWith|
+	|owl|:|inverseOf|)           ; Note owl:|inverseOf| is an instance of rdf:Property
        (find-class 'Property-direct-slot-definition))
       (otherwise
        (cond ((property? (getf initargs :name))
               (let* ((prop (symbol-value (getf initargs :name)))
-                     (domains (and (slot-boundp prop 'rdfs:|domain|) (slot-value prop 'rdfs:|domain|))))
+                     (domains (and (slot-boundp prop '|rdfs|:|domain|) (slot-value prop '|rdfs|:|domain|))))
                 (cond ((and (consp domains)
-                            (member 'owl:|Restriction| domains :key #'node-name))
+                            (member '|owl|:|Restriction| domains :key #'node-name))
                        (find-class 'Property-direct-slot-definition))
-                      ((and domains (eq (class-name domains) 'owl:|Restriction|)
+                      ((and domains (eq (class-name domains) '|owl|:|Restriction|)
                        (find-class 'Property-direct-slot-definition)))
-                      ((and (find-class 'owl:|ObjectProperty| nil) (cl:typep prop 'owl:|ObjectProperty|))
+                      ((and (find-class '|owl|:|ObjectProperty| nil) (cl:typep prop '|owl|:|ObjectProperty|))
                        (find-class 'OwlProperty-direct-slot-definition))
                       (t (find-class *default-slot-definition-class*)))))
              (t ;; non-keyword symbol should be a role name.
-              (cond ((cl:typep (symbol-value (getf initargs :name)) 'owl:|ObjectProperty|)
+              (cond ((cl:typep (symbol-value (getf initargs :name)) '|owl|:|ObjectProperty|)
                      (find-class 'OwlProperty-direct-slot-definition))
                     (t (find-class *default-slot-definition-class*)))))))))
 
@@ -183,7 +185,7 @@ rdfs:|Resource|."))
 ;;; See <compute-effective-slot-definition-initargs> in OWL system.
 ;;;
 
-(defmethod compute-effective-slot-definition-initargs ((class rdfs:|Class|) #+lispworks name direct-slotds)
+(defmethod compute-effective-slot-definition-initargs ((class |rdfs|:|Class|) #+lispworks name direct-slotds)
   "see above"
   #+lispworks (declare (ignore name))
   (let ((initargs (call-next-method)))
@@ -197,7 +199,7 @@ rdfs:|Resource|."))
 ;;; Property-effective-slot-definition. So, <effective-slot-definition-class> methods returns the class metaobject. 
 ;;; Then, CLOS system takes care of all after.
 
-(defmethod effective-slot-definition-class ((class rdfs:|Class|) &rest initargs)
+(defmethod effective-slot-definition-class ((class |rdfs|:|Class|) &rest initargs)
   "see above"
   (cond ((member :subject-type initargs)
          (find-class 'Property-effective-slot-definition))
@@ -212,9 +214,9 @@ rdfs:|Resource|."))
 ;;; accessing slot value to the object with the predicate (slot-name) in the triple.
 ;;; ----------------------------------------------------------------------------------
 ;;;
-;;; rdfs:|Resource| ---------------------------------- rdf:Property
+;;; rdfs:Resource ---------------------------------- rdf:Property
 ;;;                                                       :
-;;;                                              ex.  rdfs:|label|
+;;;                                              ex.  rdfs:label
 ;;;                                                          |
 ;;; Property-effective-slot-definition                       | <-- property-slotds
 ;;;                    :.....................................|....
@@ -227,21 +229,21 @@ rdfs:|Resource|."))
 ;;; ----------------------------------------------------------------------------------
 
 ;;;
-;;; Note that the domain and range of owl:|equivalentProperty| is rdf:Property rather than 
-;;; owl:|ObjectProperty|.
+;;; Note that the domain and range of owl:equivalentProperty is rdf:Property rather than 
+;;; owl:ObjectProperty.
 ;;;
 
-(defclass rdf:|Property| (rdfs:|Resource|)
+(defclass |rdf|:|Property| (|rdfs|:|Resource|)
   ((slotds :initarg :slotds :initform ()
 	   :documentation "slotds keeps <domain property> pair.")) ; see rdf:Property Final
-  (:metaclass rdfs:|Class|)
+  (:metaclass |rdfs|:|Class|)
   (:documentation "an instance of rdf:Property has a registory for slotds."))
 
-(defvar rdf:|Property| (find-class 'rdf:|Property|)
+(defvar |rdf|:|Property| (find-class '|rdf|:|Property|)
   "every property in RDF(S) is an instance of rdf:Property. An instance of this class
 has a place holder for all related slot definitions.")
 
-(defmethod print-object ((obj rdf:|Property|) stream)
+(defmethod print-object ((obj |rdf|:|Property|) stream)
   (cond ((not (slot-exists-p obj 'name))
          (call-next-method))
         ((slot-boundp obj 'name)
@@ -251,31 +253,31 @@ has a place holder for all related slot definitions.")
              (prin1 :anonymous stream)))))
 
 ;;;
-;;;; rdfs:|Class| final
-;;; rdfs:|Class| is reinitialized with slots. 
+;;;; rdfs:Class final
+;;; rdfs:Class is reinitialized with slots. 
 ;;; I thank smh for teaching me to use 'reinitialize-instance'.
 
-(reinitialize-instance (load-time-value rdfs:|Class|)
+(reinitialize-instance (load-time-value |rdfs|:|Class|)
                        :direct-slots
-                       `((:name rdfs:|subClassOf|
+                       `((:name |rdfs|:|subClassOf|
                           :initform nil
                           :initfunction ,(load-time-value #'false)
-                          :type ,(load-time-value rdfs:|Class|)
-                          :initargs (rdfs:|subClassOf|)
+                          :type ,(load-time-value |rdfs|:|Class|)
+                          :initargs (|rdfs|:|subClassOf|)
                           ;:readers (superclass-of)
                           ;:writers ((setf superclass-of))
                                 )))
 
 ;;;
-;;;; rdfs:|Datatype| 
+;;;; rdfs:Datatype
 ;;;
 
-(defclass rdfs:|Datatype| (rdfs:|Class|) 
+(defclass |rdfs|:|Datatype| (|rdfs|:|Class|) 
   ((form :initarg :form :accessor type-form))
-  (:metaclass rdfs:|Class|))
+  (:metaclass |rdfs|:|Class|))
 
-(defvar rdfs:|Datatype| (find-class 'rdfs:|Datatype|)
-  "rdfs:|Datatype| is a subclass of and an instance of rdfs:|Class|.")
+(defvar |rdfs|:|Datatype| (find-class '|rdfs|:|Datatype|)
+  "rdfs:Datatype is a subclass of and an instance of rdfs:Class.")
 
 
 (cl:provide :rdfboot1)

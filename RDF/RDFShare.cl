@@ -8,10 +8,8 @@
 ;;; This module is separated from original Rdf module in order to separate sharable parts from Rdf module.
 ;;;
 ;;; Copyright (c) 2002, 2004 by Galaxy Express Corporation
-;;;
 ;;; Copyright (c) 2007, 2008 Seiji Koide
-;;;
-;;; Copyright (c) 2016  University of Bologna, Italy (Author: Chun Tian)
+;;; Copyright (c) 2016-2017 Chun Tian (University of Bologna, Italy)
 ;;;
 ;; History
 ;; -------
@@ -688,7 +686,7 @@ no <*default-namespace*> and no <*base-uri*>, the string is returned."
                (when (char= (char str pos) #\T)
                  (incf pos)
                  (parse-postT)))))
-    (make-instance 'xsd:|duration|
+    (make-instance '|xsd|:|duration|
       :year yy
       :month mo
       :day dd
@@ -722,7 +720,7 @@ no <*default-namespace*> and no <*base-uri*>, the string is returned."
                            ((error "Illegal duration format at line ~S" (line-count stream)))))))))
         (cond ((char= (peeknext-char stream) #\T) (parse-postT))
               (t (parse-preT)))))
-    (make-instance 'xsd:|duration|
+    (make-instance '|xsd|:|duration|
       :year yy
       :month mo
       :day dd
@@ -750,7 +748,7 @@ no <*default-namespace*> and no <*base-uri*>, the string is returned."
                              (setf (iri-value uri) (setq obj (symbol-value symbol))))
                             (t (setf (iri-value uri)
                                  (setq obj (make-instance '|rdfs:Resource| :name symbol)))))
-                      (setf (slot-value obj 'rdf:|about|) uri)
+                      (setf (slot-value obj '|rdf|:|about|) uri)
                       (list 'quote obj)))
                    (t ;; blank node
                     (setf (iri-value uri) (make-instance '|rdfs:Resource|))

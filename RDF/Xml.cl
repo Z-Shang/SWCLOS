@@ -10,7 +10,7 @@
 ;;;
 ;;; Copyright (c) 2002, 2003, 2004  Galaxy Express Corporation
 ;;; Copyright (c) 2007, 2008, 2010  Seiji Koide
-;;; Copyright (c) 2016  University of Bologna, Italy (Author: Chun Tian)
+;;; Copyright (c) 2016-2017 Chun Tian (University of Bologna, Italy)
 ;;;
 ;;; This file provides xml and xsd name space, and xsd datatypes in lisp. The data types as 
 ;;; resource objects that wrap lisp data are defined in RdfsKernel and RdfsCore file.
@@ -30,7 +30,7 @@
   (require :swclospackages)
   ) ; end of eval-when
 
-(in-package :xsd)
+(in-package "xsd")
 
 ;;;
 ;;;; XML Built-in Datatypes
@@ -109,25 +109,25 @@
 ;;;
 ;;; The followings are examples of xsd data types. All of following forms return true.
 ;;; ----------------------------------------------------------------------------------
-;;; (c2cl:typep 1 'xsd:positiveInteger)
-;;; (c2cl:typep -1 'xsd:negativeInteger)
-;;; (c2cl:typep 0 'xsd:nonNegativeInteger)
-;;; (c2cl:typep 0 'xsd:nonPositiveInteger)
-;;; (c2cl:typep 32767 'xsd:short)
-;;; (c2cl:typep 32768 'xsd:int)
-;;; (c2cl:typep 2147483647 'xsd:int)
-;;; (c2cl:typep 2147483648 'xsd:long)
-;;; (c2cl:typep 9223372036854775807 'xsd:long)
-;;; (c2cl:typep 9223372036854775808 'xsd:integer)
-;;; (c2cl:typep 1 'xsd:decimal)
-;;; (c2cl:typep 1.0e0 'xsd:float)
-;;; (c2cl:typep 1.0d0 'xsd:double)
-;;; (c2cl:typep (rational 1) 'xsd:decimal)
-;;; (c2cl:typep (rational 0.000001) 'xsd:decimal)
-;;; (c2cl:typep 0.000001 'xsd:float)
-;;; (c2cl:typep "string?" 'xsd:string)
-;;; (c2cl:typep (iri "http://somewhere") 'xsd:anyURI)
-;;; (c2cl:typep 'xsd:false 'xsd:boolean)
+;;; (c2cl:typep 1 '|xsd|:|positiveInteger|)
+;;; (c2cl:typep -1 '|xsd|:|negativeInteger|)
+;;; (c2cl:typep 0 '|xsd|:|nonNegativeInteger|)
+;;; (c2cl:typep 0 '|xsd|:|nonPositiveInteger|)
+;;; (c2cl:typep 32767 '|xsd|:|short|)
+;;; (c2cl:typep 32768 '|xsd|:|int|)
+;;; (c2cl:typep 2147483647 '|xsd|:|int|)
+;;; (c2cl:typep 2147483648 '|xsd|:|long|)
+;;; (c2cl:typep 9223372036854775807 '|xsd|:|long|)
+;;; (c2cl:typep 9223372036854775808 '|xsd|:|integer|)
+;;; (c2cl:typep 1 '|xsd|:|decimal|)
+;;; (c2cl:typep 1.0e0 '|xsd|:|float|)
+;;; (c2cl:typep 1.0d0 '|xsd|:|double|)
+;;; (c2cl:typep (rational 1) '|xsd|:|decimal|)
+;;; (c2cl:typep (rational 0.000001) '|xsd|:|decimal|)
+;;; (c2cl:typep 0.000001 '|xsd|:|float|)
+;;; (c2cl:typep "string?" '|xsd|:|string|)
+;;; (c2cl:typep (iri "http://somewhere") '|xsd|:|anyURI|)
+;;; (c2cl:typep '|xsd|:false '|xsd|:|boolean|)
 ;;; ----------------------------------------------------------------------------------
 ;;; See also function <type-of> in GxType module.
 ;;; See also GxType module with respect to the lexical space representation.
@@ -171,82 +171,82 @@
 
 #|
 ;-------------------------------------------
-(c2cl:subtypep 'xsd:unsignedByte 'xsd:unsignedShort)
-(c2cl:subtypep 'xsd:unsignedByte 'xsd:unsignedInt)
-(c2cl:subtypep 'xsd:unsignedByte 'xsd:unsignedLong)
-(c2cl:subtypep 'xsd:unsignedByte 'xsd:nonNegativeInteger)
-(c2cl:subtypep 'xsd:unsignedByte 'xsd:integer)
-(c2cl:subtypep 'xsd:unsignedByte 'xsd:decimal)
-(c2cl:subtypep 'xsd:unsignedByte 'xsd:anySimpleType)
+(c2cl:subtypep '|xsd|:|unsignedByte| '|xsd|:|unsignedShort|)
+(c2cl:subtypep '|xsd|:|unsignedByte| '|xsd|:|unsignedInt|)
+(c2cl:subtypep '|xsd|:|unsignedByte| '|xsd|:|unsignedLong|)
+(c2cl:subtypep '|xsd|:|unsignedByte| '|xsd|:|nonNegativeInteger|)
+(c2cl:subtypep '|xsd|:|unsignedByte| '|xsd|:|integer|)
+(c2cl:subtypep '|xsd|:|unsignedByte| '|xsd|:|decimal|)
+(c2cl:subtypep '|xsd|:|unsignedByte| '|xsd|:|anySimpleType|)
 
-(c2cl:subtypep 'xsd:unsignedShort 'xsd:unsignedInt)
-(c2cl:subtypep 'xsd:unsignedShort 'xsd:unsignedLong)
-(c2cl:subtypep 'xsd:unsignedShort 'xsd:nonNegativeInteger)
-(c2cl:subtypep 'xsd:unsignedShort 'xsd:integer)
-(c2cl:subtypep 'xsd:unsignedShort 'xsd:decimal)
-(c2cl:subtypep 'xsd:unsignedShort 'xsd:anySimpleType)
+(c2cl:subtypep '|xsd|:|unsignedShort| '|xsd|:|unsignedInt|)
+(c2cl:subtypep '|xsd|:|unsignedShort| '|xsd|:|unsignedLong|)
+(c2cl:subtypep '|xsd|:|unsignedShort| '|xsd|:|nonNegativeInteger|)
+(c2cl:subtypep '|xsd|:|unsignedShort| '|xsd|:|integer|)
+(c2cl:subtypep '|xsd|:|unsignedShort| '|xsd|:|decimal|)
+(c2cl:subtypep '|xsd|:|unsignedShort| '|xsd|:|anySimpleType|)
 
-(c2cl:subtypep 'xsd:unsignedInt 'xsd:unsignedLong)
-(c2cl:subtypep 'xsd:unsignedInt 'xsd:nonNegativeInteger)
-(c2cl:subtypep 'xsd:unsignedInt 'xsd:integer)
-(c2cl:subtypep 'xsd:unsignedInt 'xsd:decimal)
-(c2cl:subtypep 'xsd:unsignedInt 'xsd:anySimpleType)
+(c2cl:subtypep '|xsd|:|unsignedInt| '|xsd|:|unsignedLong|)
+(c2cl:subtypep '|xsd|:|unsignedInt| '|xsd|:|nonNegativeInteger|)
+(c2cl:subtypep '|xsd|:|unsignedInt| '|xsd|:|integer|)
+(c2cl:subtypep '|xsd|:|unsignedInt| '|xsd|:|decimal|)
+(c2cl:subtypep '|xsd|:|unsignedInt| '|xsd|:|anySimpleType|)
 
-(c2cl:subtypep 'xsd:unsignedLong 'xsd:nonNegativeInteger)
-(c2cl:subtypep 'xsd:unsignedLong 'xsd:integer)
-(c2cl:subtypep 'xsd:unsignedLong 'xsd:decimal)
-(c2cl:subtypep 'xsd:unsignedLong 'xsd:anySimpleType)
+(c2cl:subtypep '|xsd|:|unsignedLong| '|xsd|:|nonNegativeInteger|)
+(c2cl:subtypep '|xsd|:|unsignedLong| '|xsd|:|integer|)
+(c2cl:subtypep '|xsd|:|unsignedLong| '|xsd|:|decimal|)
+(c2cl:subtypep '|xsd|:|unsignedLong| '|xsd|:|anySimpleType|)
 
-(c2cl:subtypep 'xsd:nonNegativeInteger 'xsd:integer)
-(c2cl:subtypep 'xsd:nonNegativeInteger 'xsd:decimal)
-(c2cl:subtypep 'xsd:nonNegativeInteger 'xsd:anySimpleType)
+(c2cl:subtypep '|xsd|:|nonNegativeInteger| '|xsd|:|integer|)
+(c2cl:subtypep '|xsd|:|nonNegativeInteger| '|xsd|:|decimal|)
+(c2cl:subtypep '|xsd|:|nonNegativeInteger| '|xsd|:|anySimpleType|)
 
-(c2cl:subtypep 'xsd:integer 'xsd:decimal)
-(c2cl:subtypep 'xsd:integer 'xsd:anySimpleType)
+(c2cl:subtypep '|xsd|:|integer| '|xsd|:|decimal|)
+(c2cl:subtypep '|xsd|:|integer| '|xsd|:|anySimpleType|)
 
-(c2cl:subtypep 'xsd:decimal 'xsd:anySimpleType)
+(c2cl:subtypep '|xsd|:|decimal| '|xsd|:|anySimpleType|)
 ;-------------------------------------------
-(c2cl:subtypep 'xsd:byte 'xsd:short)
-(c2cl:subtypep 'xsd:byte 'xsd:int)
-(c2cl:subtypep 'xsd:byte 'xsd:long)
-(c2cl:subtypep 'xsd:byte 'xsd:integer)
-(c2cl:subtypep 'xsd:byte 'xsd:decimal)
-(c2cl:subtypep 'xsd:byte 'xsd:anySimpleType)
+(c2cl:subtypep '|xsd|:|byte| '|xsd|:|short|)
+(c2cl:subtypep '|xsd|:|byte| '|xsd|:|int|)
+(c2cl:subtypep '|xsd|:|byte| '|xsd|:|long|)
+(c2cl:subtypep '|xsd|:|byte| '|xsd|:|integer|)
+(c2cl:subtypep '|xsd|:|byte| '|xsd|:|decimal|)
+(c2cl:subtypep '|xsd|:|byte| '|xsd|:|anySimpleType|)
 
-(c2cl:subtypep 'xsd:short 'xsd:int)
-(c2cl:subtypep 'xsd:short 'xsd:long)
-(c2cl:subtypep 'xsd:short 'xsd:integer)
-(c2cl:subtypep 'xsd:short 'xsd:decimal)
-(c2cl:subtypep 'xsd:short 'xsd:anySimpleType)
+(c2cl:subtypep '|xsd|:|short| '|xsd|:|int|)
+(c2cl:subtypep '|xsd|:|short| '|xsd|:|long|)
+(c2cl:subtypep '|xsd|:|short| '|xsd|:|integer|)
+(c2cl:subtypep '|xsd|:|short| '|xsd|:|decimal|)
+(c2cl:subtypep '|xsd|:|short| '|xsd|:|anySimpleType|)
 
-(c2cl:subtypep 'xsd:int 'xsd:long)
-(c2cl:subtypep 'xsd:int 'xsd:integer)
-(c2cl:subtypep 'xsd:int 'xsd:decimal)
-(c2cl:subtypep 'xsd:int 'xsd:anySimpleType)
+(c2cl:subtypep '|xsd|:|int| '|xsd|:|long|)
+(c2cl:subtypep '|xsd|:|int| '|xsd|:|integer|)
+(c2cl:subtypep '|xsd|:|int| '|xsd|:|decimal|)
+(c2cl:subtypep '|xsd|:|int| '|xsd|:|anySimpleType|)
 
-(c2cl:subtypep 'xsd:long 'xsd:integer)
-(c2cl:subtypep 'xsd:long 'xsd:decimal)
-(c2cl:subtypep 'xsd:long 'xsd:anySimpleType)
+(c2cl:subtypep '|xsd|:|long| '|xsd|:|integer|)
+(c2cl:subtypep '|xsd|:|long| '|xsd|:|decimal|)
+(c2cl:subtypep '|xsd|:|long| '|xsd|:|anySimpleType|)
 ;-------------------------------------------
-(c2cl:subtypep 'xsd:positiveInteger 'xsd:nonNegativeInteger)
-(c2cl:subtypep 'xsd:positiveInteger 'xsd:integer)
-(c2cl:subtypep 'xsd:positiveInteger 'xsd:decimal)
-(c2cl:subtypep 'xsd:positiveInteger 'xsd:anySimpleType)
+(c2cl:subtypep '|xsd|:|positiveInteger| '|xsd|:|nonNegativeInteger|)
+(c2cl:subtypep '|xsd|:|positiveInteger| '|xsd|:|integer|)
+(c2cl:subtypep '|xsd|:|positiveInteger| '|xsd|:|decimal|)
+(c2cl:subtypep '|xsd|:|positiveInteger| '|xsd|:|anySimpleType|)
 
-(c2cl:subtypep 'xsd:negativeInteger 'xsd:nonPositiveInteger)
-(c2cl:subtypep 'xsd:negativeInteger 'xsd:integer)
-(c2cl:subtypep 'xsd:negativeInteger 'xsd:decimal)
-(c2cl:subtypep 'xsd:negativeInteger 'xsd:anySimpleType)
+(c2cl:subtypep '|xsd|:|negativeInteger| '|xsd|:|nonPositiveInteger|)
+(c2cl:subtypep '|xsd|:|negativeInteger| '|xsd|:|integer|)
+(c2cl:subtypep '|xsd|:|negativeInteger| '|xsd|:|decimal|)
+(c2cl:subtypep '|xsd|:|negativeInteger| '|xsd|:|anySimpleType|)
 
-(c2cl:subtypep 'xsd:nonPositiveInteger 'xsd:integer)
-(c2cl:subtypep 'xsd:nonPositiveInteger 'xsd:decimal)
-(c2cl:subtypep 'xsd:nonPositiveInteger 'xsd:anySimpleType)
+(c2cl:subtypep '|xsd|:|nonPositiveInteger| '|xsd|:|integer|)
+(c2cl:subtypep '|xsd|:|nonPositiveInteger| '|xsd|:|decimal|)
+(c2cl:subtypep '|xsd|:|nonPositiveInteger| '|xsd|:|anySimpleType|)
 ;-------------------------------------------
-(c2cl:subtypep 'xsd:boolean 'xsd:anySimpleType)
-(c2cl:subtypep 'xsd:anyURI 'xsd:anySimpleType)
-(c2cl:subtypep 'xsd:string 'xsd:anySimpleType)
-(c2cl:subtypep 'xsd:float 'xsd:anySimpleType)
-(c2cl:subtypep 'xsd:double 'xsd:anySimpleType)
+(c2cl:subtypep '|xsd|:|boolean| '|xsd|:|anySimpleType|)
+(c2cl:subtypep '|xsd|:|anyURI| '|xsd|:|anySimpleType|)
+(c2cl:subtypep '|xsd|:|string| '|xsd|:|anySimpleType|)
+(c2cl:subtypep '|xsd|:|float| '|xsd|:|anySimpleType|)
+(c2cl:subtypep '|xsd|:|double| '|xsd|:|anySimpleType|)
 |#
 
 ;; End of module

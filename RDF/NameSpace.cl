@@ -8,10 +8,8 @@
 ;;; This module is separated from RDFShare module for more efficient modularity.
 ;;;
 ;;; Copyright (c) 2002, 2004 by Galaxy Express Corporation
-;;;
 ;;; Copyright (c) 2007, 2008, 2010, 2014 Seiji Koide
-;;;
-;;; Copyright (c) 2016, 2017  Chun Tian (University of Bologna, Italy)
+;;; Copyright (c) 2016-2017 Chun Tian (University of Bologna, Italy)
 ;;;
 ;; History
 ;; -------
@@ -486,9 +484,9 @@ package slot and uri to symbol name mapping environment slot.")
   ;  (error "Internal symbol ~S is designated in symbol2uri." symbol))
   (or (and (boundp symbol)
            (not (null (symbol-value symbol)))
-           (slot-boundp (symbol-value symbol) 'rdf:|about|)
-           (slot-value (symbol-value symbol) 'rdf:|about|)
-           (iri (slot-value (symbol-value symbol) 'rdf:|about|)))
+           (slot-boundp (symbol-value symbol) '|rdf|:|about|)
+           (slot-value (symbol-value symbol) '|rdf|:|about|)
+           (iri (slot-value (symbol-value symbol) '|rdf|:|about|)))
       (let* ((name (iri-escape-for-symbol-name (symbol-name symbol)))
              (pkg (symbol-package symbol))
              (uri (documentation pkg t))

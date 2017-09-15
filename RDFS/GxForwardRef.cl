@@ -3,7 +3,7 @@
 ;;; Forward reference module 
 ;;;
 ;;; Copyright (c) 2007 Seiji Koide
-;;; Copyright (c) 2016  University of Bologna, Italy (Author: Chun Tian)
+;;; Copyright (c) 2016-2017 Chun Tian (University of Bologna, Italy)
 ;;;
 
 (eval-when (:execute :load-toplevel :compile-toplevel)
@@ -39,22 +39,22 @@
   ;; the class has become an instance of designated metaclass but this code is invoked 
   ;; if the original class was forward-referenced-class.
   (declare (ignore args))
-  (when (and (%clos-subtype-p class rdfs:|Class|) name 
+  (when (and (%clos-subtype-p class |rdfs|:|Class|) name 
              (or (not (boundp name)) (null (symbol-value name))))
     (export-as-QName name)
     (setf (symbol-value name) class)))
 )
 #|
 (without-package-locks
-(defmethod finalize-inheritance :before ((class rdfs:|Class|))
+(defmethod finalize-inheritance :before ((class |rdfs|:|Class|))
   (let* ((classes (collect-superclasses* class))
          (forward-referenced-classes
           (remove-if-not #'excl::forward-referenced-class-p classes)))
     (loop for fclass in forward-referenced-classes
-        do (change-class fclass rdfs:|Class|))
+        do (change-class fclass |rdfs|:|Class|))
     ))
 (defmethod finalize-inheritance :before ((class forward-referenced-class))
-  (change-class class rdfs:|Class|))
+  (change-class class |rdfs|:|Class|))
 )
 |#
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
@@ -62,7 +62,7 @@
 ;; Finalize Inheritance for Partial Order Inconsistency in CPL
 ;;
 
-(defmethod finalize-inheritance ((class rdfs:|Class|))
+(defmethod finalize-inheritance ((class |rdfs|:|Class|))
   (let* ((oldsupers (class-direct-superclasses class))
          (newsupers (if (> (length oldsupers) 1)
                         (most-specific-concepts-by-superclasses oldsupers)
@@ -105,7 +105,7 @@
   (flet ((swap (x y lst) 
                (substitute y :seiji (substitute x y (substitute :seiji x lst)))))
     (labels ((walk-supers-to-repair (inconsistent super)
-               (cond ((eql self rdfs:|Resource|) nil)
+               (cond ((eql self |rdfs|:|Resource|) nil)
                      ((eql self |rdfs:Resource|) nil)
                      ((member (cadr inconsistent)
                                  (member (car inconsistent)
@@ -164,7 +164,7 @@
 ;;......................................................................................
 ;; from Kiczales "The Art of the Metaobject Protocol"
 #+never
-(defmethod class-precedence-list ((root rdfs:|Class|))
+(defmethod class-precedence-list ((root |rdfs|:|Class|))
   (std-compute-class-precedence-list root))
 
 (defun std-compute-class-precedence-list (class)
@@ -244,27 +244,26 @@
           ((error "Cant happen!")))))
 
 (defun reify (subject predicate object)
-  (when (not (c2cl:typep subject rdf:|Statement|))
-    (unless (loop for stat in (class-direct-instances rdf:|Statement|)
-                thereis (and (rdf-equalp subject (slot-value stat 'rdf:|subject|))
-                             (rdf-equalp predicate (slot-value stat 'rdf:|predicate|))
-                             (rdf-equalp object (slot-value stat 'rdf:|object|))))
+  (when (not (c2cl:typep subject |rdf|:|Statement|))
+    (unless (loop for stat in (class-direct-instances |rdf|:|Statement|)
+                thereis (and (rdf-equalp subject (slot-value stat '|rdf|:|subject|))
+                             (rdf-equalp predicate (slot-value stat '|rdf|:|predicate|))
+                             (rdf-equalp object (slot-value stat '|rdf|:|object|))))
       ;(format t "~%Making statement:~S ~S ~S" subject predicate object)
-      (make-instance 'rdf:|Statement| :subject subject :predicate predicate :object object))))
+      (make-instance '|rdf|:|Statement| :subject subject :predicate predicate :object object))))
 
-(defmethod shared-initialize :after ((instance rdfs:|Resource|) slot-names &rest initargs)
+(defmethod shared-initialize :after ((instance |rdfs|:|Resource|) slot-names &rest initargs)
   "book-keeping for reification seiji"
-  ;(format t "SHARED-INTIALIZE:AFTER((~S rdfs:Resource) ~S &rest ~S)~%" instance slot-names initargs)
   (cond ((and (null slot-names) (null initargs))  ; when change-class
          )
         ((and (consp slot-names) (null initargs)) ; when propagated
          )
         (t                                        ; first or redefinition
          (typecase instance
-           (rdfs:|Literal| nil)
-           (rdfs:|Datatype| nil)
-           (rdf:|Statement| nil)
-           (rdf:|List| nil)
+           (|rdfs|:|Literal| nil)
+           (|rdfs|:|Datatype| nil)
+           (|rdf|:|Statement| nil)
+           (|rdf|:|List| nil)
            (otherwise 
             (apply #'book-keeping-for-reification instance slot-names initargs)
             )))))

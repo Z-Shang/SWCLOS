@@ -8,15 +8,17 @@
 ;; > (pathname-type #P"/Users/binghe/Lisp/SWCLOS/opencyc/opencyc-latest.owl.gz")
 ;; "gz"
 
-(defpackage cyc
-  (:nicknames opencyc "opencyc" "cyc" cycAnnot "cycAnnot")
-  (:use ))
+(defpackage "cyc"
+  (:nicknames "opencyc")
+  (:use ) ; supressing using common lisp package
+  (:documentation "http://sw.opencyc.org/concept/#"))
 
-(eval-when (:load-toplevel)
+(eval-when (:execute :load-toplevel)
+  (setf (uri-namedspace-package (set-uri-namedspace (documentation (find-package "cyc") t)))
+    (find-package "cyc"))
+  ;; maybe unnecessary
   (setf (uri-namedspace-package (set-uri-namedspace "http://sw.opencyc.org/concept/"))
-	(find-package :cyc))
-  (setf (uri-namedspace-package (set-uri-namedspace "http://sw.opencyc.org/concept/#"))
-	(find-package :cyc)))
+	(find-package "cyc")))
 
-(defun load-opencyc ()
+(defun load-cyc ()
   (read-rdf-file #'add-rdf/xml #p"CYC:opencyc-latest.owlz"))

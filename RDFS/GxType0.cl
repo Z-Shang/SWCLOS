@@ -10,7 +10,7 @@
 ;;;
 ;;; Copyright (c) 2002-2005 Galaxy Express Corporation
 ;;; Copyright (c) 2007-2008, 2009, 2012 Seiji Koide
-;;; Copyright (c) 2016  University of Bologna, Italy (Author: Chun Tian)
+;;; Copyright (c) 2016-2017 Chun Tian (University of Bologna, Italy)
 ;;;
 ;;; ==================================================================================
 
@@ -34,13 +34,13 @@
 
 (eval-when (:execute :load-toplevel :compile-toplevel)
   (setf (uri-namedspace-package (set-uri-namedspace "http://www.w3.org/2001/XMLSchema#"))
-    (find-package :xsd))
-  (setf (uri-namedspace-package (set-uri-namedspace (documentation (find-package :xsd) t)))
-    (find-package :xsd))
-  (setf (uri-namedspace-package (set-uri-namedspace (documentation (find-package :rdf) t)))
-    (find-package :rdf))
-  (setf (uri-namedspace-package (set-uri-namedspace (documentation (find-package :rdfs) t)))
-    (find-package :rdfs))
+    (find-package "xsd"))
+  (setf (uri-namedspace-package (set-uri-namedspace (documentation (find-package "xsd") t)))
+    (find-package "xsd"))
+  (setf (uri-namedspace-package (set-uri-namedspace (documentation (find-package "rdf") t)))
+    (find-package "rdf"))
+  (setf (uri-namedspace-package (set-uri-namedspace (documentation (find-package "rdfs") t)))
+    (find-package "rdfs"))
   )
 
 ;;;

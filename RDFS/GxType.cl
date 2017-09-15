@@ -10,7 +10,7 @@
 ;;;
 ;;; Copyright (c) 2002-2005 Galaxy Express Corporation
 ;;; Copyright (c) 2007-2008, 2009, 2012 Seiji Koide
-;;; Copyright (c) 2016  University of Bologna, Italy (Author: Chun Tian)
+;;; Copyright (c) 2016-2017 Chun Tian (University of Bologna, Italy)
 ;;;
 ;;; ==================================================================================
 
@@ -32,7 +32,7 @@
 ;;; The ex:A and ex:B might denote the same thing in RDF universe, and two graphs might mean same 
 ;;; meaning in the world. We need very laborious work in nonUNA principle to describe common knowledge 
 ;;; such as ex:Automobile is different from ex:Train, ex:Airplane, and ex:Ship. We must state that 
-;;; xsd:|float| is different from xsd:|integer|, xsd:|URI|, xsd:|string|, xsd:|boolean|, etc. for all terms in ontology.
+;;; xsd:float is different from xsd:integer, xsd:URI, xsd:string, xsd:boolean, etc. for all terms in ontology.
 ;;;
 ;;; Therefore, we set up the flag for non Unique Name Assumption false as default. Namely, 
 ;;; if two names or URIs are different, then the two bound objects must be different. When you 
@@ -149,14 +149,15 @@
          (cond ((and *nonUNA* (iri-boundp x) (iri-boundp y))   ; if nonUNA and has value
                 (%rdf-equalp (iri-value x) (iri-value y)))     ; then check values
                (t nil)))                                       ; else different uri means different
-        ((and (c2cl:typep x 'rdf:|inLang|) (c2cl:typep y 'rdf:|inLang|))
+        ((and (c2cl:typep x '|rdf|:|inLang|) (c2cl:typep y '|rdf|:|inLang|))
          ;; see, http://www.w3.org/TR/2004/REC-rdf-concepts-20040210/#section-Graph-Literal
          (and (equalp (string (lang x)) (string (lang y))) (string= (content x) (content y))))
         ((and (datatype-p (class-of x)) (datatype-p (class-of y)))   ; "1"^xsd:|integer| /= 1
          (and (eq (class-of x) (class-of y))                         ; "1"^xsd:|integer| /= "1.0"^xsd:|float|
               (%rdf-equalp (value-of x) (value-of y))))
         ((and (rsc-object-p x) (rsc-object-p y))
-         (cond ((and (node-name x) (node-name y) (equal (node-name x) (node-name y))) t) ; if names are equal, then equal. name may be a cons
+         (cond ((and (node-name x) (node-name y) (equal (node-name x) (node-name y)))
+		t) ; if names are equal, then equal. name may be a cons
                ((and (not *nonUNA*) (node-name x) (node-name y)) nil) ; if UNA and different names then different
                (t                                    ; if nonUNA, check subtree, even though different names or anonymous
                 (not (not (rdf-graph-equalp x y))))))
@@ -230,8 +231,8 @@
 rdfs:ContainerMembershipProperty is bound."
   (let ((role (intern (format nil "_~D" n) :rdf)))
     (unless (and (boundp role)
-                 (c2cl:typep (symbol-value role) 'rdfs:|ContainerMembershipProperty|))
-      (add-instance (list (symbol-value 'rdfs:|ContainerMembershipProperty|)) role ()))
+                 (c2cl:typep (symbol-value role) '|rdfs|:|ContainerMembershipProperty|))
+      (add-instance (list (symbol-value '|rdfs|:|ContainerMembershipProperty|)) role ()))
     role))
 
 (defun collect-container-members (container)
@@ -250,22 +251,22 @@ cases, each value is compared with each slot name."
   ;; graph should be asyclic.
   ;; if graph structure is deeply nested, you had better memoize.
   (when (equal x y) (return-from rdf-graph-equalp (values t t)))
-  (cond ((and (c2cl:typep x 'rdfs:|Container|) (c2cl:typep y 'rdfs:|Container|))
+  (cond ((and (c2cl:typep x '|rdfs|:|Container|) (c2cl:typep y '|rdfs|:|Container|))
          (let ((xfillers (collect-container-members x))
                (yfillers (collect-container-members y)))
            (cond ((and (null xfillers) (null yfillers)) (values t nil))
-                 ((and (c2cl:typep x (symbol-value 'rdf:|Bag|)) (c2cl:typep y (symbol-value 'rdf:|Bag|)))
+                 ((and (c2cl:typep x (symbol-value '|rdf|:|Bag|)) (c2cl:typep y (symbol-value '|rdf|:|Bag|)))
                   (values
                    (and (subsetp xfillers yfillers :test #'(lambda (xfil yfil) (rdf-equalp xfil yfil)))
                         (subsetp yfillers xfillers :test #'(lambda (yfil xfil) (rdf-equalp yfil xfil))))
                    t))
-                 ((and (%clos-subtype-p x (symbol-value 'rdf:|Alt|)) (%clos-subtype-p y (symbol-value 'rdf:|Alt|)))
+                 ((and (%clos-subtype-p x (symbol-value '|rdf|:|Alt|)) (%clos-subtype-p y (symbol-value '|rdf|:|Alt|)))
                   (values
                    (and (rdf-equalp (car xfillers) (car yfillers))
                         (subsetp (cdr xfillers) (cdr yfillers) :test #'(lambda (xfil yfil) (rdf-equalp xfil yfil)))
                         (subsetp (cdr yfillers) (cdr xfillers) :test #'(lambda (yfil xfil) (rdf-equalp yfil xfil))))
                    t))
-                 ((and (%clos-subtype-p x (symbol-value 'rdf:|Seq|)) (%clos-subtype-p y (symbol-value 'rdf:|Seq|)))
+                 ((and (%clos-subtype-p x (symbol-value '|rdf|:|Seq|)) (%clos-subtype-p y (symbol-value '|rdf|:|Seq|)))
                   (values (every #'rdf-equalp xfillers yfillers) t)))))
         ((owl-equivalent-p (class-of x) (class-of y))
          (let ((graph nil))
@@ -328,23 +329,23 @@ cases, each value is compared with each slot name."
 
 (defun rdf-graph-different-p (x y)
   (when (equal x y) (return-from rdf-graph-different-p (values nil t)))
-  (cond ((and (c2cl:typep x 'rdfs:|Container|) (c2cl:typep y 'rdfs:|Container|))
+  (cond ((and (c2cl:typep x '|rdfs|:|Container|) (c2cl:typep y '|rdfs|:|Container|))
          (error "Not Yet!")
          (let ((xfillers (collect-container-members x))
                (yfillers (collect-container-members y)))
            (cond ((and (null xfillers) (null yfillers)) (values t nil))
-                 ((and (c2cl:typep x (symbol-value 'rdf:|Bag|)) (c2cl:typep y (symbol-value 'rdf:|Bag|)))
+                 ((and (c2cl:typep x (symbol-value '|rdf|:|Bag|)) (c2cl:typep y (symbol-value '|rdf|:|Bag|)))
                   (values
                    (and (subsetp xfillers yfillers :test #'(lambda (xfil yfil) (rdf-equalp xfil yfil)))
                         (subsetp yfillers xfillers :test #'(lambda (yfil xfil) (rdf-equalp yfil xfil))))
                    t))
-                 ((and (%clos-subtype-p x (symbol-value 'rdf:|Alt|)) (%clos-subtype-p y (symbol-value 'rdf:|Alt|)))
+                 ((and (%clos-subtype-p x (symbol-value '|rdf|:|Alt|)) (%clos-subtype-p y (symbol-value '|rdf|:|Alt|)))
                   (values
                    (and (rdf-equalp (car xfillers) (car yfillers))
                         (subsetp (cdr xfillers) (cdr yfillers) :test #'(lambda (xfil yfil) (rdf-equalp xfil yfil)))
                         (subsetp (cdr yfillers) (cdr xfillers) :test #'(lambda (yfil xfil) (rdf-equalp yfil xfil))))
                    t))
-                 ((and (%clos-subtype-p x (symbol-value 'rdf:|Seq|)) (%clos-subtype-p y (symbol-value 'rdf:|Seq|)))
+                 ((and (%clos-subtype-p x (symbol-value '|rdf|:|Seq|)) (%clos-subtype-p y (symbol-value '|rdf|:|Seq|)))
                   (values (every #'rdf-equalp xfillers yfillers) t)))))
         ((owl-equivalent-p (class-of x) (class-of y))
          (flet ((role-val-equalp (x1 role1 x2 role2)
@@ -426,13 +427,13 @@ cases, each value is compared with each slot name."
    If every subclass pairs between one from <c> and one from <d> is not in class-subclass relation, 
    finally t is returned."
   ;; This function is used in %rdf-subtypep.
-  ;; xsd:|decimal| -+- xsd:|integer| +- xsd:|long| -- xsd:|int| -- xsd:|short| -- xsd:|byte|
-  ;;              +- xsd:|nonPositiveInteger| -- xsd:|negativeInteger|
-  ;;              +- xsd:|nonNegativeInteger| -+-  xsd:|positiveInteger|
-  ;;                                         +-- xsd:|unsignedLong| - xsd:|unsignedInt| - xsd:|unsignedShort| - xsd:|unsignedByte|
+  ;; xsd:decimal -+- xsd:integer +- xsd:long -- xsd:int -- xsd:short -- xsd:byte
+  ;;              +- xsd:nonPositiveInteger -- xsd:negativeInteger
+  ;;              +- xsd:nonNegativeInteger -+-  xsd:positiveInteger
+  ;;                                         +-- xsd:unsignedLong - xsd:unsignedInt - xsd:unsignedShort - xsd:unsignedByte
   (cond ((eq c d) (values nil t))
-        ((eq c rdfs:|Resource|) (values nil t))         ; in RDF universe
-        ((eq d rdfs:|Resource|) (values nil t))
+        ((eq c |rdfs|:|Resource|) (values nil t))         ; in RDF universe
+        ((eq d |rdfs|:|Resource|) (values nil t))
         ((or (and (eq c (symbol-value 'xsd:|nonPositiveInteger|)) (eq d (symbol-value 'xsd:|nonNegativeInteger|)))
              (and (eq d (symbol-value 'xsd:|nonPositiveInteger|)) (eq c (symbol-value 'xsd:|nonNegativeInteger|))))
          ;; both shares zero
@@ -470,8 +471,8 @@ cases, each value is compared with each slot name."
 (defun disjoint-p (c d)
   "returns true if <c> and <d> are disjoint in OWL."
   (cond ((eq c d) (values nil t))
-        ((eq c rdfs:|Resource|) (values nil t))         ; in RDF universe
-        ((eq d rdfs:|Resource|) (values nil t))
+        ((eq c |rdfs|:|Resource|) (values nil t))         ; in RDF universe
+        ((eq d |rdfs|:|Resource|) (values nil t))
         (t (%disjoint-p c d))))
 #|
 (defun %disjoint-p (c d)
@@ -495,36 +496,36 @@ cases, each value is compared with each slot name."
                ((check-instance-sharing c d)
                 (values nil t))
                ;; rdf disjoint part
-               ((or (and (eq c (symbol-value 'xsd:|nonPositiveInteger|)) (eq d (symbol-value 'xsd:|nonNegativeInteger|)))
-                    (and (eq d (symbol-value 'xsd:|nonPositiveInteger|)) (eq c (symbol-value 'xsd:|nonNegativeInteger|))))
+               ((or (and (eq c (symbol-value '|xsd|:|nonPositiveInteger|)) (eq d (symbol-value '|xsd|:|nonNegativeInteger|)))
+                    (and (eq d (symbol-value '|xsd|:|nonPositiveInteger|)) (eq c (symbol-value '|xsd|:|nonNegativeInteger|))))
                 (values nil t))
-               ((or (and (%clos-subtype-p c (symbol-value 'xsd:|integer|))
-                         (%clos-subtype-p d (symbol-value 'xsd:|nonPositiveInteger|)))
-                    (and (%clos-subtype-p d (symbol-value 'xsd:|integer|))
-                         (%clos-subtype-p c (symbol-value 'xsd:|nonPositiveInteger|)))
-                    (and (%clos-subtype-p c (symbol-value 'xsd:|integer|))
-                         (%clos-subtype-p d (symbol-value 'xsd:|nonNegativeInteger|)))
-                    (and (%clos-subtype-p d (symbol-value 'xsd:|integer|))
-                         (%clos-subtype-p c (symbol-value 'xsd:|nonNegativeInteger|))))
+               ((or (and (%clos-subtype-p c (symbol-value '|xsd|:|integer|))
+                         (%clos-subtype-p d (symbol-value '|xsd|:|nonPositiveInteger|)))
+                    (and (%clos-subtype-p d (symbol-value '|xsd|:|integer|))
+                         (%clos-subtype-p c (symbol-value '|xsd|:|nonPositiveInteger|)))
+                    (and (%clos-subtype-p c (symbol-value '|xsd|:|integer|))
+                         (%clos-subtype-p d (symbol-value '|xsd|:|nonNegativeInteger|)))
+                    (and (%clos-subtype-p d (symbol-value '|xsd|:|integer|))
+                         (%clos-subtype-p c (symbol-value '|xsd|:|nonNegativeInteger|))))
                 (values nil t))
-               ((or (and (%clos-subtype-p c (symbol-value 'xsd:|nonPositiveInteger|))
-                         (%clos-subtype-p d (symbol-value 'xsd:|positiveInteger|)))
-                    (and (%clos-subtype-p d (symbol-value 'xsd:|nonPositiveInteger|))
-                         (%clos-subtype-p c (symbol-value 'xsd:|positiveInteger|))))
+               ((or (and (%clos-subtype-p c (symbol-value '|xsd|:|nonPositiveInteger|))
+                         (%clos-subtype-p d (symbol-value '|xsd|:|positiveInteger|)))
+                    (and (%clos-subtype-p d (symbol-value '|xsd|:|nonPositiveInteger|))
+                         (%clos-subtype-p c (symbol-value '|xsd|:|positiveInteger|))))
                 (values t t))
-               ((or (and (%clos-subtype-p c (symbol-value 'xsd:|nonPositiveInteger|))
-                         (%clos-subtype-p d (symbol-value 'xsd:|unsignedLong|)))
-                    (and (%clos-subtype-p d (symbol-value 'xsd:|nonPositiveInteger|))
-                         (%clos-subtype-p c (symbol-value 'xsd:|unsignedLong|))))
+               ((or (and (%clos-subtype-p c (symbol-value '|xsd|:|nonPositiveInteger|))
+                         (%clos-subtype-p d (symbol-value '|xsd|:|unsignedLong|)))
+                    (and (%clos-subtype-p d (symbol-value '|xsd|:|nonPositiveInteger|))
+                         (%clos-subtype-p c (symbol-value '|xsd|:|unsignedLong|))))
                 (values t t))
-               ((or (and (%clos-subtype-p c (symbol-value 'xsd:|nonNegativeInteger|))
-                         (%clos-subtype-p d (symbol-value 'xsd:|negativeInteger|)))
-                    (and (%clos-subtype-p d (symbol-value 'xsd:|nonNegativeInteger|))
-                         (%clos-subtype-p c (symbol-value 'xsd:|negativeInteger|))))
+               ((or (and (%clos-subtype-p c (symbol-value '|xsd|:|nonNegativeInteger|))
+                         (%clos-subtype-p d (symbol-value '|xsd|:|negativeInteger|)))
+                    (and (%clos-subtype-p d (symbol-value '|xsd|:|nonNegativeInteger|))
+                         (%clos-subtype-p c (symbol-value '|xsd|:|negativeInteger|))))
                 (values t t))
                ;; implicit disjointness of datatype
-               ((and (%clos-subtype-p c (symbol-value 'xsd:|anySimpleType|))
-                     (%clos-subtype-p d (symbol-value 'xsd:|anySimpleType|)))
+               ((and (%clos-subtype-p c (symbol-value '|xsd|:|anySimpleType|))
+                     (%clos-subtype-p d (symbol-value '|xsd|:|anySimpleType|)))
                 (loop with dsubs = (cons d (collect-all-subs d))
                       for csub in (cons c (collect-all-subs c))
                     do (loop for dsub in dsubs
@@ -547,16 +548,16 @@ cases, each value is compared with each slot name."
 	      (forall (error "Not Yet!"))
 	      (exists (error "Not Yet!"))
 	      (fills (error "Not Yet!"))
-	      (rdfs:|Class| (disjoint-p (forall-filler c) d))
-	      (rdfs:|Resource| (error "Not Yet!"))
+	      (|rdfs|:|Class| (disjoint-p (forall-filler c) d))
+	      (|rdfs|:|Resource| (error "Not Yet!"))
 	      (t nil)))
 	   (exists
 	    (typecase d
 	      (forall (error "Not Yet!"))
 	      (exists (error "Not Yet!"))
 	      (fills (error "Not Yet!"))
-	      (rdfs:|Class| (error "Not Yet!"))
-	      (rdfs:|Resource| (error "Not Yet!"))
+	      (|rdfs|:|Class| (error "Not Yet!"))
+	      (|rdfs|:|Resource| (error "Not Yet!"))
 	      (t nil)))
 	   (fills
 	    (typecase d
@@ -566,23 +567,23 @@ cases, each value is compared with each slot name."
 				 (disjoint-p (fills-filler c) (fills-filler d)))
 			    (values t t))
 			   (t (values nil t))))
-	      (rdfs:|Class| (error "Not Yet!"))
-	      (rdfs:|Resource| (error "Not Yet!"))
+	      (|rdfs|:|Class| (error "Not Yet!"))
+	      (|rdfs|:|Resource| (error "Not Yet!"))
 	      (t nil)))
-	   (rdfs:|Class|
+	   (|rdfs|:|Class|
 	    (typecase d
 	      (forall (disjoint-p c (forall-filler d)))
 	      (exists (error "Not Yet!"))
 	      (fills (error "Not Yet!"))
-	      (rdfs:|Class| (error "Not Yet!"))
+	      (|rdfs|:|Class| (error "Not Yet!"))
 	      (t nil)))
-	   (rdfs:|Resource|
+	   (|rdfs|:|Resource|
 	    (typecase d
 	      (forall (error "Not Yet!"))
 	      (exists (error "Not Yet!"))
 	      (fills (error "Not Yet!"))
-	      (rdfs:|Class| (error "Not Yet!"))
-	      (rdfs:|Resource| (error "Not Yet!"))
+	      (|rdfs|:|Class| (error "Not Yet!"))
+	      (|rdfs|:|Resource| (error "Not Yet!"))
 	      (t nil)))
 	   (t nil)))))
 
@@ -605,11 +606,11 @@ cases, each value is compared with each slot name."
    when <c1> and <c2> are CLOS objects."
   (cond ((eql c1 c2))
         ((eql c2 *the-class-t*))
-        ((and (eql (class-of c1) rdfs:|Class|)
-              (or (eql c2 rdfs:|Resource|) (eql c2 |rdfs:Resource|)))
+        ((and (eql (class-of c1) |rdfs|:|Class|)
+              (or (eql c2 |rdfs|:|Resource|) (eql c2 |rdfs:Resource|)))
          t)
-        ((and (or (eql c1 rdfs:|Resource|) (eql c1 |rdfs:Resource|))
-              (eql (class-of c2) rdfs:|Class|))
+        ((and (or (eql c1 |rdfs|:|Resource|) (eql c1 |rdfs:Resource|))
+              (eql (class-of c2) |rdfs|:|Class|))
          nil)
         ((class-finalized-p c1)
          (cond ((member c2 (class-precedence-list c1) :test #'eq) t)
@@ -626,14 +627,14 @@ cases, each value is compared with each slot name."
 
 (defun %resource-subtype-p (class)
   "same as (<subtypep> <class> <rdfs:Resource>) in CLOS, but more efficient."
-  (cond ((eq class rdfs:|Resource|))
+  (cond ((eq class |rdfs|:|Resource|))
         ((eq class |rdfs:Resource|))
         ((class-finalized-p class)
-         (cond ((member rdfs:|Resource| (class-precedence-list class) :test #'eq) t)
+         (cond ((member |rdfs|:|Resource| (class-precedence-list class) :test #'eq) t)
                (t nil)))
         ((labels ((walk-partial-cpl (c)
                     (let ((supers (class-direct-superclasses c)))
-                      (when (member rdfs:|Resource| supers :test #'eq)
+                      (when (member |rdfs|:|Resource| supers :test #'eq)
                         (return-from %resource-subtype-p t))
                       (mapc #'walk-partial-cpl supers))))
            (declare (dynamic-extent #'walk-partial-cpl))
@@ -642,17 +643,17 @@ cases, each value is compared with each slot name."
 
 (defun %rdf-class-subtype-p (class)
   "same as (<subtypep> <class> <rdfs:Class>) in CLOS, but more efficient."
-  (cond ((eq class rdfs:|Class|))
+  (cond ((eq class |rdfs|:|Class|))
         ((class-finalized-p class)
-         (cond ((member rdfs:|Class| (class-precedence-list class) :test #'eq) t)
+         (cond ((member |rdfs|:|Class| (class-precedence-list class) :test #'eq) t)
                ((and (string= (symbol-name (class-name class)) "Class")
                      (string= (package-name (symbol-package (class-name class))) "owl"))
                 (cerror "Anyway continue?" "Maybe OWL module is not loaded!")
-                (reinitialize-instance class :direct-superclasses `(,rdfs:|Class|)))
+                (reinitialize-instance class :direct-superclasses `(,|rdfs|:|Class|)))
                (t nil)))
         ((labels ((walk-partial-cpl (c)
                     (let ((supers (class-direct-superclasses c)))
-                      (when (member rdfs:|Class| supers :test #'eq)
+                      (when (member |rdfs|:|Class| supers :test #'eq)
                         (return-from %rdf-class-subtype-p t))
                       (mapc #'walk-partial-cpl supers))))
            (declare (dynamic-extent #'walk-partial-cpl))
@@ -806,27 +807,27 @@ A subclass of this class is a metaclass.")
                      (fills                                            ; R(x,y)->C(y) vs. R(x,{b})
                       (if (typep (fills-filler c2) (forall-filler c1)) ; b . C
                           t nil))
-                     (rdfs:|Class|                           ; R(x,y)->C(y) vs. R(x,y)^D(y)
+                     (|rdfs|:|Class|                           ; R(x,y)->C(y) vs. R(x,y)^D(y)
                       nil)))             ; c2 remains
            (exists (etypecase c2
                      (exists (subsumed-p (exists-filler c1) (exists-filler c2)))
                      (forall nil)        ; c2 remains then both remains
                      (fills (if (typep (fills-filler c2) (exists-filler c1)) ; R(x,y)^C(y) vs. R(x,{b})
                                     t nil))
-                     (rdfs:|Class| nil)))
+                     (|rdfs|:|Class| nil)))
            (fills (etypecase c2
                         (fills (subsumed-p (fills-filler c1) (fills-filler c2)))    ; sub object remains
                         (forall nil)                                              ; R(x,{a}) vs. R(x,y)->D(y)
                         (exists (if (typep (fills-filler c1) (exists-filler c2)) ; R(x,{a}) vs. R(x,y)^D(y)
                                     t nil))
-                        (rdfs:|Class| nil)))                                        ; R(x,{a}) vs. {a}.D
-           (rdfs:|Class| (etypecase c2
+                        (|rdfs|:|Class| nil)))                                        ; R(x,{a}) vs. {a}.D
+           (|rdfs|:|Class| (etypecase c2
                          (forall (if (subsumed-p c1 (forall-filler c2))  ; C(y) ? D(y) for R(x,y)->D(y)
                                      t nil))
                          (exists (if (subsumed-p c1 (exists-filler c2))  ; C(y) ? D(y) for R(x,y)^D(y)
                                      t nil))
                          (fills nil)                              ; R(x,{b}) vs. b.C
-                         (rdfs:|Class| (error "Can't happen!"))))))))
+                         (|rdfs|:|Class| (error "Can't happen!"))))))))
 
 (defun strict-subsumed-p (c1 c2)
   (and (not (owl-same-p c1 c2))
@@ -887,7 +888,7 @@ A subclass of this class is a metaclass.")
            :format-control "SUBTYPEP ~S ~S"
            :format-arguments `(,type1 ,type2)))
         (t (labels ((normal-type (x)
-                                 (cond ((typep x 'rdfs:|Datatype|)
+                                 (cond ((typep x '|rdfs|:|Datatype|)
                                         (type-form x))
                                        ((consp x)
                                         (case (op x)
@@ -914,10 +915,10 @@ A subclass of this class is a metaclass.")
 ;;; Thus, if two classes are independent (not in relation of super-sub classes), then they seems to be disjoint. 
 ;;; However, if concept C and (not D) is compared in Allegro Common Lisp, ACL tends to fall into conclusion unknown. 
 ;;; It seems that CLOS does not have clear semantics on class extension. In RDF semantics, 
-;;; every entity is a member of RDF universe, then the complement of xsd:|integer| or (not xsd:|integer|) extends out 
-;;; of xsd:|integer| extension and xsd:|decimal| in RDF universe. For example, an instance of vin:Wine is not an 
-;;; instance of xsd:|integer|. Therefore, it is obvious that (not xsd:|integer|) is not a subclass of xsd:|integer| and 
-;;; xsd:|decimal|. However, c2cl:subtypep does not infer it (at least for ACL). 
+;;; every entity is a member of RDF universe, then the complement of xsd:integer or (not xsd:integer) extends out 
+;;; of xsd:integer extension and xsd:decimal in RDF universe. For example, an instance of vin:Wine is not an 
+;;; instance of xsd:integer. Therefore, it is obvious that (not xsd:integer) is not a subclass of xsd:integer and 
+;;; xsd:decimal. However, c2cl:subtypep does not infer it (at least for ACL). 
 ;;;
 ;;; Furthermore, we have notions of equivalency and disjointness on class relation in OWL. 
 ;;; Therefore, the equivalency and disjointness must be checked in addition of super-sub class relation. 
@@ -1027,7 +1028,7 @@ A subclass of this class is a metaclass.")
                         (return (values nil known))))
               (not (let ((ty2 (arg1 type2)))
                      (cond ((rdf-equalp type1 ty2)    (values nil t)) ; x and (not x), disjoint
-                           ((rdf-equalp type1 rdfs:|Resource|) (values t t))
+                           ((rdf-equalp type1 |rdfs|:|Resource|) (values t t))
                            ((%rdf-subtypep type1 ty2) (values nil t)) ; type1 is included in t2, disjoint
                            ((%rdf-subtypep ty2 type1) (values nil t)) ; (not ty2) = (not type1) U (type1 - ty2)
                            ((disjoint-p type1 ty2)    (values t t))
@@ -1054,7 +1055,7 @@ A subclass of this class is a metaclass.")
                (values t t))
               (not (let ((ty1 (arg1 type1)))
                      (cond ((rdf-equalp ty1 type2) (values nil t))     ; (not x) and x, disjoint
-                           ((rdf-equalp type2 rdfs:|Resource|) (values t t))
+                           ((rdf-equalp type2 |rdfs|:|Resource|) (values t t))
                            ((%rdf-subtypep ty1 type2) (values nil t))  ; (not ty1) = (not type2) U (type2 - ty1)
                            ((%rdf-subtypep type2 ty1) (values nil t))  ; disjoint
                            ((disjoint-p ty1 type2) (values t t))
@@ -1141,8 +1142,8 @@ A subclass of this class is a metaclass.")
 ;;;; Most Specific Concepts (MSCs)
 ;;;
 ;;; Function <most-specific-concepts> is used to compute the most specific concepts among classes.
-;;; For example, xsd:|integer| is a superclass of xsd:|int|, and xsd:|nonNegativeInteger| is a superclass 
-;;; of xsd:|positiveInteger|, then those superclasses disappear in the most specific concepts among them.
+;;; For example, xsd:integer is a superclass of xsd:int, and xsd:nonNegativeInteger is a superclass 
+;;; of xsd:positiveInteger, then those superclasses disappear in the most specific concepts among them.
 ;;; ----------------------------------------------------------------------------------
 ;;; (most-specific-concepts
 ;;;   (list xsd:|integer| xsd:|int| xsd:|positiveInteger|
@@ -1169,16 +1170,16 @@ A subclass of this class is a metaclass.")
                                                                                  ((consp y) nil)
                                                                                  ((and (owl-oneof-p x) (owl-oneof-p y))
                                                                                   (owl-equivalent-p x y))
-                                                                                 ((and (c2cl:typep x rdfs:|Resource|)
-                                                                                       (c2cl:typep y rdfs:|Resource|)
+                                                                                 ((and (c2cl:typep x |rdfs|:|Resource|)
+                                                                                       (c2cl:typep y |rdfs|:|Resource|)
                                                                                        (not (node-name x)) (not (node-name y)))
                                                                                   ; x and y might be an individual
                                                                                   (owl-equivalent-p x y)))))))
                                        (set-difference l l :test #'strict-abstp))))
       (let ((answer
              (cond ((member |rdfs:Resource| classes)
-                    (substitute |rdfs:Resource| rdfs:|Resource| 
-                                (most-specific-concepts-1 (substitute rdfs:|Resource| |rdfs:Resource| classes))))
+                    (substitute |rdfs:Resource| |rdfs|:|Resource| 
+                                (most-specific-concepts-1 (substitute |rdfs|:|Resource| |rdfs:Resource| classes))))
                    (t (most-specific-concepts-1 classes)))))
         (assert answer)
         answer))))
@@ -1196,9 +1197,9 @@ A subclass of this class is a metaclass.")
                                                                                 (owl-equivalent-p x y)))))))
                                      (set-difference l l :test #'strict-specp))))
     (cond ((member |rdfs:Resource| classes)
-           (substitute |rdfs:Resource| rdfs:|Resource| 
-                       (most-abstract-concepts-1 (substitute rdfs:|Resource| |rdfs:Resource| classes))))
-          (t (most-abstract-concepts-1 (substitute rdfs:|Resource| |rdfs:Resource| classes))))))
+           (substitute |rdfs:Resource| |rdfs|:|Resource| 
+                       (most-abstract-concepts-1 (substitute |rdfs|:|Resource| |rdfs:Resource| classes))))
+          (t (most-abstract-concepts-1 (substitute |rdfs|:|Resource| |rdfs:Resource| classes))))))
 #|
 (most-abstract-concepts (remove-if-not #'rdf-class-p (mapcar #'symbol-value (list-all-entities-in :sumo))))
 (#<sumo:InheritableRelation sumo:IntentionalRelation> #<rdfs:Class sumo:Entity> #<sumo:Class sumo:InheritableRelation>)
@@ -1225,12 +1226,12 @@ A subclass of this class is a metaclass.")
                                                         (rdf-graph-equalp x y)))))))
              (set-difference l l :test #'clos-strict-supertype-p))))
     (cond ((member |rdfs:Resource| classes :test #'eq)
-           (substitute |rdfs:Resource| rdfs:|Resource| 
+           (substitute |rdfs:Resource| |rdfs|:|Resource| 
                        (most-specific-concepts-by-superclasses-1
-                        (substitute rdfs:|Resource| |rdfs:Resource| classes  :test #'eq))
+                        (substitute |rdfs|:|Resource| |rdfs:Resource| classes  :test #'eq))
                        :test #'eq))
           (t (most-specific-concepts-by-superclasses-1
-              (substitute rdfs:|Resource| |rdfs:Resource| classes :test #'eq))))))
+              (substitute |rdfs|:|Resource| |rdfs:Resource| classes :test #'eq))))))
 
 (defun most-specific-concepts-by-clos-supers (classes)
   "same as <most-specific-concepts> but uses <clos-strict-supertype-p> instead of <strict-abstp>."
@@ -1242,12 +1243,12 @@ A subclass of this class is a metaclass.")
                                                         (rdf-graph-equalp x y)))))))
              (set-difference l l :test #'clos-strict-supertype-p))))
     (cond ((member |rdfs:Resource| classes :test #'eq)
-           (substitute |rdfs:Resource| rdfs:|Resource| 
+           (substitute |rdfs:Resource| |rdfs|:|Resource| 
                        (most-specific-concepts-by-clos-supers-1
-                        (substitute rdfs:|Resource| |rdfs:Resource| classes :test #'eq))
+                        (substitute |rdfs|:|Resource| |rdfs:Resource| classes :test #'eq))
                        :test #'eq))
           (t (most-specific-concepts-by-clos-supers-1
-              (substitute rdfs:|Resource| |rdfs:Resource| classes :test #'eq))))))
+              (substitute |rdfs|:|Resource| |rdfs:Resource| classes :test #'eq))))))
 
 (defun most-specific-concepts-for-slotd-type (classes)
   "same as <most-specific-concepts> but understand forall, exists, and has in addition to subtypep.
@@ -1260,7 +1261,7 @@ A subclass of this class is a metaclass.")
              (set-difference l l :test #'strict-supertype-p-for-slotd-type))))
     (cond ((member (symbol-value '|rdfs:Resource|) classes)
            (let ((rsc (symbol-value '|rdfs:Resource|))
-                 (resource (symbol-value 'rdfs:|Resource|)))
+                 (resource (symbol-value '|rdfs|:|Resource|)))
              (substitute rsc resource 
                          (most-specific-concepts-for-slotd-type-1
                           (substitute resource rsc classes)))))
@@ -1325,13 +1326,13 @@ A subclass of this class is a metaclass.")
 (defun rdf-class-p (x)
   "returns true if <x> is an RDF(S) metaclass and class object."
   (and (standard-instance-p x)
-       (cond ((eq x (load-time-value (find-class 'rdfs:|Class|)))) ; rdfs:Class
+       (cond ((eq x (load-time-value (find-class '|rdfs|:|Class|)))) ; rdfs:Class
              ((%rdf-class-subtype-p (class-of x))))))
 
 (defun rdf-metaclass-p (x)
   "returns true if <x> is an RDF(S) metaclass resource object."
   (and (standard-instance-p x)
-       (cond ((eq x (load-time-value (find-class 'rdfs:|Class|)))) ; rdfs:Class
+       (cond ((eq x (load-time-value (find-class '|rdfs|:|Class|)))) ; rdfs:Class
              ((and (%rdf-class-subtype-p (class-of x))
                    (%rdf-class-subtype-p x))
               t))))
@@ -1350,7 +1351,7 @@ A subclass of this class is a metaclass.")
         (cl:string t)
         (cl:number t)
         (uri t)
-        (rdf:|inLang| t)
+        (|rdf|:|inLang| t)
         (symbol 
          (when (and (boundp x) (not (eq x (symbol-value x))))
            (%instance-p (symbol-value x))))
@@ -1362,18 +1363,18 @@ A subclass of this class is a metaclass.")
   (and (standard-instance-p x)
        (%resource-subtype-p (class-of x))
        (not (%rdf-class-subtype-p (class-of x)))
-       (not (eq x (load-time-value (find-class 'rdfs:|Class|))))
+       (not (eq x (load-time-value (find-class '|rdfs|:|Class|))))
        (not (eq x (load-time-value (find-class 'gnode))))))
 
 (defun datatype? (symbol)
   "Does this <symbol> denote an instance of rdfs:Datatype?"
   (and (boundp symbol)
-       (c2cl:typep (symbol-value symbol) rdfs:|Datatype|)))
+       (c2cl:typep (symbol-value symbol) |rdfs|:|Datatype|)))
 
 (defun datatype-p (obj)
   "Is <obj> an instance of rdfs:Datatype?"
   (and (rsc-object-p obj)
-       (c2cl:typep obj rdfs:|Datatype|)))
+       (c2cl:typep obj |rdfs|:|Datatype|)))
 
 (defun role-p (x)
   "returns true if <x> is an instance of rdf:Property."
@@ -1383,11 +1384,11 @@ A subclass of this class is a metaclass.")
 
 (defun %rdf-property-subtype-p (class)
   "returns true if <x> is an instance of rdf:Property. <x> must be a CLOS object."
-  (cond ((eq class (load-time-value (find-class 'rdf:|Property|))))
+  (cond ((eq class (load-time-value (find-class '|rdf|:|Property|))))
         ((not (class-finalized-p class))
          (labels ((walk-partial-cpl (c)
                     (let ((supers (class-direct-superclasses c)))
-                      (when (member (load-time-value (find-class 'rdf:|Property|))
+                      (when (member (load-time-value (find-class '|rdf|:|Property|))
                                        supers
                                        :test #'eq)
                         (return-from %rdf-property-subtype-p t))
@@ -1395,7 +1396,7 @@ A subclass of this class is a metaclass.")
            (declare (dynamic-extent #'walk-partial-cpl))
            (walk-partial-cpl class)
            nil))
-        ((member (load-time-value (find-class 'rdf:|Property|))
+        ((member (load-time-value (find-class '|rdf|:|Property|))
                     (class-precedence-list class)
                     :test #'eq)
          t)))
@@ -1447,10 +1448,11 @@ A subclass of this class is a metaclass.")
       (%owl-same-p subprop superprop)         ; See rdfp10
       (if (member subprop visited) nil
         (strict-subproperty-p subprop superprop visited))))
+
 (defun strict-subproperty-p (subprop superprop visited)
   "returns true if <subprop> is not equal to and subproperty of <superprop>."
-  (let ((superprops (and (slot-boundp subprop 'rdfs:|subPropertyOf|)
-                         (slot-value subprop 'rdfs:|subPropertyOf|))))
+  (let ((superprops (and (slot-boundp subprop '|rdfs|:|subPropertyOf|)
+                         (slot-value subprop '|rdfs|:|subPropertyOf|))))
     (unless (listp superprops) (setq superprops (list superprops)))
     (loop for subsSuper in superprops
         thereis (subproperty-p subsSuper superprop (cons subprop visited)))))
@@ -1496,39 +1498,39 @@ A subclass of this class is a metaclass.")
   "extended version of cl:type-of function for RDF(S) and OWL.
    This function returns type(s) of <x> as symbol. See above example."
   (case (cl:type-of x)
-    (null 'rdf:|List|)
-    (cons 'rdf:|List|)
-    (uri 'xsd:|anyURI|)
-    (iri 'xsd:|anyURI|)
-    (fixnum (cond ((zerop x) 'xsd:|byte|)
+    (null '|rdf|:|List|)
+    (cons '|rdf|:|List|)
+    (uri '|xsd|:|anyURI|)
+    (iri '|xsd|:|anyURI|)
+    (fixnum (cond ((zerop x) '|xsd|:|byte|)
                   ((plusp x)
-                   (cond ((< x 128) 'xsd:|byte|)
-                         ((< x 32768) 'xsd:|short|)
-                         (t 'xsd:|int|)))
+                   (cond ((< x 128) '|xsd|:|byte|)
+                         ((< x 32768) '|xsd|:|short|)
+                         (t '|xsd|:|int|)))
                   ((minusp x)
-                   (cond ((>= x -128) 'xsd:|byte|)
-                         ((>= x -32768) 'xsd:|short|)
-                         (t 'xsd:|int|)))))
+                   (cond ((>= x -128) '|xsd|:|byte|)
+                         ((>= x -32768) '|xsd|:|short|)
+                         (t '|xsd|:|int|)))))
     (bignum (cond ((plusp x)
-                   (cond ((< x 2147483648) 'xsd:|int|)
-                         ((< x 9223372036854775808) 'xsd:|long|)
-                         (t 'xsd:|integer|)))
+                   (cond ((< x 2147483648) '|xsd|:|int|)
+                         ((< x 9223372036854775808) '|xsd|:|long|)
+                         (t '|xsd|:|integer|)))
                   ((minusp x)
-                   (cond ((>= x -2147483648) 'xsd:|int|)
-                         ((>= x -9223372036854775808) 'xsd:|long|)
-                         (t 'xsd:|integer|)))))
-    (single-float 'xsd:|float|)
-    (double-float 'xsd:|double|)
-    (rational     'xsd:|decimal|)
-    (symbol (cond ((eq x t) 'xsd:|boolean|)
+                   (cond ((>= x -2147483648) '|xsd|:|int|)
+                         ((>= x -9223372036854775808) '|xsd|:|long|)
+                         (t '|xsd|:|integer|)))))
+    (single-float '|xsd|:|float|)
+    (double-float '|xsd|:|double|)
+    (rational     '|xsd|:|decimal|)
+    (symbol (cond ((eq x t) '|xsd|:|boolean|)
                   ((object? x) (type-of (symbol-value x)))
                   (t (error "Symbol ~S is not defined as QName." x))))
-    (rdf:|inLang| 'rdf:|XMLLiteral|)
-    (rdfs:|Resource| (cond ((shadowed-class-p (class-of x)) (mapcar #'node-name (mclasses x)))
+    (|rdf|:|inLang| '|rdf|:|XMLLiteral|)
+    (|rdfs|:|Resource| (cond ((shadowed-class-p (class-of x)) (mapcar #'node-name (mclasses x)))
                          (t (cl:type-of x))))
-    (rdfsClass (cond ((eql x rdfs:|Class|) 'rdfs:|Class|)
+    (rdfsClass (cond ((eql x |rdfs|:|Class|) '|rdfs|:|Class|)
                      (t (error "Another meta-metaclass than rdfs:Class:~S" x))))
-    (otherwise (cond ((stringp x) 'xsd:|string|)
+    (otherwise (cond ((stringp x) '|xsd|:|string|)
                      ((shadowed-class-p (class-of x)) (mapcar #'node-name (mclasses x)))
                      (t (cl:type-of x))))))
 
@@ -1586,37 +1588,37 @@ A subclass of this class is a metaclass.")
 ;;;
 ;;; Examples of xsd data types
 ;;; ----------------------------------------------------------------------------------
-;;; (typep 1 xsd:|positiveInteger|)
-;;; (typep -1 xsd:|negativeInteger|)
-;;; (typep 0 xsd:|nonNegativeInteger|)
-;;; (typep 0 xsd:|nonPositiveInteger|)
-;;; (typep 32767 xsd:|short|)
-;;; (typep 32768 xsd:|int|)
-;;; (typep 2147483647 xsd:|int|)
-;;; (typep 2147483648 xsd:|long|)
-;;; (typep 9223372036854775807 xsd:|long|)
-;;; (typep 9223372036854775808 xsd:|integer|)
-;;; (typep 1 xsd:|decimal|)
-;;; (typep (cl:rational 1.0) xsd:|decimal|)
-;;; (typep 1.0e0 xsd:|float|)
-;;; (typep 1.0d0 xsd:|double|)
-;;; (typep "string?" xsd:|string|)
-;;; (typep "string?"@en xsd:|string|)
-;;; (typep (uri "http://somewhere") xsd:|anyURI|)
-;;; (typep xsd:|false| xsd:|boolean|)
-;;; (typep 1 xsd:|anySimpleType|)
+;;; (typep 1 |xsd|:|positiveInteger|)
+;;; (typep -1 |xsd|:|negativeInteger|)
+;;; (typep 0 |xsd|:|nonNegativeInteger|)
+;;; (typep 0 |xsd|:|nonPositiveInteger|)
+;;; (typep 32767 |xsd|:|short|)
+;;; (typep 32768 |xsd|:|int|)
+;;; (typep 2147483647 |xsd|:|int|)
+;;; (typep 2147483648 |xsd|:|long|)
+;;; (typep 9223372036854775807 |xsd|:|long|)
+;;; (typep 9223372036854775808 |xsd|:|integer|)
+;;; (typep 1 |xsd|:|decimal|)
+;;; (typep (cl:rational 1.0) |xsd|:|decimal|)
+;;; (typep 1.0e0 |xsd|:|float|)
+;;; (typep 1.0d0 |xsd|:|double|)
+;;; (typep "string?" |xsd|:|string|)
+;;; (typep "string?"@en |xsd|:|string|)
+;;; (typep (uri "http://somewhere") |xsd|:|anyURI|)
+;;; (typep |xsd|:|false| |xsd|:|boolean|)
+;;; (typep 1 |xsd|:|anySimpleType|)
 ;;; (typep 1 rdf:|XMLLiteral|)
-;;; (typep "1"^^xsd:|positiveInteger| xsd:|positiveInteger|)
-;;; (typep "1"^^xsd:|positiveInteger| xsd:|anySimpleType|)
-;;; (typep "1"^^xsd:|positiveInteger| rdf:|XMLLiteral|)
+;;; (typep "1"^^|xsd|:|positiveInteger| |xsd|:|positiveInteger|)
+;;; (typep "1"^^|xsd|:|positiveInteger| |xsd|:|anySimpleType|)
+;;; (typep "1"^^|xsd|:|positiveInteger| rdf:|XMLLiteral|)
 ;;; ----------------------------------------------------------------------------------
 ;;;
 ;;; Examples of Literals
 ;;; ----------------------------------------------------------------------------------
 ;;; (typep 1 rdfs:Literal)
 ;;; (typep 1 rdfs:Resource)
-;;; (typep "1"^^xsd:|positiveInteger| rdfs:Literal)
-;;; (typep "1"^^xsd:|positiveInteger| rdfs:Resource)
+;;; (typep "1"^^|xsd|:|positiveInteger| rdfs:Literal)
+;;; (typep "1"^^|xsd|:|positiveInteger| rdfs:Resource)
 ;;; (typep "subway"@en rdf:|XMLLiteral|)
 ;;; (typep "subway"@en rdfs:Literal)
 ;;; (typep rdfs:label rdf:|Property|)
@@ -1625,8 +1627,8 @@ A subclass of this class is a metaclass.")
 ;;; Examples of Others
 ;;; ----------------------------------------------------------------------------------
 ;;; (typep (list 1 2 3) rdf:|List|)
-;;; (typep 1 (list 'and xsd:|integer| rdf:|XMLLiteral|))
-;;; (typep 1 (list 'or xsd:|integer| xsd:|float|))
+;;; (typep 1 (list 'and |xsd|:|integer| rdf:|XMLLiteral|))
+;;; (typep 1 (list 'or |xsd|:|integer| |xsd|:|float|))
 ;;; (typep rdf:|Property| rdfs:Class)
 ;;; (typep rdfs:Class rdfs:Class)
 ;;; (typep rdfs:label rdfs:Resource)
@@ -1641,14 +1643,14 @@ A subclass of this class is a metaclass.")
   (when (eq type t) (return-from typep (values t t)))
   (when (null type) (return-from typep (values nil t)))
   (when (null object) (return-from typep (values t t)))
-  (when (eql type rdfs:|Resource|) (return-from typep (values t t)))
+  (when (eql type |rdfs|:|Resource|) (return-from typep (values t t)))
   (typecase type
-    (rdfs:|Resource|    ; type is an object in RDF universe including rdfs:|Resource| itself.
+    (|rdfs|:|Resource|    ; type is an object in RDF universe including rdfs:Resource itself.
      (typecase object
-       (rdfs:|Resource| (%typep object type))
+       (|rdfs|:|Resource| (%typep object type))
        ;; resolve for object
        (uri (cond ((string= (node-name type) "Ontology") (values t t))
-                          ((c2cl:subtypep (symbol-value 'xsd:|anyURI|) type) (values t t))
+                          ((c2cl:subtypep (symbol-value '|xsd|:|anyURI|) type) (values t t))
                           ((and (iri-p object) (iri-boundp object))
                            (%typep (iri-value object) type))
                           (t (values nil t))))
@@ -1698,38 +1700,38 @@ A subclass of this class is a metaclass.")
 
 (defun %typep (object type)
   "<object> and <type> is an object in RDF universe."
-  (when (eq type |rdfs:Resource|) (setq type rdfs:|Resource|))
-  (when (and (c2cl:typep object 'cl:string) (c2cl:subtypep (symbol-value 'rdfs:|Literal|) type))
+  (when (eq type |rdfs:Resource|) (setq type |rdfs|:|Resource|))
+  (when (and (c2cl:typep object 'cl:string) (c2cl:subtypep (symbol-value '|rdfs|:|Literal|) type))
     (return-from %typep (values t t)))
-  (when (and (c2cl:typep object 'cl:number) (c2cl:subtypep (symbol-value 'rdfs:|Literal|) type))
+  (when (and (c2cl:typep object 'cl:number) (c2cl:subtypep (symbol-value '|rdfs|:|Literal|) type))
     (return-from %typep (values t t)))
   (typecase type
-    (rdfs:|Class|    ; type is a class then object is an instance ?
+    (|rdfs|:|Class|    ; type is a class then object is an instance ?
      (typecase object
-       (rdfs:|Resource| ; type is not rdfs:|Class|
+       (|rdfs|:|Resource| ; type is not rdfs:|Class|
         (when (c2cl:typep object type) (return-from %typep (values t t)))
         (when (c2cl:typep type object) (return-from %typep (values nil t)))
         ;; falling into here, and check it in OWL semantics
         (%%typep object type)
         )
-       (rdf:|inLang| (if (c2cl:subtypep (symbol-value 'xsd:|string|) type) (values t t) (values nil t)))
-       (cons (if (c2cl:subtypep rdf:|List| type) (values t t) (values nil t)))
-       (cl:string (cond ((and (c2cl:typep type rdfs:|Datatype|) (c2cl:typep object (node-name type)))
+       (|rdf|:|inLang| (if (c2cl:subtypep (symbol-value '|xsd|:|string|) type) (values t t) (values nil t)))
+       (cons (if (c2cl:subtypep |rdf|:|List| type) (values t t) (values nil t)))
+       (cl:string (cond ((and (c2cl:typep type |rdfs|:|Datatype|) (c2cl:typep object (node-name type)))
                          (values t t))
-                        ((c2cl:subtypep (symbol-value 'xsd:|string|) type)
+                        ((c2cl:subtypep (symbol-value '|xsd|:|string|) type)
                          (values t t))
                         (t (values nil t))))
-       (cl:number (cond ((and (c2cl:typep type rdfs:|Datatype|) (c2cl:typep object (node-name type)))
+       (cl:number (cond ((and (c2cl:typep type |rdfs|:|Datatype|) (c2cl:typep object (node-name type)))
                          (values t t))
-                        ((c2cl:subtypep (symbol-value 'xsd:|decimal|) type)
+                        ((c2cl:subtypep (symbol-value '|xsd|:|decimal|) type)
                          (values t t))
                         (t (values nil t))))
        (otherwise (if (c2cl:typep object type) (values t t)
                     (if (c2cl:typep type object) (values nil t)
                       (values nil nil))))))
-    (rdf:|inLang|         ; type is an instance of rdfs:|Literal| 
+    (|rdf|:|inLang|         ; type is an instance of rdfs:|Literal| 
      (values nil t))
-    (rdfs:|Resource| ; falling here means that type is a strict instance
+    (|rdfs|:|Resource| ; falling here means that type is a strict instance
      (values nil t))
     (otherwise (values nil nil))))
 
@@ -1739,14 +1741,14 @@ A subclass of this class is a metaclass.")
   (values nil t))
 
 (defun %typep-for-MSCs (object type)
-  "<type> is a CLOS object including rdfs:|Literal| including datatypes (instances of rdf:Datatype).
+  "<type> is a CLOS object including rdfs:Literal including datatypes (instances of rdf:Datatype).
    Note that this subfunction is invoked with <type> that is a CLOS class."
   (assert (standard-instance-p object))
   (assert (standard-instance-p type))
-  (when (eq type |rdfs:Resource|) (setq type rdfs:|Resource|))
+  (when (eq type |rdfs:Resource|) (setq type |rdfs|:|Resource|))
   (typecase object
-    (rdfs:|Class| (%typep object type))
-    (rdfs:|Resource| (%typep object type))
+    (|rdfs|:|Class| (%typep object type))
+    (|rdfs|:|Resource| (%typep object type))
     (otherwise (cond ((%typep object type))
                      (t nil)))))
 

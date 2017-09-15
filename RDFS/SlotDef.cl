@@ -10,7 +10,7 @@
 ;;;
 ;;; Copyright (c) 2002-2005 Galaxy Express Corporation
 ;;; Copyright (c) 2007, 2009 Seiji Koide
-;;; Copyright (c) 2016  University of Bologna, Italy (Author: Chun Tian)
+;;; Copyright (c) 2016-2017 Chun Tian (University of Bologna, Italy)
 ;;;
 ;;; ==================================================================================
 
@@ -208,7 +208,7 @@ which work as the constraint for settable number of values."))
   (declare (optimize (speed 3) (safety 0)))
   (cond ((eq slot-names t) ; when first
          ;(assert (eq name (slot-definition-name slotd))) ; name is always name
-         (cond ((and (boundp name) (c2cl:typep (symbol-value name) 'rdf:|Property|)) ; instead of (property? name)
+         (cond ((and (boundp name) (c2cl:typep (symbol-value name) '|rdf|:|Property|)) ; instead of (property? name)
                 (let ((prop (symbol-value name)))
                   (let ((slotds (slot-value prop 'slotds))
                         (subject-type (slot-definition-subject-type slotd)))
@@ -225,16 +225,16 @@ which work as the constraint for settable number of values."))
 (defun property-p (x)
   "returns true if <x> is an instance of rdf property."
   (declare (inline))
-  (c2cl:typep x 'rdf:|Property|))
+  (c2cl:typep x '|rdf|:|Property|))
 
 (defun property? (name)
   "returns true if <name> is an rdf property name"
   (declare (inline))
   (case name
-    ((rdfs:|subClassOf| rdfs:|label| rdfs:|comment| rdfs:|isDefinedBy| rdfs:|domain| rdfs:|range| rdfs:|subPropertyOf|)
+    ((|rdfs|:|subClassOf| |rdfs|:|label| |rdfs|:|comment| |rdfs|:|isDefinedBy| |rdfs|:|domain| |rdfs|:|range| |rdfs|:|subPropertyOf|)
      t)
     (otherwise 
-     (and (boundp name) (c2cl:typep (symbol-value name) 'rdf:|Property|)))))
+     (and (boundp name) (c2cl:typep (symbol-value name) '|rdf|:|Property|)))))
 
 ;;;
 ;;;; Slot Definition for owl:oneOf 

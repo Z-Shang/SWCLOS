@@ -10,7 +10,7 @@
 ;;;
 ;;; Copyright (c) 2002,2004 by Galaxy Express Corporation, Japan.
 ;;; Copyright (c) 2008-2009 Seiji Koide.
-;;; Copyright (c) 2016  University of Bologna, Italy (Author: Chun Tian)
+;;; Copyright (c) 2016-2017 Chun Tian (University of Bologna, Italy)
 ;;;
 ;; History
 ;; -------
@@ -38,9 +38,9 @@ This function returns a S-expression of <x>. If <x> is a comment, nil is returne
     (null nil)
     (string (list x))
     (number (list x))
-    (xsd:|anySimpleType| (list x))
-    (rdfs:|Literal| (list x))
-    (rdf:|Description| (list (|Description|-form x)))
+    (|xsd|:|anySimpleType| (list x))
+    (|rdfs|:|Literal| (list x))
+    (|rdf|:|Description| (list (|Description|-form x)))
     (comment nil) ; depress comment
     (cons (mapcan #'make-form x))))
 
@@ -48,10 +48,10 @@ This function returns a S-expression of <x>. If <x> is a comment, nil is returne
   (let ((name (prop-name prop))
         (atts (prop-att&vals prop))
         (value (prop-value prop)))
-    (let ((resource (getf atts 'rdf:|resource|))
-          (nodeID (getf atts 'rdf:|nodeID|))
-          (datatype (getf atts 'rdf:|datatype|))
-          (lang (getf atts 'xml:lang)))
+    (let ((resource (getf atts '|rdf|:|resource|))
+          (nodeID (getf atts '|rdf|:|nodeID|))
+          (datatype (getf atts '|rdf|:|datatype|))
+          (lang (getf atts '|xml|:|lang|)))
       (cond (nodeID
              (assert (null resource) () "resource cannot be placed with nodeID.")
              (assert (null value))
@@ -104,10 +104,10 @@ This function returns a S-expression of <x>. If <x> is a comment, nil is returne
    <class> is a QName symbol that indicates type tag in RDF/XML.
    <attrs> are a attribute/value list for attributes in RDF/XML.
    <props> are a property/value list for properties in RDF/XML."
-  (let ((about (getf attrs 'rdf:|about|))
-        (id (getf attrs 'rdf:|ID|))
-        (nodeID (getf attrs 'rdf:|nodeID|))
-        (lang (getf attrs 'xml:lang))
+  (let ((about (getf attrs '|rdf|:|about|))
+        (id (getf attrs '|rdf|:|ID|))
+        (nodeID (getf attrs '|rdf|:|nodeID|))
+        (lang (getf attrs '|xml|:|lang|))
         (slots (loop for prop in props when (prop-p prop) collect (prop-form prop))))
     (when about
       (setq about (cond (*base-uri*
@@ -130,37 +130,37 @@ This function returns a S-expression of <x>. If <x> is a comment, nil is returne
                                                                      (namestring *default-namespace*))
                                                                     ))))
                         (t (parse-uri about))))
-      (remf attrs 'rdf:|about|))
+      (remf attrs '|rdf|:|about|))
     ;(format t "~%about:~S" about)
     (when id
       (setq id (copy-uri (parse-uri
                                   (render-uri
                                    (or *base-uri* *default-namespace*) nil))
                                  :fragment id))
-      (remf attrs 'rdf:|ID|))
+      (remf attrs '|rdf|:|ID|))
     (when nodeID
       (setq nodeID (nodeID2symbol nodeID))
-      (remf attrs 'rdf:|nodeID|))
+      (remf attrs '|rdf|:|nodeID|))
     (when lang
       (when (stringp lang) (setq lang (intern lang "keyword")))
-      (remf attrs 'xml:lang))
+      (remf attrs '|xml|:|lang|))
     (setq attrs (loop for (prop val) on attrs by #'cddr
-                    collect (cond ((and (boundp prop) (c2cl:typep (symbol-value prop) 'rdf:|Property|))
+                    collect (cond ((and (boundp prop) (c2cl:typep (symbol-value prop) '|rdf|:|Property|))
                                    (let ((range (get-range (symbol-value prop))))
                                      (cond ((null range) (list prop val))
                                            ((and (symbolp range)
                                                  (boundp range)
-                                                 (c2cl:typep (symbol-value range) 'rdfs:|Datatype|))
+                                                 (c2cl:typep (symbol-value range) '|rdfs|:|Datatype|))
                                             (list prop (read-as-datatype val range)))
                                            (t (list prop val)))))
                                   (t (list prop val)))))
     (when lang 
-      (setq attrs (cons `(xml:lang ,lang) attrs)))
+      (setq attrs (cons `(|xml|:|lang| ,lang) attrs)))
     ;(format t "~%attrs:~S" attrs)
     ;(when (and (stringp about) (zerop (length about)))
     ;  (setq about *base-uri*))
-    (cons class (cond (about (cons `(rdf:|about| ,about) (append attrs slots)))
-                      (id (cons `(rdf:|ID| ,(uri2symbol id)) (append attrs slots)))
+    (cons class (cond (about (cons `(|rdf|:|about| ,about) (append attrs slots)))
+                      (id (cons `(|rdf|:|ID| ,(uri2symbol id)) (append attrs slots)))
                       (t (append attrs slots))))))
 
 ;;;; Producer-Consumer Model
@@ -275,22 +275,25 @@ This function returns a S-expression of <x>. If <x> is a comment, nil is returne
 (eval-when (:execute :load-toplevel)
   (setq *defined-resources*
         (mapcar #'(lambda (x) `(,x line nil))
-          '(rdfs:|Resource| rdfs:|Literal| rdf:|Property| rdfs:|label| 
-            rdfs:|comment| rdfs:|isDefinedBy| rdfs:|domain| rdfs:|range| rdfs:|subClassOf| 
-            rdfs:|subPropertyOf| rdfs:|seeAlso| rdfs:|isDefinedBy| rdfs:|Class| rdf:|type| rdfs:|Container| 
-            rdf:|predicate| rdf:|subject| rdf:|object| rdf:|Statement| rdfs:|Datatype| rdf:|XMLLiteral| 
-            rdf:|List| rdf:|nil| rdf:|first| rdf:|rest| rdf:|value| xsd:|anySimpleType| xsd:|boolean| 
-            xsd:|anyURI| xsd:|string| xsd:|float| xsd:|double| xsd:|unsignedByte| xsd:|unsignedShort|  
-            xsd:|unsignedInt| xsd:|unsignedLong| xsd:|decimal| xsd:|integer| xsd:|long| xsd:|int| 
-            xsd:|short| xsd:|byte| xsd:|nonNegativeInteger| xsd:|positiveInteger| 
-            xsd:|nonPositiveInteger| xsd:|negativeInteger|
-            xsd:|duration|
-            owl:|DataRange| owl:|DeprecatedProperty| owl:|DeprecatedClass| owl:|incompatibleWith| owl:|backwardCompatibleWith|
-            owl:|priorVersion| owl:|versionInfo| owl:|imports| owl:|OntologyProperty| owl:|Ontology| 
-            owl:|AnnotationProperty| owl:|InverseFunctionalProperty| owl:|FunctionalProperty| owl:|SymmetricProperty| 
-            owl:|TransitiveProperty| owl:|inverseOf| owl:|DatatypeProperty| owl:|ObjectProperty| 
-            owl:|cardinality| owl:|maxCardinality| owl:|minCardinality| owl:|someValuesFrom| owl:|hasValue| 
-            owl:|allValuesFrom| owl:|onProperty|)))
+          '(|rdfs|:|Resource| |rdfs|:|Literal| |rdf|:|Property| |rdfs|:|label| 
+            |rdfs|:|comment| |rdfs|:|isDefinedBy| |rdfs|:|domain| |rdfs|:|range| |rdfs|:|subClassOf| 
+            |rdfs|:|subPropertyOf| |rdfs|:|seeAlso| |rdfs|:|isDefinedBy| |rdfs|:|Class| |rdf|:|type| |rdfs|:|Container| 
+            |rdf|:|predicate| |rdf|:|subject| |rdf|:|object| |rdf|:|Statement| |rdfs|:|Datatype| |rdf|:|XMLLiteral| 
+            |rdf|:|List| |rdf|:|nil| |rdf|:|first| |rdf|:|rest| |rdf|:|value| |xsd|:|anySimpleType| |xsd|:|boolean| 
+            |xsd|:|anyURI| |xsd|:|string| |xsd|:|float| |xsd|:|double| |xsd|:|unsignedByte| |xsd|:|unsignedShort|  
+            |xsd|:|unsignedInt| |xsd|:|unsignedLong| |xsd|:|decimal| |xsd|:|integer| |xsd|:|long| |xsd|:|int| 
+            |xsd|:|short| |xsd|:|byte| |xsd|:|nonNegativeInteger| |xsd|:|positiveInteger| 
+            |xsd|:|nonPositiveInteger| |xsd|:|negativeInteger|
+            |xsd|:|duration|
+            |owl|:|DataRange| |owl|:|DeprecatedProperty| |owl|:|DeprecatedClass| |owl|:|incompatibleWith|
+	    |owl|:|backwardCompatibleWith|
+            |owl|:|priorVersion| |owl|:|versionInfo| |owl|:|imports| |owl|:|OntologyProperty| |owl|:|Ontology| 
+            |owl|:|AnnotationProperty| |owl|:|InverseFunctionalProperty| |owl|:|FunctionalProperty|
+	    |owl|:|SymmetricProperty| 
+            |owl|:|TransitiveProperty| |owl|:|inverseOf| |owl|:|DatatypeProperty| |owl|:|ObjectProperty| 
+            |owl|:|cardinality| |owl|:|maxCardinality| |owl|:|minCardinality| |owl|:|someValuesFrom|
+	    |owl|:|hasValue| 
+            |owl|:|allValuesFrom| |owl|:|onProperty|)))
   )
 
 (defun read-rdf-file (accepter-fun &optional (file (ask-user-rdf-file)) (code :default))
@@ -371,7 +374,7 @@ This function returns a S-expression of <x>. If <x> is a comment, nil is returne
 ;;; This mechanism is similar to lisp symbol evaluation, but note that the form is not any 
 ;;; symbol. So, the evaluation for such a form cannot be suppressed, even if you quoted it.
 
-(defun rdf::read-string (stream closech)
+(defun |rdf|::read-string (stream closech)
   (let ((str (read-string stream closech)))
     (let ((nxtch (peek-char nil stream nil nil t)))
       (cond ((char= nxtch #\@)
@@ -456,7 +459,7 @@ This function returns a S-expression of <x>. If <x> is a comment, nil is returne
   (:merge :standard)
   (:macro-char #\< #'double-angle-bracket-reader t)
   (:macro-char #\_ #'single-underscore-reader t)
-  (:macro-char #\" #'rdf::read-string nil))
+  (:macro-char #\" #'|rdf|::read-string nil))
 
 (defvar *standard-readtable* (copy-readtable nil))
 (defvar *rdf-readtable* (ensure-readtable 'RDF))

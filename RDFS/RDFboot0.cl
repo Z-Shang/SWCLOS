@@ -10,7 +10,7 @@
 ;;;
 ;;; Copyright (c) 2002-2005 Galaxy Express Corporation
 ;;; Copyright (c) 2007-2010 Seiji Koide
-;;; Copyright (c) 2016  University of Bologna, Italy (Author: Chun Tian)
+;;; Copyright (c) 2016-2017 Chun Tian (University of Bologna, Italy)
 ;;;
 ;;; =================================================================================
 
@@ -76,7 +76,7 @@
 (defclass rdfsClass (rdf-node) () ; this is redefined later.
   (:metaclass rdf-node))
 
-(defclass rdfs:|Class| (rdf-node) ()
+(defclass |rdfs|:|Class| (rdf-node) ()
   (:metaclass rdfsClass)
   (:documentation "rdfsClass is a class of rdfs:Class"))
 
