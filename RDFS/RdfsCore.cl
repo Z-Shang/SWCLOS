@@ -324,7 +324,7 @@
                        (when uri (setf (iri-value uri) obj))
                        obj))))
       (|rdf|:|inLang| form)
-      (|rdfs|:|Literal| form)                                   ; RDF literal denotes itself
+      (|rdfs|:|Literal| form) ; RDF literal denotes itself
       (|rdfs|:|Resource| (assert (and (not (eq role t)) (not (eq role nil))))
                      (error "Cant happen!")
                      (when (node-name form)
@@ -714,7 +714,7 @@
   "<class> must be an instance."
   (error "Cant happen!"))
 
-(defmethod ensure-meta-absts-using-class ((meta rdf-node) (class rdfsClass) slot-forms domains)
+(defmethod ensure-meta-absts-using-class ((meta rdf-node) (class |rdfs:Class|) slot-forms domains)
   "<class> must be rdfs:Class"
   (let ((types (mappend #'cdr
                         (remove-if-not #'(lambda (slot)

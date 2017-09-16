@@ -21,7 +21,7 @@
 ;; Redefining rdfsClass (defined in RDFboot0.cl)
 ;; TODO: SBCL crashed here, as "AMOP specifies that "portable metaobject classes cannot be redefined".
 
-(defclass rdfsClass (|rdfs|:|Class|) ()
+(defclass |rdfs:Class| (|rdfs|:|Class|) ()
   (:metaclass rdf-node)
   (:documentation "rdfs:Class is a superclass of rdfsClass. This is the proxy of rdfs:Class in order to make the membership loop."))
 
@@ -38,10 +38,10 @@ rdfs:Resource."))
 
 ;; TODO: re-defined metaobject classes again!
 (defclass |rdfs|:|Class| (|rdfs|:|Resource| rdf-node) ()
-  (:metaclass rdfsClass)
+  (:metaclass |rdfs:Class|)
   (:documentation "This is rdfs:Class, and it is a class of all classes in RDF(S) universe."))
 
-(defparameter |rdfs|:|Class|
+(defvar |rdfs|:|Class|
   (find-class '|rdfs|:|Class|)
   "This is rdfs:Class and it is a class of all classes in RDF(S) universe.")
 

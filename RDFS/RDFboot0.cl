@@ -54,7 +54,7 @@
 (in-package :gx)
 
 (eval-when (:compile-toplevel :load-toplevel :execute)
-  (export '(|rdfs:Resource| metaRDFSclass rdfsClass *reify-p*
+  (export '(|rdfs:Resource| metaRDFSclass |rdfs:Class| *reify-p*
 	    nodeID? nodeID2symbol mclasses
 	    property? subPropertyOf class-direct-instances)))
 
@@ -73,11 +73,11 @@
 ;;; class of rdfsClass, because rdfs:Class is a superclass of rdfsClass and rdfsClass is a class of 
 ;;; rdfs:Class. Thus, all methods are for instances of rdfs:Class is effective for rdfs:Class itself. 
 
-(defclass rdfsClass (rdf-node) () ; this is redefined later.
+(defclass |rdfs:Class| (rdf-node) () ; this is redefined later.
   (:metaclass rdf-node))
 
 (defclass |rdfs|:|Class| (rdf-node) ()
-  (:metaclass rdfsClass)
+  (:metaclass |rdfs:Class|)
   (:documentation "rdfsClass is a class of rdfs:Class"))
 
 (cl:provide :rdfboot0)

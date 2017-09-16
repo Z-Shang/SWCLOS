@@ -1171,7 +1171,7 @@ Checks the residual mclasses of all instances of <class>."
   (remove-duplicates
    (append (class-direct-instances class)
            (loop for sub in (class-direct-subclasses class)
-               append (cond ((eq sub (find-class 'rdfsClass)) nil)
+               append (cond ((eq sub (find-class '|rdfs:Class|)) nil)
                             (t (collect-all-instances-of sub)))))))
 #|
 (defmethod collect-all-instances-of ((class metaRDFSclass)) ; when class is rdfsClass
