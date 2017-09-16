@@ -360,6 +360,10 @@
                                                           (:name ,cls)
                                                           (|rdfs|:|subClassOf| ,(node-name (car domains))))))
                                             ((warn "Nothing done!"))))
+				     ;; Cyc: if `domains` contains rdfs:Class and another class (e.g. owl:Thing),
+				     ;; then ignore rdfs:Class and add a class as sub-class of that another class.
+				     ((and (length=2 domains) (member |rdfs|:|Class| domains))
+				      (add-class |rdfs|:|Class| cls (remove |rdfs|:|Class| domains)))
                                      (t (let ((uri (symbol2uri cls))
                                               (obj (add-class '(|rdfs|:|range| |rdf|:|type|) cls ())))
                                           (when uri (setf (iri-value uri) obj))

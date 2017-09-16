@@ -1178,7 +1178,7 @@ A subclass of this class is a metaclass.")
                                        (set-difference l l :test #'strict-abstp))))
       (let ((answer
              (cond ((member |rdfs:Resource| classes)
-                    (substitute |rdfs:Resource| |rdfs|:|Resource| 
+                    (substitute |rdfs:Resource| |rdfs|:|Resource|
                                 (most-specific-concepts-1 (substitute |rdfs|:|Resource| |rdfs:Resource| classes))))
                    (t (most-specific-concepts-1 classes)))))
         (assert answer)
@@ -1196,10 +1196,13 @@ A subclass of this class is a metaclass.")
                                                                                ((and (not (class-name x)) (not (class-name y)))
                                                                                 (owl-equivalent-p x y)))))))
                                      (set-difference l l :test #'strict-specp))))
-    (cond ((member |rdfs:Resource| classes)
-           (substitute |rdfs:Resource| |rdfs|:|Resource| 
-                       (most-abstract-concepts-1 (substitute |rdfs|:|Resource| |rdfs:Resource| classes))))
-          (t (most-abstract-concepts-1 (substitute |rdfs|:|Resource| |rdfs:Resource| classes))))))
+    (let ((answer
+	   (cond ((member |rdfs:Resource| classes)
+		  (substitute |rdfs:Resource| |rdfs|:|Resource| 
+			      (most-abstract-concepts-1 (substitute |rdfs|:|Resource| |rdfs:Resource| classes))))
+		 (t (most-abstract-concepts-1 (substitute |rdfs|:|Resource| |rdfs:Resource| classes))))))
+      answer)))
+
 #|
 (most-abstract-concepts (remove-if-not #'rdf-class-p (mapcar #'symbol-value (list-all-entities-in :sumo))))
 (#<sumo:InheritableRelation sumo:IntentionalRelation> #<rdfs:Class sumo:Entity> #<sumo:Class sumo:InheritableRelation>)
