@@ -30,13 +30,6 @@
 	    get-value put-value list-all-entities-in list-all-resources
 	    *autoepistemic-local-closed-world*)))
 
-(defpackage :gx-user
-  (:use :closer-common-lisp :gx :named-readtables)
-  (:import-from :gx #:rdf)
-  (:shadow change-class subject predicate object type)
-  (:shadowing-import-from :gx type-of typep subtypep)
-  (:documentation "http://www.galaxy-express.co.jp/semweb/gx-user#"))
-
 ;;;
 ;;;; All Entities
 ;;;

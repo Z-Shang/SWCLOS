@@ -73,17 +73,23 @@
   ;; documentation is supplied from OWL.RDF file.
   )
 
-;; note: the package "gx-user" is defined in "RDFS:gxutils.cl"
-
-(defpackage :swclos
-  (:nicknames :gx)
+(defpackage :gx
+  (:nicknames :swclos)
   (:use :closer-common-lisp :named-readtables :puri)
   #-(or clozure ecl)
   (:import-from
     #+allegro :excl #+(or clisp lispworks) :clos #+sbcl :sb-pcl #+cmu :pcl
     #:name #:compute-effective-slot-definition-initargs)
   (:shadow #:typep #:subtypep #:type-of)
+  (:export #:rdf)
   (:documentation "http://www.TopOntologies.com/tools/SWCLOS#"))
+
+(defpackage :gx-user
+  (:use :closer-common-lisp :gx :named-readtables)
+  (:import-from :gx #:rdf)
+  (:shadow #:change-class #:subject #:predicate #:object #:type)
+  (:shadowing-import-from :gx #:type-of #:typep #:subtypep)
+  (:documentation "http://www.galaxy-express.co.jp/semweb/gx-user#"))
 
 #+(or lispworks6.1 lispworks7)
 (clos:set-clos-initarg-checking nil)
