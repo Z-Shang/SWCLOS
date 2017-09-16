@@ -180,6 +180,7 @@ package slot and uri to symbol name mapping environment slot.")
 
 (defvar *uri2symbol-name-mapping-fun* 'default-uri2symbol-name-mapping-fun
   "a function to be invoked when uri to symbol name mapping is irregular.")
+
 (defvar *uri2symbol-package-mapping-fun* 'default-uri2symbol-package-mapping-fun
   "a function to be invoked when uri to symbol package mapping is irregular.")
 
@@ -191,9 +192,10 @@ package slot and uri to symbol name mapping environment slot.")
   (etypecase uri
     (null nil)
     (string (uri2symbol (iri uri)))
-    (uri (if (uri-fragment uri) (%uri2symbol uri)
-                   ;; irregular process
-                   (irregular-name&pkg uri)))))
+    (uri (if (uri-fragment uri)
+	     (%uri2symbol uri)
+	   ;; irregular process
+	   (irregular-name&pkg uri)))))
 
 (defun %uri2symbol (uri)
   "in case of <uri> with fragment, mapping is regular. Then, <uri> without fragment is Prefix part and fragment of <uri> 
@@ -335,9 +337,11 @@ package slot and uri to symbol name mapping environment slot.")
   "This function is bound to <*uri2symbol-package-mapping-fun*> as default. If <uri> has a uri path, 
    then the returned value of <%%uri2symbol> is returned. Othewise a query is made for users."
   (cond ((and (uri-path uri) (not (string= (uri-path uri) "/")))
-         (%%uri2symbol uri))                                   ; symbol
-        ((cdr (assoc uri (uri2env uri) :test #'uri=))) ; string
-        (t (ask-user-symbol-name uri))))                       ; string or nil
+         (%%uri2symbol uri)) ; symbol
+        ((cdr (assoc uri (uri2env uri) :test #'uri=))
+	 nil) ; string ???
+        (t
+	 (ask-user-symbol-name uri)))) ; string or nil
 
 (defparameter *file-types*
   '("rdf" "rdfs" "owl" "xml" "htm" "html" "txt"))

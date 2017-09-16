@@ -24,5 +24,25 @@
   (setf (uri-namedspace-package (set-uri-namedspace "http://sw.opencyc.org/concept/"))
 	(find-package "cyc")))
 
+;; goal: "owl:FunctionalProperty" -> the "owl" package
+(defun cyc-uri2symbol-package-mapping-fun (uri)
+  "This function is bound to *uri2symbol-name-mapping-fun*"
+  (let ((pkg
+	 (find-package (string-downcase (symbol-name (uri-scheme uri))))))
+    (or pkg
+	(default-uri2symbol-package-mapping-fun uri))))
+
+;; goal: "owl:FunctionalProperty" -> "FunctionalProperty"
+(defun cyc-uri2symbol-name-mapping-fun (uri)
+  "This function is bound to *uri2symbol-package-mapping-fun*, returning symbol, string or nil"
+  (cond ((eq (uri-scheme uri) :http)
+	 (default-uri2symbol-name-mapping-fun uri))
+	(t
+	 (uri-path uri))))
+
 (defun load-cyc ()
-  (read-rdf-file #'add-rdf/xml #p"CYC:opencyc-latest.owlz"))
+  (let ((*uri2symbol-package-mapping-fun*
+	 'cyc-uri2symbol-package-mapping-fun)
+	(*uri2symbol-name-mapping-fun*
+	 'cyc-uri2symbol-name-mapping-fun))
+    (read-rdf-file #'add-rdf/xml #p"CYC:opencyc-latest.owlz")))
