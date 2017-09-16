@@ -1440,6 +1440,7 @@
                      for i from 1 to (length l)
                      collect (create-slot (make-ordinal-property-from-number i) x)))))
 
+(without-redefinition-warnings
 (defmethod shared-initialize :after ((instance |rdfs|:|Resource|) slot-names &rest initargs)
   "book-keeping for reification seiji"
   (let ((args (copy-list initargs)))
@@ -1466,6 +1467,7 @@
                 
                 ;; OWL module is inserted here.
                 )))))))
+)
 
 (defun collect-owl-role-name-if (test obj)
   (loop for slotd in (class-slots (class-of obj))

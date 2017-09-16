@@ -115,7 +115,9 @@
 ;;;; RDF Structures
 ;;; An RDF structure has slots <att&vals> and <body>.
 
-(defstruct (RDF (:print-function print-RDF)) att&vals body)
+(defstruct (RDF (:print-function print-RDF))
+  att&vals body)
+
 (defun print-RDF (r s k)
   "prints out an RDF structure <r>. This function is not intended to be used by user."
   (declare (ignore k))
@@ -134,8 +136,10 @@
 ;;;; Description
 ;;; An RDF structure includes one description that contains nested elements.
 
-(defstruct (|rdf|:|Description| (:print-function print-Description)) tag att&vals elements)
-(defun print-Description (r s k)
+(defstruct (|rdf|:|Description| (:print-function print-description))
+  tag att&vals elements)
+
+(defun print-description (r s k)
   "prints out a Description <r>. This function is not intended to be used by user."
   (declare (ignore k))
   (if (|Description|-elements r)
@@ -153,7 +157,9 @@
 ;;;; Property
 ;;; A structure property has <name>, <att&val>, and <value>.
 
-(defstruct (prop (:print-function print-prop)) name att&vals value)
+(defstruct (prop (:print-function print-prop))
+  name att&vals value)
+
 (defun print-prop (p s k)
   "prints out a property <p>. This function is not intended to be used by user."
   (declare (ignore k))
@@ -238,7 +244,6 @@
               finally (putback-char c stream))
           'cl:string))
         (t (multiple-value-bind (tag attributes contents) (read-property stream depth)
-             ;(format t "~%Property:tag=~S atts=~S con=~S" tag attributes contents)
              ;(unless (lower-case-p (char (string tag) 0))
              ;  (warn "Tag ~S starts with a upper-case letter. It might be wrong as property." tag))
              (make-prop :name tag :att&vals attributes :value contents)))))

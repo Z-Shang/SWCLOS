@@ -733,7 +733,7 @@ A subclass of this class is a metaclass.")
 ;;;
 ;;;; Subtyping from Slot Type Option
 ;;;
-#+never
+
 (defun strict-subtype-p-for-slotd-type (c1 c2)
   "This function understands forall, exists, and fills constraint in addition to OWL concepts.
    This function is used for slot definition type reduction in most-specific-concepts-for-slotd-type. 
@@ -787,14 +787,14 @@ A subclass of this class is a metaclass.")
 ;;; From someValuesFrom, R(x,y)^C(y)  comes up as this role extension R(x,y).
 ;;; From hasValue, R:b,  R(x,b)       comes up as this role extension R(x,b).
 ;;;
-#+never
+
 (defun %strict-subtype-p-for-slotd-type (c1 c2)
   "<c1> and <c2> are a term from slotd type option."
   (cond ((and (owl-class-p c1) (owl-class-p c2))
          (if (or (owl-equivalent-p c1 c2)
                  (owl-same-p c1 c2))
              nil                                   ; strict
-           (%subsumed-p-without-equivalency c1 c2)))
+           (subsumed-p-without-equivalency c1 c2)))
         ((and (rdf-class-p c1) (rdf-class-p c2))
          (if (rdf-equalp c1 c2) nil                  ; strict
            (%rdf-subtypep c1 c2)))
@@ -838,7 +838,7 @@ A subclass of this class is a metaclass.")
   (declare (inline))
   (and (not (eql c2 c1))
        (%clos-subtype-p c1 c2)))
-#+never
+
 (defun strict-supertype-p-for-slotd-type (c2 c1)
   "This function understands forall, exists, and has expressions in addition to subtypep."
   (declare (inline))
