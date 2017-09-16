@@ -89,7 +89,7 @@ This function returns a S-expression of <x>. If <x> is a comment, nil is returne
              (assert (null (cdr value)))
              (list name (read-as-datatype (car value) datatype)))
             (lang
-             (cons name (mapcar #'(lambda (val) (cons '@ (list val (intern lang :keyword))))
+             (cons name (mapcar #'(lambda (val) (cons '@ (list val (intern (string-upcase lang) :keyword))))
                           (make-form value))))
             (t (cons name (make-form value)))))))
 
@@ -131,7 +131,6 @@ This function returns a S-expression of <x>. If <x> is a comment, nil is returne
                                                                     ))))
                         (t (parse-uri about))))
       (remf attrs '|rdf|:|about|))
-    ;(format t "~%about:~S" about)
     (when id
       (setq id (copy-uri (parse-uri
                                   (render-uri
@@ -142,7 +141,7 @@ This function returns a S-expression of <x>. If <x> is a comment, nil is returne
       (setq nodeID (nodeID2symbol nodeID))
       (remf attrs '|rdf|:|nodeID|))
     (when lang
-      (when (stringp lang) (setq lang (intern lang :keyword)))
+      (when (stringp lang) (setq lang (intern (string-upcase lang) :keyword)))
       (remf attrs '|xml|:|lang|))
     (setq attrs (loop for (prop val) on attrs by #'cddr
                     collect (cond ((and (boundp prop) (c2cl:typep (symbol-value prop) '|rdf|:|Property|))
@@ -156,7 +155,6 @@ This function returns a S-expression of <x>. If <x> is a comment, nil is returne
                                   (t (list prop val)))))
     (when lang 
       (setq attrs (cons `(|xml|:|lang| ,lang) attrs)))
-    ;(format t "~%attrs:~S" attrs)
     ;(when (and (stringp about) (zerop (length about)))
     ;  (setq about *base-uri*))
     (cons class (cond (about (cons `(|rdf|:|about| ,about) (append attrs slots)))
