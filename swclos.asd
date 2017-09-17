@@ -77,8 +77,11 @@
 
 (defsystem swclos
   :name "SWCLOS"
+  :long-name "Semantic Web CLOS"
   :author "Seiji Koide <SeijiKoide@aol.com>"
-  :maintainer "Chun Tian (binghe) <binghe.lisp@gmail.com>"
+  :maintainer "Chun Tian (binghe)"
+  :mailto "binghe.lisp@gmail.com"
+  :homepage "https://github.com/binghe/SWCLOS"
   :version "3.0.0"
   :licence "SWCLOS"
   :description "SWCLOS is an OWL Full processor on top of CLOS."
