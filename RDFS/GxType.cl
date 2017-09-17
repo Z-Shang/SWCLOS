@@ -1714,7 +1714,6 @@ A subclass of this class is a metaclass.")
      (typecase object
        (|rdfs|:|Resource| ; type is not rdfs:|Class|
         (when (c2cl:typep object type) (return-from %typep (values t t)))
-        (when (c2cl:typep type object) (return-from %typep (values nil t)))
         ;; falling into here, and check it in OWL semantics
         (%%typep object type)
         )

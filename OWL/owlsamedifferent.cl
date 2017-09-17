@@ -335,8 +335,9 @@
 (defun definitely-owl-different-p (x y)
   "returns true if <x> and <y> are definitely different and have no possibility of unification."
   (declare (optimize (speed 3) (safety 0)))
-  (cond ((and (stringp x) (stringp y))
-         (if (string= x y) nil t))
+  (cond ((eq x y) nil)
+	((and (stringp x) (stringp y))
+	 (if (string= x y) nil t))
         ((and (numberp x) (numberp y))
          (if (= x y) nil t))                           ; 1 and 1.0
         ((and (datatype-p (class-of x)) (datatype-p (class-of y)))
@@ -366,13 +367,13 @@
         ((and (owl-thing-p x) (owl-thing-p y))
          (cond ((member x (slot-value y 'different-from))
                 t)
-               ((member x (append (mklist (and (slot-boundp y '|owl|:|sameAs|)
-                                               (slot-value y '|owl|:|sameAs|)))
-                                     (%same-as-of y)) :test #'owl-equalp)
+               ((member x (append (mklist (and (slot-boundp y 'same-as)  ; |owl|:|sameAs|
+                                               (slot-value y 'same-as))) ; |owl|:|sameAs|
+				  (%same-as-of y)) :test #'owl-equalp)
                 nil)
-               ((member y (append (mklist (and (slot-boundp x '|owl|:|sameAs|)
-                                               (slot-value x '|owl|:|sameAs|)))
-                                     (%same-as-of x)) :test #'owl-equalp)
+               ((member y (append (mklist (and (slot-boundp x 'same-as)  ; |owl|:|sameAs|
+                                               (slot-value x 'same-as))) ; |owl|:|sameAs|
+				  (%same-as-of x)) :test #'owl-equalp)
                 nil)
                ((and (node-name x) (node-name y))
                 (if (eql (node-name x) (node-name y)) nil nil))    ; <--
