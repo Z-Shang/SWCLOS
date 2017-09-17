@@ -13,16 +13,23 @@
 ;; "gz"
 
 (defpackage "cyc"
-  (:nicknames "opencyc")
+  (:use ) ; supressing using common lisp package
+  (:documentation "http://sw.cyc.com/concept/#"))
+
+(defpackage "opencyc"
   (:use ) ; supressing using common lisp package
   (:documentation "http://sw.opencyc.org/concept/#"))
 
 (eval-when (:execute :load-toplevel)
-  (setf (uri-namedspace-package (set-uri-namedspace (documentation (find-package "cyc") t)))
-    (find-package "cyc"))
-  ;; maybe unnecessary
+  (setf (uri-namedspace-package (set-uri-namedspace "http://sw.cyc.com/concept/"))
+	(find-package "cyc"))
+  (setf (uri-namedspace-package (set-uri-namedspace "http://sw.cyc.com/concept/#"))
+	(find-package "cyc"))
   (setf (uri-namedspace-package (set-uri-namedspace "http://sw.opencyc.org/concept/"))
-	(find-package "cyc")))
+	(find-package "opencyc"))
+  (setf (uri-namedspace-package (set-uri-namedspace "http://sw.opencyc.org/concept/#"))
+	(find-package "opencyc"))
+  )
 
 ;; goal: "owl:FunctionalProperty" -> the "owl" package
 (defun cyc-uri2symbol-package-mapping-fun (uri)

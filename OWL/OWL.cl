@@ -890,14 +890,14 @@
                 ))
 
 	 ;; owl:|sameAs| makes sameAs groups among individuals.
-	 (when (slot-boundp instance '|owl|:|sameAs|)
+	 (when (slot-boundp instance 'same-as) ; |owl|:|sameAs|
 	   (shared-initialize-after-for-sameAs instance
-					       (mklist (slot-value instance '|owl|:|sameAs|))))
+					       (mklist (slot-value instance 'same-as)))) ; |owl|:|sameAs|
 
 	 ;; owl:|differentFrom| makes pairwise different groups among individuals.
-	 (when (slot-boundp instance '|owl|:|differentFrom|)
+	 (when (slot-boundp instance 'different-from) ; |owl|:|differentFrom|
 	   (shared-initialize-after-for-differentFrom instance
-						      (mklist (slot-value instance ' |owl|:|differentFrom|))))
+						      (mklist (slot-value instance 'different-from)))) ; |owl|:|differentFrom|
 
          ;; functional property is moved to shared-initialize:after(rdfs:Resource)
          ;; inverse functional property is moved to shared-initialize:after(rdfs:Resource)
