@@ -115,8 +115,7 @@ OwlProperty-direct-slot-definition in OWL module.")
             :initargs (:funprop-inverse))
      (:name inverse-funprop-inverse :initform nil 
             :initfunction ,(load-time-value #'false)
-            :initargs (:inverse-funprop-inverse))))
-  )
+            :initargs (:inverse-funprop-inverse)))))
 
 (defclass |owl|:|Class| (|rdfs|:|Class|)
   ((complement-class :initarg :complement-class)
@@ -138,6 +137,7 @@ and instance of owl:Class."))
   "returns nil if no definition on owl:equivalentClass."
   (declare (inline))
   (and (slot-exists-p c 'equivalent-classes)
+       (slot-boundp c 'equivalent-classes)
        (slot-value c 'equivalent-classes)))
 
 (defun equivalent-classes-of (c)
@@ -145,6 +145,7 @@ and instance of owl:Class."))
    returns one element list of <c>, when no equivalences defined."
   (declare (inline))
   (or (and (slot-exists-p c 'equivalent-classes)
+	   (slot-boundp c 'equivalent-classes)
            (slot-value c 'equivalent-classes))
       (list c)))
 
@@ -244,15 +245,17 @@ and instance of owl:Class."))
 ;;;
 
 (defclass |owl|:|ObjectProperty| (|rdf|:|Property|)
-  ((inverse-inverse-of :initarg :inverse-inverse-of :initform ())
-   )
+  ((inverse-inverse-of :initarg :inverse-inverse-of :initform ()))
   (:metaclass |rdfs|:|Class|)
   (:documentation "This class defines an inverse slot of the inverse-of property."))
 
 (defun equivalent-property-of (c)
   (declare (inline))
   ;; rule9, rule10
-  (or (slot-value c 'equivalent-property) (list c)))
+  (or (and (slot-exists-p c 'equivalent-property)
+	   (slot-boundp c 'equivalent-property)
+	   (slot-value c 'equivalent-property))
+      (list c)))
 
 (defmethod change-class :after ((instance |rdf|:|Property|) (new-class |rdfs|:|Class|) &rest initargs)
   "In case that <new-class> is owl:ObjectProperty, the domain of <instance> is retrieved and 

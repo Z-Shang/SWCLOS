@@ -585,6 +585,7 @@
 
 (defun intersection-of (class)
   (and (c2cl:typep class |owl|:|Class|)
+       (slot-exists-p class '|owl|:|intersectionOf|)
        (slot-boundp class '|owl|:|intersectionOf|)
        (slot-value class '|owl|:|intersectionOf|)))
 

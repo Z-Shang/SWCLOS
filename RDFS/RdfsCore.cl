@@ -924,7 +924,6 @@
                                (make-instance '|rdf|:|Property| :name role)
                                (cond ((cdr fillers) (list role fillers))
                                      (t slot))))))))
-    ;(format t "~%Name:~S~%URL:~S~%CLS:~S~%Initargs:~S" name uri obj initargs)
     (flet ((ensure-multiple-classes (metas cls)
                                     (cond ((null (cdr metas)) cls)
                                           (t (let ((shadow (make-shadow (class-of cls) metas)))
@@ -947,9 +946,7 @@
              ;; redefinition in either same or different class is processed in ensure-class
              ;; :direct-superclasses and :direct-slots is added into old ones 
              ;; by shared-initialize :around (rdfs:|Class|)
-             ;(format t "~%Adding Class by redefinition classes:~S~%   name:~S~%   absts:~S~%   slots:~S" classes name absts islots)
              (cond ((every #'(lambda (cls) (c2cl:typep obj cls)) classes)
-                    ;(format t "~%~S is already an instance of ~S." obj classes)
                     (cond ((every #'(lambda (abst) (c2cl:subtypep obj abst)) absts)
                            (cond ((every #'(lambda (slot)
                                              (and (slot-boundp obj (slot-role slot))
@@ -958,12 +955,11 @@
                                          islots)
                                   ;; nothing done and return obj
                                   obj)
-                                 (t ;(format t "~%Adding Class by redefinition1 ~S ~S ~S ~S" classes obj absts islots)
+                                 (t
                                   (apply #'reinitialize-instance obj initargs))))
-                          (t ;(format t "~%Adding Class by redefinition2 ~S ~S ~S ~S" classes obj absts islots)
+                          (t
                              (apply #'reinitialize-instance obj :direct-superclasses absts initargs))))
                    ((%instance-p obj)                          ; instance to class
-                    ;(format t "~%Change class1 of instance:~S to class:~S" obj (name (car classes)))
                     (change-class obj (car classes))           ; change instance to class
                     (when name (setf (find-class name) obj))
                     (ensure-multiple-classes
@@ -973,12 +969,10 @@
                             :metaclass (car classes)
                             initargs)))
                    ((rdf-metaclass-p (car classes))   ; class to class
-                    ;(format t "~%Adding Class in redefinition ~S ~S ~S ~S" classes name absts islots)
                     (cond ((and (null absts) (null initargs))
                            (cond ((subtypep (class-of obj) (car classes)) ; only check multiple classing
                                   (ensure-multiple-classes classes obj))
                                  ((subtypep (car classes) (class-of obj)) ; change metaclass
-                                  ;(format t "~%Change metaclass of class:~S to ~S" obj classes)
                                   (ensure-multiple-classes
                                    classes (change-class obj (car classes))))
                                  (t (warn "(~S type ~S) directed but it violates monotonicity, then no effect."
@@ -1087,7 +1081,6 @@
                                (make-instance '|rdf|:|Property| :name role)
                                (cond ((cdr fillers) (list role fillers))
                                      (t slot))))))))
-    ;(format t "~%Initargs: ~S" initargs)
     ;; Despite what multiple classes are, slots must be putted at this object.
     ;; The question is which class the slot difinition must be added to.
     ;; (car classes) is nominal one for multiple classes. Therefore, we put new slots there.
@@ -1221,7 +1214,6 @@
    Before calling the primary method, ensure slot definitions for this <class> for initargs.
    Domain constraints are also taken care, and make a shadow class if multiple classes indicated."
   ;; make-instance (class . initargs) and make-instance (meta . initags)
-  ;(format t "~%MAKE-INSTANCE ~S ~S" class initargs)
   (cond ((null initargs) (call-next-method))
         (t (let ((domains (collect-domains-from-initargs class initargs)))
              (cond ((null domains) (call-next-method))
