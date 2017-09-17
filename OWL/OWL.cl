@@ -733,30 +733,38 @@
 	 ;; see also ensure-meta-absts-using-class class for subclasses and intersections
 	 (when (and (slot-boundp class '|rdfs|:|subClassOf|)
 		    (slot-value class '|rdfs|:|subClassOf|))
-	   (check-intersection-refining-for-subclasses class (mklist (slot-value class '|rdfs|:|subClassOf|)))
+	   (check-intersection-refining-for-subclasses
+	     class (mklist (slot-value class '|rdfs|:|subClassOf|)))
 	   (when (class-direct-subclasses class)
 	     (check-union-refining-for-subclasses class (class-direct-subclasses class))))
-	 (when (and (slot-boundp class '|owl|:|intersectionOf|)
+	 (when (and (slot-exists-p class '|owl|:|intersectionOf|)
+		    (slot-boundp class '|owl|:|intersectionOf|)
 		    (slot-value class '|owl|:|intersectionOf|))
 	   (shared-initialize-after-for-intersectionOf class (slot-value class '|owl|:|intersectionOf|)))
-	 (when (and (slot-boundp class '|owl|:|unionOf|)
+	 (when (and (slot-exists-p class '|owl|:|unionOf|)
+		    (slot-boundp class '|owl|:|unionOf|)
 		    (slot-value class '|owl|:|unionOf|))
 	   (unless (eq class |owl|:|Thing|)
 	     (shared-initialize-after-for-unionOf class (slot-value class '|owl|:|unionOf|))))
-	 (when (and (slot-boundp class '|owl|:|equivalentClass|)
+	 (when (and (slot-exists-p class '|owl|:|equivalentClass|)
+		    (slot-boundp class '|owl|:|equivalentClass|)
 		    (slot-value class |owl|:|equivalentClass|))
-	   (shared-initialize-after-for-equivalentClass class (mklist (slot-value class |owl|:|equivalentClass|))))
-	 (when (and (slot-boundp class '|owl|:|disjointWith|)
+	   (shared-initialize-after-for-equivalentClass
+	     class (mklist (slot-value class |owl|:|equivalentClass|))))
+	 (when (and (slot-exists-p class '|owl|:|disjointWith|)
+		    (slot-boundp class '|owl|:|disjointWith|)
 		    (slot-value class '|owl|:|disjointWith|))
-	   (shared-initialize-after-for-disjointWith class (mklist (slot-value class '|owl|:|disjointWith|))))
-	 (when (and (slot-boundp class '|owl|:|complementOf|)
+	   (shared-initialize-after-for-disjointWith
+	     class (mklist (slot-value class '|owl|:|disjointWith|))))
+	 (when (and (slot-exists-p class '|owl|:|complementOf|)
+		    (slot-boundp class '|owl|:|complementOf|)
 		    (slot-value class '|owl|:|complementOf|))
-	   (shared-initialize-after-for-complementOf class (mklist (slot-value class |owl|:|complementOf|))))
+	   (shared-initialize-after-for-complementOf
+	     class (mklist (slot-value class |owl|:|complementOf|))))
          (unless (owl-thing-p class)
            (reinitialize-instance
-            class
-            :direct-superclasses (list |owl|:|Thing| (class-direct-superclasses class))))
-         )))
+             class
+	     :direct-superclasses (list |owl|:|Thing| (class-direct-superclasses class)))))))
 
 ;;;
 ;;;; Symmetric Property

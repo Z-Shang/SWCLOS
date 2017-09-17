@@ -64,7 +64,7 @@
 (in-package :gx)
 
 (eval-when (:compile-toplevel :load-toplevel :execute)
-  (export '(owl-same-p disjoint-p  
+  (export '(owl-same-p disjoint-p
 	    owl-class-p owl-thing-p owl-oneof-p)))
 
 ;;;
@@ -294,7 +294,8 @@ and instance of owl:Class."))
 		   (list (find-class '|rdfs|:|Resource|)))
 	   initargs)))
 
-(defmethod reinitialize-instance :around ((class |owl|:|Restriction|) &rest initargs &key (direct-superclasses '() direct-superclasses-p))
+(defmethod reinitialize-instance :around ((class |owl|:|Restriction|) &rest initargs
+					  &key (direct-superclasses '() direct-superclasses-p))
   "The default direct superclass of restrictions is rdfs:|Resource|."
   (if (or (not direct-superclasses-p)
 	  (loop for direct-superclass in direct-superclasses
@@ -307,8 +308,11 @@ and instance of owl:Class."))
 		   (list (find-class '|rdfs|:|Resource|)))
 	   initargs)))
 
-(defclass |owl|:|allValuesFromRestriction| (|owl|:|Restriction|) () (:metaclass |rdfs|:|Class|)
+(defclass |owl|:|allValuesFromRestriction| (|owl|:|Restriction|)
+  ()
+  (:metaclass |rdfs|:|Class|)
   (:documentation "A class for value restrictions is a subclass of owl:Restriction."))
+
 (defmethod print-object ((obj |owl|:|allValuesFromRestriction|) stream)
   (cond ((and (slot-exists-p obj 'name)
               (slot-boundp obj 'name)
@@ -346,7 +350,10 @@ and instance of owl:Class."))
         (t (cons '|owl|:|someValuesFromRestriction|
                  (mapcar #'node-name (mklist (slot-value object '|owl|:|someValuesFrom|)))))))
 
-(defclass |owl|:|hasValueRestriction| (|owl|:|Restriction|) () (:metaclass |rdfs|:|Class|))
+(defclass |owl|:|hasValueRestriction| (|owl|:|Restriction|)
+  ()
+  (:metaclass |rdfs|:|Class|))
+
 (defmethod print-object ((obj |owl|:|hasValueRestriction|) stream)
   (cond ((and (slot-exists-p obj '|owl|:|onProperty|)
               (node-name (slot-value obj '|owl|:|onProperty|))
@@ -464,7 +471,6 @@ and instance of owl:Class."))
 ;;; with <subsumed-p> and <owl-equivalent-p>. 
 
 (without-redefinition-warnings
-
 (defmethod compute-effective-slot-definition-initargs ((class |rdfs|:|Class|) #+lispworks name direct-slotds)
   #+lispworks (declare (ignore name))
   (let ((initargs (call-next-method)))
@@ -497,9 +503,6 @@ and instance of owl:Class."))
                slotd-initform = (slot-definition-initform slotd)
              do
                ;; get minimum maxc over slotds
-               ;(describe slotd)
-               ;(format t "~%Maxc:~S Slotd-maxc:~S" maxc slotd-maxc)
-               ;(format t "~%Minc:~S Slotd-minc:~S" minc slotd-minc)
                (cond ((and maxc slotd-maxc) (setq maxc (min slotd-maxc maxc)))
                      (slotd-maxc (setq maxc slotd-maxc)))
                ;; get maximum minc over slotds
@@ -574,8 +577,6 @@ and instance of owl:Class."))
                        (assert (or (null maxc) (null minc) (<= minc maxc)) ()
                                "Unsatisfiability by cardinality for ~S ~S"
                                class-name slot-name)
-                       ;(format t "~%Computing Effective Slots ... ~S ~S ~S" class-name slot-name direct-slotds)
-                       ;(format t "~%                              ~S" initargs)
                        (return initargs))))
         ((member-if #'property-direct-slotd-p direct-slotds)
          ;; if a slotd is property slotd, add subject-type option.
@@ -650,11 +651,10 @@ and instance of owl:Class."))
                                          ,class-name ,(gentemp (string slot-name)))
                                         (lambda () (mapcar #'funcall ',initfunc)))))
                                (t initfunc)))
-                       ;(format t "~%Computing Effective Slots ... ~S ~S ~S" class-name slot-name direct-slotds)
-                       ;(format t "~%                              ~S" initargs)
                        (return initargs))))
         (t initargs)))
-)
+) ; without-redefinition-warnings
+
 ;;;
 ;;; If <initargs> in making an effective-slot-definition includes :maxcardinality or 
 ;;; :mincardinality keyword, the slot-definition must be OwlProperty-direct-slot-definition.
@@ -847,7 +847,8 @@ and instance of owl:Class."))
 		   (list (find-class '|owl|:|Thing|)))
 	   initargs)))
 
-(defmethod reinitialize-instance :around ((class |owl|:|Class|) &rest initargs &key (direct-superclasses '() direct-superclasses-p))
+(defmethod reinitialize-instance :around ((class |owl|:|Class|) &rest initargs
+					  &key (direct-superclasses '() direct-superclasses-p))
   "rule1a and rule1b by Seiji"
   (if (or (not direct-superclasses-p)
 	  (loop for direct-superclass in direct-superclasses
@@ -868,8 +869,7 @@ and instance of owl:Class."))
            (append (getf initargs :direct-superclasses)
                    (list (load-time-value |owl|:|Thing|))))
          (apply #'call-next-method class initargs))
-        (t (call-next-method)))
-  )
+        (t (call-next-method))))
 
 (defmethod change-class :around ((from |rdfs|:|Class|) (to |owl|:|Thing|) &rest initargs)
   "This is happen when <from> is class in RDF and it is changed into OWL."
@@ -959,9 +959,7 @@ and instance of owl:Class."))
                  :key #'node-name)))
     #+ignore ; TODO: do we really need this?
     (slot-makunbound |owl|:|Restriction| 'excl::direct-slots)
-    (setf (class-direct-slots |owl|:|Restriction|) slots)
-    )
-  )
+    (setf (class-direct-slots |owl|:|Restriction|) slots)))
 
 (reinitialize-instance (load-time-value (symbol-value '|owl|:|Thing|))
                        :complement-class (load-time-value (symbol-value '|owl|:|Nothing|))
