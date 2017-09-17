@@ -26,8 +26,7 @@
   (setf (logical-pathname-translations "SWCLOS")
         `(("**;*.*"
            ,(make-pathname
-              :host (pathname-host *swclos-directory*)
-              :device (pathname-device *swclos-directory*)
+              :defaults *swclos-directory*
               :directory (append (pathname-directory *swclos-directory*)
                                  (list :wild-inferiors))
               :name :wild
@@ -39,8 +38,7 @@
   (setf (logical-pathname-translations "OWL")
         `(("**;*.*"
            ,(make-pathname
-              :host (pathname-host *owl-directory*)
-              :device (pathname-device *owl-directory*)
+              :defaults *owl-directory*
               :directory (append (pathname-directory *owl-directory*)
                                  (list :wild-inferiors))
               :name :wild
@@ -56,16 +54,14 @@
   (setf (logical-pathname-translations "CYC")
         `(("**;*.owlz"
            ,(make-pathname
-              :host (pathname-host *cyc-directory*)
-              :device (pathname-device *cyc-directory*)
+              :defaults *cyc-directory*
               :directory (append (pathname-directory *cyc-directory*)
                                  (list :wild-inferiors))
               :name :wild
               :type "owl.gz"))
 	  ("**;*.*"
            ,(make-pathname
-              :host (pathname-host *cyc-directory*)
-              :device (pathname-device *cyc-directory*)
+              :defaults *cyc-directory*
               :directory (append (pathname-directory *cyc-directory*)
                                  (list :wild-inferiors))
               :name :wild

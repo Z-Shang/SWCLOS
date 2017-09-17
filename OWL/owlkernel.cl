@@ -471,6 +471,7 @@ and instance of owl:Class."))
 ;;; with <subsumed-p> and <owl-equivalent-p>. 
 
 (without-redefinition-warnings
+#-clozure
 (defmethod compute-effective-slot-definition-initargs ((class |rdfs|:|Class|) #+lispworks name direct-slotds)
   #+lispworks (declare (ignore name))
   (let ((initargs (call-next-method)))
