@@ -106,13 +106,18 @@ rdfs:Resource."))
   "If <initargs> include non-keyword indicators for slot initarg or include a property name as slot name, 
     then returns Property-direct-slot-definition or OwlProperty-direct-slot-definition metaobject."
   ;; this code is shared by OWL.
-  (if (keywordp (car (getf initargs :initargs))) (call-next-method)
+  (if (keywordp (car (getf initargs :initargs)))
+      (call-next-method)
     (case (getf initargs :name)
-      ((|rdf|:|about| |rdf|:|ID| |xml|:|lang|) (call-next-method))
-      ((|rdf|:|type| |rdfs|:|subClassOf| |rdfs|:|label| |rdfs|:|isDefinedBy| |rdfs|:|comment| 
-        |rdfs|:|domain| |rdfs|:|range| |rdfs|:|subPropertyOf| |rdfs|:|member| |rdf|:|value| 
-	|rdf|:|first| |rdf|:|rest| |rdf|:|object| |rdf|:|subject| |rdf|:|predicate|  
-	|owl|:|oneOf| |owl|:|intersectionOf| |owl|:|unionOf| 
+      ((|rdf|:|about| |rdf|:|ID| |xml|:|lang|)
+       (call-next-method))
+      ((|rdf|:|type| |rdf|:|first| |rdf|:|rest| |rdf|:|object| |rdf|:|subject|
+	|rdf|:|predicate| |rdf|:|value|
+	;; RDFS slots
+	|rdfs|:|subClassOf| |rdfs|:|label| |rdfs|:|isDefinedBy| |rdfs|:|comment|
+        |rdfs|:|domain| |rdfs|:|range| |rdfs|:|subPropertyOf| |rdfs|:|member|
+	;; OWL slots
+	|owl|:|oneOf| |owl|:|intersectionOf| |owl|:|unionOf|
 	|owl|:|allValuesFrom| |owl|:|hasValue| |owl|:|someValuesFromRestriction| 
 	|owl|:|cardinality| |owl|:|maxCardinality| |owl|:|minCardinality|
 	|owl|:|onProperty| |owl|:|distinctMembers| |owl|:|differentFrom| |owl|:|sameAs| 
@@ -266,7 +271,7 @@ has a place holder for all related slot definitions.")
                           :initargs (|rdfs|:|subClassOf|)
                           ;:readers (superclass-of)
                           ;:writers ((setf superclass-of))
-                                )))
+			  )))
 
 ;;;
 ;;;; rdfs:Datatype
@@ -278,6 +283,5 @@ has a place holder for all related slot definitions.")
 
 (defvar |rdfs|:|Datatype| (find-class '|rdfs|:|Datatype|)
   "rdfs:Datatype is a subclass of and an instance of rdfs:Class.")
-
 
 (cl:provide :rdfboot1)

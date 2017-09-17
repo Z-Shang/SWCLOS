@@ -837,7 +837,7 @@
                 (loop for funprop in (collect-owl-role-name-if #'functional-property-p instance)
                     as funprop-val = (and (slot-boundp instance funprop) (slot-value instance funprop))
                     when funprop-val
-                    do ;(format t "~%Functional property ~S in ~S" funprop instance)
+                    do
                       (loop for val in (mklist funprop-val)
                            ;when (owl-thing-p val)
                            do (pushnew (cons funprop instance) (slot-value val 'funprop-inverse)
@@ -891,13 +891,13 @@
 
 	 ;; owl:|sameAs| makes sameAs groups among individuals.
 	 (when (slot-boundp instance 'same-as) ; |owl|:|sameAs|
-	   (shared-initialize-after-for-sameAs instance
-					       (mklist (slot-value instance 'same-as)))) ; |owl|:|sameAs|
+	   (shared-initialize-after-for-same-as instance
+						(mklist (slot-value instance 'same-as)))) ; |owl|:|sameAs|
 
 	 ;; owl:|differentFrom| makes pairwise different groups among individuals.
 	 (when (slot-boundp instance 'different-from) ; |owl|:|differentFrom|
-	   (shared-initialize-after-for-differentFrom instance
-						      (mklist (slot-value instance 'different-from)))) ; |owl|:|differentFrom|
+	   (shared-initialize-after-for-different-from instance
+						       (mklist (slot-value instance 'different-from)))) ; |owl|:|differentFrom|
 
          ;; functional property is moved to shared-initialize:after(rdfs:Resource)
          ;; inverse functional property is moved to shared-initialize:after(rdfs:Resource)
@@ -965,7 +965,6 @@
             (when (not (eql (class-of instance) |owl|:|Thing|))
               (let ((*autoepistemic-local-closed-world* nil))
                 (let ((MSCs (collect-most-specific-concepts (class-of instance) instance)))
-                  ;(format t "~%MSCs:~S" MSCs)
                   (cond ((null MSCs) (error "Cant happen!"))
                         ((length=1 MSCs)
                          (cond ((eq (car MSCs) (class-of instance)))

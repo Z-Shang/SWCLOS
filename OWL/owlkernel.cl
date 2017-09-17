@@ -772,7 +772,7 @@ and instance of owl:Class."))
                                     (t (if (y-or-n-p "hasValue entailment: you may or may not define ~S same as ~S.~%Do it?" 
                                                      filler (fills-filler type))
                                            ;; push filler into same group
-                                           (shared-initialize-after-for-sameAs
+                                           (shared-initialize-after-for-same-as
                                             filler (same-as-of (fills-filler type)))
                                          nil)))))
       (cond ((and maxc (minusp maxc))

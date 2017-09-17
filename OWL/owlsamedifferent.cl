@@ -133,7 +133,7 @@
 ;;;
 
 ;; slot same-as includes same individuals including itself against instance.
-(defun shared-initialize-after-for-sameAs (instance newsames)
+(defun shared-initialize-after-for-same-as (instance newsames)
   (let ((oldsames (slot-value instance 'same-as)))
     (let ((sames (adjoin instance (union oldsames newsames)))
           (diffs ()))
@@ -406,7 +406,7 @@
 ;;;
 
 ;; slot different-from includes different individuals against instance.
-(defun shared-initialize-after-for-differentFrom (instance differents)
+(defun shared-initialize-after-for-different-from (instance differents)
   (let ((same (find instance differents :test #'%owl-same-p)))
     (cond (same (error 'differentfrom-condition-unsatiafiable
                   :format-control "~S is same as ~S."
