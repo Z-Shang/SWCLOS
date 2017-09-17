@@ -601,6 +601,7 @@
                (unless (set-equalp old-supers new-supers)
                  (warn "~S is refined to subclass of ~S." class sib)
                  (reinitialize-instance class :direct-superclasses new-supers)))))))
+
 (without-redefinition-warnings
 (defun refine-concept-by-intersection (classes)
   "returns most specific concepts that include subs of <classes> as intersection's sub.
@@ -630,7 +631,6 @@
 ;;;   <class> is a sibling of <sib>. 
 
 (defun shared-initialize-after-for-unionOf (class unions)
-  ;(format t "~%SHARED-INITIALIZE-AFTER-FOR-UNIONOF(~S ~S)" class unions)
   (loop for sub in (remove-if #'owl-restriction-p unions)
       unless (owl-class-p sub)
       do (warn "Change class by unionOf:~S rdf:type owl:Class" (node-name sub))
@@ -648,11 +648,9 @@
       (let ((old-supers (class-direct-superclasses class))
             (add-supers (remove-if-not #'(lambda (sp) (%union-subsumed-p class sp)) spouses)))
         (when add-supers
-          ;(format t "~%Adding-supers-for-union:~S" add-supers)
           (let ((class-supers
                  (most-specific-concepts-by-clos-supers (append add-supers old-supers))))
             (unless (set-equalp class-supers old-supers)
-              ;(format t "~%Supers of union class ~S: ~S -> ~S" class old-supers class-supers)
               (reinitialize-instance class :direct-superclasses class-supers))))))))
 
 (defun check-union-refining-for-subclasses (class subclasses)

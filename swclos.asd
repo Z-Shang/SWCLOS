@@ -22,7 +22,7 @@
 
 (defvar *swclos-directory* *load-truename*)
 
-(eval-when (:execute)
+(eval-when (:load-toplevel :execute)
   (setf (logical-pathname-translations "SWCLOS")
         `(("**;*.*"
            ,(make-pathname
@@ -33,12 +33,9 @@
               :name :wild
               :type :wild)))))
 
-(defvar *owl-directory*
-  (make-pathname :directory (append (pathname-directory *swclos-directory*)
-				    (list "OWL"))
-		 :defaults *swclos-directory*))
+(defvar *owl-directory* #p"SWCLOS:OWL;")
 
-(eval-when (:execute)
+(eval-when (:load-toplevel :execute)
   (setf (logical-pathname-translations "OWL")
         `(("**;*.*"
            ,(make-pathname
@@ -55,7 +52,7 @@
 				    (list "opencyc"))
 		 :defaults *swclos-directory*))
 
-(eval-when (:execute)
+(eval-when (:load-toplevel :execute)
   (setf (logical-pathname-translations "CYC")
         `(("**;*.owlz"
            ,(make-pathname
