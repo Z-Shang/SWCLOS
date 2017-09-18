@@ -147,15 +147,16 @@
           #+allegro
           (setf (slot-value super 'excl::direct-subclasses)
                 (remove class (class-direct-subclasses super)))
-          #+lispworks
-          (setf (class-direct-subclasses super) (remove class (class-direct-subclasses super)))))
+          #-allegro
+          (setf (class-direct-subclasses super)
+		(remove class (class-direct-subclasses super)))))
   #+allegro
   (progn
     (setf (slot-value class 'excl::direct-superclasses) nil)
     (setf (slot-value class 'excl::class-precedence-list) nil)
     (setf (slot-value class 'excl::slots) nil)
     (setf (slot-value class 'excl::wrapper) nil))
-  #+lispworks
+  #-allegro
   (progn ; Allegro CL's MOP doesn't have SETF methods for these APIs:
     (setf (class-direct-superclasses class) nil)
     (setf (class-precedence-list class) nil)

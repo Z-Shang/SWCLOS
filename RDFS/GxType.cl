@@ -1161,20 +1161,20 @@ A subclass of this class is a metaclass.")
    cons concepts as class. This function is taken from Memory Organization Package by Schank."
   (when classes
     (flet ((most-specific-concepts-1 (classes)
-                                     (let ((l (remove-duplicates classes
-                                                                 :test #'(lambda (x y)
-                                                                           ;; this allows a cons
-                                                                           (cond ((equal x y))
-                                                                                 ((consp x) nil)
-                                                                                 ((consp y) nil)
-                                                                                 ((and (owl-oneof-p x) (owl-oneof-p y))
-                                                                                  (owl-equivalent-p x y))
-                                                                                 ((and (c2cl:typep x |rdfs|:|Resource|)
-                                                                                       (c2cl:typep y |rdfs|:|Resource|)
-                                                                                       (not (node-name x)) (not (node-name y)))
-                                                                                  ; x and y might be an individual
-                                                                                  (owl-equivalent-p x y)))))))
-                                       (set-difference l l :test #'strict-abstp))))
+	     (let ((l (remove-duplicates classes
+					 :test #'(lambda (x y)
+						   ;; this allows a cons
+						   (cond ((equal x y))
+							 ((consp x) nil)
+							 ((consp y) nil)
+							 ((and (owl-oneof-p x) (owl-oneof-p y))
+							  (owl-equivalent-p x y))
+							 ((and (c2cl:typep x |rdfs|:|Resource|)
+							       (c2cl:typep y |rdfs|:|Resource|)
+							       (not (node-name x)) (not (node-name y)))
+							  ;; x and y might be an individual
+							  (owl-equivalent-p x y)))))))
+	       (set-difference l l :test #'strict-abstp))))
       (let ((answer
              (cond ((member |rdfs:Resource| classes)
                     (substitute |rdfs:Resource| |rdfs|:|Resource|
@@ -1187,14 +1187,14 @@ A subclass of this class is a metaclass.")
   "returns the most abstract concepts in RDF(S) semantics, or classes minus duplicates and subclasses
    of other classes in <classes>."
   (flet ((most-abstract-concepts-1 (classes)
-                                   (let ((l (remove-duplicates classes
-                                                               :test #'(lambda (x y)
-                                                                         (cond ((equal x y))
-                                                                               ((consp x) nil)
-                                                                               ((consp y) nil)
-                                                                               ((and (not (class-name x)) (not (class-name y)))
-                                                                                (owl-equivalent-p x y)))))))
-                                     (set-difference l l :test #'strict-specp))))
+	   (let ((l (remove-duplicates classes
+				       :test #'(lambda (x y)
+						 (cond ((equal x y))
+						       ((consp x) nil)
+						       ((consp y) nil)
+						       ((and (not (class-name x)) (not (class-name y)))
+							(owl-equivalent-p x y)))))))
+	     (set-difference l l :test #'strict-specp))))
     (let ((answer
 	   (cond ((member |rdfs:Resource| classes)
 		  (substitute |rdfs:Resource| |rdfs|:|Resource| 
