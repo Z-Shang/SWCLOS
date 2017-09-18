@@ -20,6 +20,7 @@
   (:use ) ; supressing using common lisp package
   (:documentation "http://sw.opencyc.org/concept/#"))
 
+;; Package mappings for Cyc and OpenCyc
 (eval-when (:execute :load-toplevel)
   (setf (uri-namedspace-package (set-uri-namedspace "http://sw.cyc.com/concept/"))
 	(find-package "cyc"))
@@ -28,7 +29,14 @@
   (setf (uri-namedspace-package (set-uri-namedspace "http://sw.opencyc.org/concept/"))
 	(find-package "opencyc"))
   (setf (uri-namedspace-package (set-uri-namedspace "http://sw.opencyc.org/concept/#"))
-	(find-package "opencyc"))
+	(find-package "opencyc")))
+
+;; Package mappings for third-party URIs used in OpenCyc
+(eval-when (:execute :load-toplevel)
+  (setf (uri-namedspace-package (set-uri-namedspace "http://umbel.org/umbel/sc/"))
+	(make-package "umbel" :use nil))
+  (setf (uri-namedspace-package (set-uri-namedspace "http://dbpedia.org/resource/"))
+	(make-package "dbpedia" :use nil))
   )
 
 ;; goal: "owl:FunctionalProperty" -> the "owl" package
@@ -53,3 +61,9 @@
 	(*uri2symbol-name-mapping-fun*
 	 'cyc-uri2symbol-name-mapping-fun))
     (read-rdf-file #'add-rdf/xml #p"CYC:opencyc-latest.owlz")))
+
+;;; BUGGY ONTOLOGY ENTRIES:
+#|
+acyclic super/sub relation (RdfsKernel.cl: shared-initialize :after |rdfs|:|Class|)
+#<|owl|:|Class| |opencyc|:|Mx8Ngh4rvtnq8JwpEbGdrcN5Y29ycB4rvVioJ5wpEbGdrcN5Y29ycA|>
+|#

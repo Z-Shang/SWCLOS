@@ -673,18 +673,19 @@ Call to (METHOD SHARED-INITIALIZE :AFTER (RDF:|Property| T))
         ((null direct-superclasses-p)) ; nothing done
         ((null direct-superclasses))   ; nothing done
         ((set-eq direct-superclasses (class-direct-subclasses class))
+	 (warn "cyclic-super/subclasses-error: ~S and ~S should be rewrite as equivalent"
+	       class direct-superclasses)
+	 #+ignore
          (error 'cyclic-super/subclasses-error
            :format-control "~S and ~S should be rewrite as equivalent"
            :format-arguments `(,class ,direct-superclasses)))))
 
 (defmethod shared-initialize :before ((instance |rdfs|:|Resource|) slot-names &rest initargs)
-  ;(format t "~%SHARED-INITIALIZE:BEFORE(rdfs:Resource) ~S ~S ~S" instance slot-names initargs)
   (when initargs
     (shared-initialize-before-in-RDF instance slot-names initargs)
     (shared-initialize-before-in-OWL instance slot-names initargs)))
 
 (defun shared-initialize-before-in-RDF (instance slot-names initargs)
-  ;(format t "~%shared-initialize-before-in-RDF(~S ~S ~S)" instance slot-names initargs)
   (let ((class (class-of instance)))
     (cond ((eq slot-names t)  ; new definition
            (loop for (role filler) on initargs by #'cddr
@@ -793,31 +794,31 @@ Call to (METHOD SHARED-INITIALIZE :AFTER (RDF:|Property| T))
 Checks the residual mclasses of all instances of <class>."
   (when (set-equalp (class-direct-superclasses class)
                     (class-direct-subclasses class))
+    (warn "cyclic-super/subclasses-error: ~S and ~S should be rewrite as equivalent!"
+	  class (class-direct-superclasses class))
+    #+ignore
     (error 'cyclic-super/subclasses-error
       :format-control "~S and ~S should be rewrite as equivalent"
       :format-arguments `(,class ,(class-direct-superclasses class))))
-  ;(format t "~%SharedInitialize:after(~S ~S ~S)" class slot-names initargs)
+
   (let ((supers (getf initargs :direct-superclasses)))
     (when supers             ; direct-superclasses are changed then propagate the effects
       (loop for sub in (class-direct-subclasses class) ; there are some subclasses
           as sub-supers = (class-direct-superclasses sub)
           do (let ((new-sub-supers (make-this-supers sub sub-supers)))
                (unless (set-equalp sub-supers new-sub-supers)
-                 ;(format t "~%Propagated superclass change of ~S:~%  ~S -> ~S" sub sub-supers new-sub-supers)
                  (reinitialize-instance sub :direct-superclasses new-sub-supers))))))
-  
+
   (let ((supers (mklist (getf initargs '|rdfs|:|subClassOf|))))
     (when supers
       ;; there might be a shadow class that is unshadowable in subclasses
       (loop for sub in (class-direct-subclasses class)
-          do (update-instance-for-unshadowing sub class supers))))
-  )
+          do (update-instance-for-unshadowing sub class supers)))))
 
 (defun check-shadowed-class-and-propagate-to-subs (class)
   (when (shadowed-class-p class)
     (error "DEBUG!")
     (let ((new-supers (most-specific-concepts-by-superclasses (class-direct-superclasses class))))
-      (format t "~%NewSupers:~S for ~S" new-supers class)
       (when (length=1 new-supers)
         (loop for ins in (class-direct-instances class)
             do (change-class ins (car new-supers))))))
@@ -829,14 +830,13 @@ Checks the residual mclasses of all instances of <class>."
   (when (shadowed-class-p shadow?)
     ;; after reinitialize-instance the cpl is adjusted coherently.
     ;; then you cannot use most-specific-concepts routine
-    ;(format t "~%Supers:~S~%ShadowsSupers:~S" supers (class-direct-superclasses shadow?))
     (let* ((shadows-supers (class-direct-superclasses shadow?))
            (revised-supers (set-difference shadows-supers supers)))
       (when (length=1 revised-supers)
         (assert (eq class (car revised-supers)))
         ;; change class of instances to class
         (loop for ins in (class-direct-instances shadow?)
-            do ;(format t "~%Changing shadows instance ~S to ~S for unshadowing" ins class)
+            do
               (change-class ins class) ; upgrade instance
               ;; then is it possible to propagate unshadowing?
               (loop for sub in (class-direct-subclasses shadow?)

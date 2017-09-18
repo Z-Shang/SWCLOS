@@ -1176,8 +1176,7 @@
             (new-props nil)
             (operated nil))
         (when (setq new-props (set-difference properties slot-names :test #'eq))
-          (loop with new-domain
-              for prop in new-props
+          (loop for prop in new-props
               when (property? prop)
               do (reinitialize-instance
                   class
