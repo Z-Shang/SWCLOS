@@ -137,7 +137,6 @@ and instance of owl:Class."))
   "returns nil if no definition on owl:equivalentClass."
   (declare (inline))
   (and (slot-exists-p c 'equivalent-classes)
-       (slot-boundp c 'equivalent-classes)
        (slot-value c 'equivalent-classes)))
 
 (defun equivalent-classes-of (c)
@@ -145,17 +144,17 @@ and instance of owl:Class."))
    returns one element list of <c>, when no equivalences defined."
   (declare (inline))
   (or (and (slot-exists-p c 'equivalent-classes)
-	   (slot-boundp c 'equivalent-classes)
            (slot-value c 'equivalent-classes))
       (list c)))
 
+(without-redefinition-warnings
 (defun owl-class-p (obj)
   "Is this <obj> an instance of owl:Class?
    Note that owl:Class and owl:Restriction is not owl class."
   ;;this is same as '(c2cl:typep <obj> owl:Class)'
-  (declare (inline))
   (and (standard-instance-p obj)
        (%owl-class-subtype-p (class-of obj))))
+)
 
 (defun %owl-class-subtype-p (class)
   "If you are sure that <class> is a metaobject of CLOS, use this instead of 
@@ -187,7 +186,6 @@ and instance of owl:Class."))
   "returns nil if no definition on owl:sameAs."
   (declare (inline))
   (and (slot-exists-p x 'same-as)
-       (slot-boundp x 'same-as)
        (slot-value x 'same-as)))
 
 (without-redefinition-warnings
@@ -196,7 +194,6 @@ and instance of owl:Class."))
    returns one element list of <x>, when no same individuals defined."
   (declare (inline))
   (or (and (slot-exists-p x 'same-as)
-           (slot-boundp x 'same-as)
            (slot-value x 'same-as))
       (list x)))
 )
@@ -252,10 +249,7 @@ and instance of owl:Class."))
 (defun equivalent-property-of (c)
   (declare (inline))
   ;; rule9, rule10
-  (or (and (slot-exists-p c 'equivalent-property)
-	   (slot-boundp c 'equivalent-property)
-	   (slot-value c 'equivalent-property))
-      (list c)))
+  (or (slot-value c 'equivalent-property) (list c)))
 
 (defmethod change-class :after ((instance |rdf|:|Property|) (new-class |rdfs|:|Class|) &rest initargs)
   "In case that <new-class> is owl:ObjectProperty, the domain of <instance> is retrieved and 
@@ -474,7 +468,6 @@ and instance of owl:Class."))
 ;;; with <subsumed-p> and <owl-equivalent-p>. 
 
 (without-redefinition-warnings
-#-clozure
 (defmethod compute-effective-slot-definition-initargs ((class |rdfs|:|Class|) #+lispworks name direct-slotds)
   #+lispworks (declare (ignore name))
   (let ((initargs (call-next-method)))
@@ -997,7 +990,7 @@ and instance of owl:Class."))
      |owl|:|Class|)
     ((|owl|:|oneOf|) |rdfs|:|Resource|)
     ((|owl|:|distinctMembers|) |owl|:|Thing|)
-    (otherwise 
+    (otherwise
      (when (boundp role)
        (let ((range (get-range (symbol-value role))))
          (if (eql range |rdf|:|List|) |rdfs|:|Resource| range))))))

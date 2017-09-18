@@ -161,6 +161,14 @@
   (declare (ignore obj))
   nil)
 
+(defun owl-class-p (obj)
+  (declare (ignore obj))
+  nil)
+
+(defun subsumed-p-without-equivalency (c1 c2)
+  (declare (ignore c1 c2))
+  nil)
+
 ;;......................................................................................
 ;; from Kiczales "The Art of the Metaobject Protocol"
 #+never
@@ -174,6 +182,7 @@
                        (mappend #'local-precedence-ordering
                                 classes-to-order))
                       #'std-tie-breaker-rule)))
+
 (defun collect-superclasses* (class)
   (labels ((all-superclasses-loop (seen superclasses)
              (let ((to-be-processed
@@ -185,11 +194,13 @@
                     (union (class-direct-superclasses class-to-process)
                            superclasses)))))))
     (all-superclasses-loop () (list class))))
+
 (defun local-precedence-ordering (class)
   (mapcar #'list
     (cons class
           (butlast (class-direct-superclasses class)))
     (class-direct-superclasses class)))
+
 (defun topological-sort (elements constraints tie-breaker)
   (let ((remaining-constraints constraints)
         (remaining-elements elements)
@@ -211,6 +222,7 @@
                 (remove choice remaining-elements))
           (setq remaining-constraints
                 (remove choice remaining-constraints :test #'member)))))))
+
 (defun std-tie-breaker-rule (minimal-elements cpl-so-far)
   (dolist (cpl-constituent (reverse cpl-so-far))
     (let* ((supers (class-direct-superclasses cpl-constituent))
