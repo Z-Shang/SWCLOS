@@ -4,6 +4,8 @@
 
 (in-package :gx)
 
+(export '(load-cyc))
+
 ;; > (translate-logical-pathname #p"CYC:opencyc-latest.owlz")
 ;; #P"/Users/binghe/Lisp/SWCLOS/opencyc/opencyc-latest.owl.gz"
 ;; > (pathname-type *)
@@ -61,9 +63,3 @@
 	(*uri2symbol-name-mapping-fun*
 	 'cyc-uri2symbol-name-mapping-fun))
     (read-rdf-file #'add-rdf/xml #p"CYC:opencyc-latest.owlz")))
-
-;;; BUGGY ONTOLOGY ENTRIES:
-#|
-acyclic super/sub relation (RdfsKernel.cl: shared-initialize :after |rdfs|:|Class|)
-#<|owl|:|Class| |opencyc|:|Mx8Ngh4rvtnq8JwpEbGdrcN5Y29ycB4rvVioJ5wpEbGdrcN5Y29ycA|>
-|#

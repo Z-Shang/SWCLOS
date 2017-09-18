@@ -616,7 +616,6 @@ cases, each value is compared with each slot name."
          (cond ((member c2 (class-precedence-list c1) :test #'eq) t)
                (t nil)))
         ((labels ((walk-partial-cpl (c)
-                                    ;(format t "~%walk-partial-cpl ~S" c)
                     (let ((supers (class-direct-superclasses c)))
                       (when (member c2 supers :test #'eq)
                         (return-from %clos-subtype-p t))
