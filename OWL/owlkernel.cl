@@ -71,16 +71,10 @@
 ;;;; OWL Property Slot Definition
 ;;;
 
-(without-redefinition-warnings
-(defparameter *default-slot-definition-class* 'OwlProperty-direct-slot-definition
-  "Every slot of which name corresponds to RDF property is defined as an instance of 
-Property-direct-slot-definition. This variable is set to symbol 
-gx::Property-direct-slot-definition in RDFS module and set to 
-OwlProperty-direct-slot-definition in OWL module.")
-)
+(setq *default-slot-definition-class* 'OwlProperty-direct-slot-definition)
 
 (eval-when (:execute :load-toplevel :compile-toplevel)
-  (finalize-inheritance (find-class *default-slot-definition-class*))
+  (finalize-inheritance (find-class 'OwlProperty-direct-slot-definition))
   (finalize-inheritance (find-class 'OwlProperty-effective-slot-definition))
   )
 
@@ -330,7 +324,10 @@ and instance of owl:Class."))
         (t (cons '|owl|:|allValuesFromRestriction|
                  (mapcar #'node-name (mklist (slot-value object '|owl|:|allValuesFrom|)))))))
 
-(defclass |owl|:|someValuesFromRestriction| (|owl|:|Restriction|) () (:metaclass |rdfs|:|Class|))
+(defclass |owl|:|someValuesFromRestriction| (|owl|:|Restriction|)
+  ()
+  (:metaclass |rdfs|:|Class|))
+
 (defmethod print-object ((obj |owl|:|someValuesFromRestriction|) stream)
   (cond ((and (slot-exists-p obj '|owl|:|onProperty|)
               (node-name (slot-value obj '|owl|:|onProperty|))
@@ -376,7 +373,8 @@ and instance of owl:Class."))
                  (mapcar #'node-name (mklist (slot-value object '|owl|:|hasValue|)))))))
 
 (defclass |owl|:|cardinalityRestriction| (|owl|:|Restriction|)
-  () (:metaclass |rdfs|:|Class|))
+  ()
+  (:metaclass |rdfs|:|Class|))
 
 (defmethod print-object ((obj |owl|:|cardinalityRestriction|) stream)
   (cond ((slot-value obj '|owl|:|onProperty|)
@@ -886,8 +884,8 @@ and instance of owl:Class."))
 (def-property |owl|:|versionInfo|)      ; just for suppression of entailment warning
 (def-property |owl|:|priorVersion|)     ; just for suppression of entailment warning
 
-(eval-when (:load-toplevel)
-  (read-rdf-file #'add-rdf/xml #p"OWL:OWL.rdf"))
+(eval-when (:load-toplevel :execute)
+  (read-rdf-file #'add-rdf/xml #p"OWL:owl.rdf"))
 
 ;;; ==================================================================================
 ;;;
@@ -909,12 +907,12 @@ and instance of owl:Class."))
 ;;; For OWL Full, an owl class also inherit owl:|Thing|
 (add-class `(,(class-of |owl|:|Class|)) '|owl|:|Class| `(,|owl|:|Thing|) ())
 
-#|
+#+ignore
 (apply #'ensure-class-using-class (find-class 'shadowed-class) 'shadowed-class
        :direct-superclasses `(,|owl|:|Class|)
        :metaclass (class-of (find-class 'shadowed-class))
        ())
-|#
+
 (reinitialize-instance
  (symbol-value '|owl|:|allValuesFrom|)
  '|rdfs|:|domain| (load-time-value (symbol-value '|owl|:|allValuesFromRestriction|)))

@@ -1217,7 +1217,7 @@
   (cond ((null initargs) (call-next-method))
         (t (let ((domains (collect-domains-from-initargs class initargs)))
              (cond ((null domains) (call-next-method))
-                   ((null (cdr domains))
+                   ((length=1 domains)
                     (let ((domain (car domains)))
                       (cond ((and (strict-class-p domain) (strict-class-p class)))
                             ((and (rdf-metaclass-p domain) (rdf-metaclass-p class)))
@@ -1335,8 +1335,7 @@
 ;;; If <uuu> |rdf|:type |rdfs|:ContainerMembershipProperty, 
 ;;; then, <uuu> |rdfs|:subPropertyOf |rdfs|:member.
 
-(defmethod shared-initialize :after
-  ((instance |rdfs|:|ContainerMembershipProperty|) slot-names &rest initargs)
+(defmethod shared-initialize :after ((instance |rdfs|:|ContainerMembershipProperty|) slot-names &rest initargs)
   "adds rdfs:member info into <instance> according to rdfs12 rule."
   (declare (ignore slot-names))
   (let ((superprops (and (slot-boundp instance '|rdfs|:|subPropertyOf|)
