@@ -537,13 +537,11 @@ Call to (METHOD SHARED-INITIALIZE :AFTER (RDF:|Property| T))
    <initargs>. When reinitialization rewrite direct-superclasses with MSCs of old superclasses 
    and new superclasses, then, old direct slot definitions are recovered into def-form and 
    merged with new definition."
-  ;(format t "~%SHARED-INITIALIZE:AROUND(rdfs:Class) ~S ~S ~S" class slot-names initargs)
   (cond ((and (null slot-names) (null initargs))  ; when change-class
          (call-next-method))
         ((consp slot-names)         ; when propagated from update-instance-for-xxxxxx-class
          (call-next-method))
         ((eq slot-names t)                        ; when the first definition
-         ;(format t "~%SHARED-INITIALIZE:AROUND(rdfs:Class) first definition ~S~%  with ~S" class initargs)
          (cond ((getf initargs :direct-superclasses)
                 ;(setq initargs (copy-list initargs))
                 (setf (getf initargs :direct-superclasses)
@@ -555,7 +553,6 @@ Call to (METHOD SHARED-INITIALIZE :AFTER (RDF:|Property| T))
          ;; reinitialization but no supers and no slot definitions
          (call-next-method))
         (t ;; when reinitializing with supers or slot definitions
-         ;(format t "~%SHARED-INITIALIZE:AROUND(rdfs:Class) reinitialize ~S~%  new slots ~S~%  with ~S" class slot-names initargs)
          (let ((oldsupers (class-direct-superclasses class))
                (newsupers (getf initargs :direct-superclasses)))
            (when newsupers
@@ -570,8 +567,6 @@ Call to (METHOD SHARED-INITIALIZE :AFTER (RDF:|Property| T))
                   (apply #'call-next-method class slot-names initargs)) ; no need of maintenance for direct slots
                  (t (let ((old-args (make-initargs-from-slotds (class-direct-slots class)))
                           (new-args (getf initargs :direct-slots)))
-                      ;(format t "~%oldargs:~S" old-args)
-                      ;(format t "~%newargs:~S" new-args)
                       (let ((mergedargs
                              (loop for oldarg in old-args
                                  collect (cond ((find (getf oldarg :name) new-args
@@ -585,25 +580,17 @@ Call to (METHOD SHARED-INITIALIZE :AFTER (RDF:|Property| T))
                                                    unless (find (getf newarg :name) old-args
                                                                 :key #'(lambda (arg) (getf arg :name)))
                                                    collect newarg)))))
-                        ;(format t "~%mergedargs:~S" mergedargs)
                         (setf (getf initargs :direct-slots) mergedargs)
                         (apply #'call-next-method class slot-names initargs)))))))))
 
 (defun make-initargs-from-slotds (slotds)
   (mapcar #'make-initarg-from-slotd slotds))
 
-(defun make-initarg-from-slotd (slotd) ; TODO: buggy
+(defun make-initarg-from-slotd (slotd)
   (loop with name
 	for facetd in (class-slots (class-of slotd))
       when (and (slot-boundp slotd (setq name (slot-definition-name facetd)))
-		(cond ((symbol-equal name 'initform) ; old: (eq name 'excl::initform)
-		       (slot-definition-initform slotd))
-		      ((symbol-equal name 'initfunction)
-		       (and (slot-definition-initfunction slotd)
-			    (neq (slot-definition-initfunction slotd) #'false)
-			    #+lispworks
-			    (neq (slot-definition-initfunction slotd) 'system:return-nil)))
-		      ((symbol-equal name 'readers)
+		(cond ((symbol-equal name 'readers)
 		       (slot-value slotd name))
 		      ((symbol-equal name 'writers)
 		       (slot-value slotd name))
