@@ -673,9 +673,6 @@ Call to (METHOD SHARED-INITIALIZE :AFTER (RDF:|Property| T))
         ((null direct-superclasses-p)) ; nothing done
         ((null direct-superclasses))   ; nothing done
         ((set-eq direct-superclasses (class-direct-subclasses class))
-	 (warn "cyclic-super/subclasses-error: ~S and ~S should be rewrite as equivalent"
-	       class direct-superclasses)
-	 #+ignore
          (error 'cyclic-super/subclasses-error
            :format-control "~S and ~S should be rewrite as equivalent"
            :format-arguments `(,class ,direct-superclasses)))))
