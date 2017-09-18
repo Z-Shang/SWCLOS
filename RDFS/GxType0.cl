@@ -52,27 +52,19 @@
   ()
   (:report
    (lambda (condition stream)
-     (let ((fcont (simple-condition-format-control condition))
-           (args (simple-condition-format-arguments condition)))
-       (format stream "invalid RDF type: ~A" 
-         (apply #'format nil fcont args)))))
+     (format stream "invalid RDF type")))
   (:documentation
    "rdf-type-error inherits data variables and expected-type variables and 
 type-error-datum and type-error-expected-type readers. 
-format-control and format-arguments are from simple-condition.")
-  )
+format-control and format-arguments are from simple-condition."))
 
 (define-condition cyclic-super/subclasses-error (rdf-type-error)
   ()
   (:report
    (lambda (condition stream)
-     (let ((fcont (simple-condition-format-control condition))
-           (args (simple-condition-format-arguments condition)))
-       (format stream "acyclic super/sub relation: ~A" 
-         (apply #'format nil fcont args)))))
+     (format stream "acyclic super/sub relation")))
   (:documentation
-   "Cyclic super/subclass relation is not supported in CLOS.")
-  )
+   "Cyclic super/subclass relation is not supported in CLOS."))
 
 (defmacro rdf-check-type (place type &optional type-string)
   `(loop
