@@ -505,7 +505,6 @@ Call to (METHOD SHARED-INITIALIZE :AFTER (RDF:|Property| T))
 ;;; initargs. This is for supressing meaningless redefining messages.
 
 (defmethod shared-initialize :around ((instance |rdfs|:|Resource|) slot-names &rest initargs)
-  ;(format t "~%SHARED-INITIALIZE:AROUND(rdfs:Resource) ~S ~S ~S" instance slot-names initargs)
   (cond ((and (null slot-names) (not (null initargs)))
          (let ((args
                 (loop for (initarg val) on initargs by #'cddr

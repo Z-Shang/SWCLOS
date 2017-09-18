@@ -95,7 +95,6 @@
               (c2cl:subtypep c d))
          (values t t))
         (t (values nil nil))))
-)
 
 (defun subsumed-p-without-equivalency (cc dd)
   "subsumtion test without class equivalency of <cc> and <dd> for CLOS objects."
@@ -148,6 +147,7 @@
                       :test #'owl-equivalent-p))
          (values nil t))
         (t (values nil nil)))) ; back to top subsumed-p
+) ; without-redefinition-warnings
 
 (defun unfold-intersection (conj)
   "returns unfolded concepts of <conj>, if <conj> is an intersection in OWL, 
