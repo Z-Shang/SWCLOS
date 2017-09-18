@@ -405,11 +405,13 @@
                                               )))
                                 (%add-form class (mapcar #'form2slot slots) role))
                                (t (setq obj (%add-form class (mapcar #'form2slot slots) role))))
-                         (assert obj)
-                         (setf (type-tag obj) (car form))
-                         (let* ((name (node-name obj))
-                                (uri (when (and name (symbolp name)) (symbol2uri name))))
-                           (when uri (setf (iri-value uri) obj)))
+                         #+ignore ; now <obj> can be nil due to cyclic-super/subclasses warning
+			 (assert obj)
+			 (when obj
+			   (setf (type-tag obj) (car form))
+			   (let* ((name (node-name obj))
+				  (uri (when (and name (symbolp name)) (symbol2uri name))))
+			     (when uri (setf (iri-value uri) obj))))
                          obj))))))))
 
 (defun form2slot (slot-form)
@@ -978,12 +980,15 @@
                                  (t (warn "(~S type ~S) directed but it violates monotonicity, then no effect."
                                       obj (car classes)))))
                           ((and name absts)
-                           (ensure-multiple-classes
-                            classes
-                            (apply #'ensure-class name
-                                   :direct-superclasses absts
-                                   :metaclass (car classes)
-                                   initargs)))
+			   (handler-case
+			       (ensure-multiple-classes
+				 classes
+				 (apply #'ensure-class name
+					:direct-superclasses absts
+					:metaclass (car classes)
+					initargs))
+			     (cyclic-super/subclasses-error (c)
+			       (warn "cyclic-super/subclasses warning here"))))
                           ((and name (null absts))
                            (ensure-multiple-classes
                             classes
