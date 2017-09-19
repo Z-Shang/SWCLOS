@@ -48,8 +48,6 @@
 (in-package :gx)
 
 (eval-when (:execute :load-toplevel :compile-toplevel)
-  (setf (uri-namedspace-package (set-uri-namedspace "http://www.w3.org/2001/XMLSchema#"))
-    (find-package "xsd"))
   (setf (uri-namedspace-package (set-uri-namedspace (documentation (find-package "xsd") t)))
     (find-package "xsd"))
   (setf (uri-namedspace-package (set-uri-namedspace (documentation (find-package "rdf") t)))
@@ -157,7 +155,8 @@
 		   (list (find-class '|rdfs|:|Resource|)))
 	   initargs)))
 
-(defmethod reinitialize-instance :around ((class |rdfs|:|Class|) &rest initargs &key (direct-superclasses '() direct-superclasses-p))
+(defmethod reinitialize-instance :around ((class |rdfs|:|Class|)
+					  &rest initargs &key (direct-superclasses '() direct-superclasses-p))
   "Rdfs8 rule is implemented at this method."
   (if (or (not direct-superclasses-p)
 	  (loop for direct-superclass in direct-superclasses
@@ -194,7 +193,6 @@
 	   (append direct-superclasses
 		   (list (find-class '|rdfs|:|Literal|)))
 	   initargs)))
-
 
 (defmethod make-instance :around ((class (eql |rdfs|:|Class|)) &rest initargs)
   (cond ((notany #'(lambda (cls) (c2cl:subtypep cls (load-time-value |rdfs|:|Resource|)))
@@ -324,7 +322,6 @@ of this <instance> property."
   "After regular processing, property specific procedure is processed here, i.e., book-keeping for 
    super/sub relation maintenance, the equivalent property group maintencne, adding slot definition to 
    the domain class, and finally constraint propergation of domain and range constraints."
-  ;(format t "SHARED-INTIALIZE:AFTER((~S rdf:Property) ~S &rest ~S)~%" instance slot-names initargs)
   (cond ((and (null slot-names) (null initargs))  ; when change-class
          )
         ((and (consp slot-names) (null initargs)) ; when propagated
@@ -455,6 +452,7 @@ Call to (METHOD SHARED-INITIALIZE :AFTER (RDF:|Property| T))
          (if (member role (class-direct-slots domain)
                         :key #'slot-definition-name)
              t nil))))
+
 #|
 (defun delete-direct-slots-from-domain (instance slot-names &rest initargs)
   "delete the direct slot definitions from old domains from <initargs> for this property 
@@ -790,6 +788,7 @@ Call to (METHOD SHARED-INITIALIZE :AFTER (RDF:|Property| T))
 Checks the residual mclasses of all instances of <class>."
   (when (set-equalp (class-direct-superclasses class)
                     (class-direct-subclasses class))
+    ;; TODO: how to fix this issue?
     (warn "cyclic-super/subclasses-error: ~S and ~S should be rewrite as equivalent!"
 	  class (class-direct-superclasses class))
     #+ignore
@@ -856,6 +855,7 @@ Checks the residual mclasses of all instances of <class>."
                     (unless (set-equalp newsupers oldsupers)
                       (reinitialize-instance sub :direct-superclasses newsupers))))))))
 |#
+
 (defmethod shared-initialize :after ((class |rdfs|:|Datatype|) slot-names &rest initargs)
   (cond ((and (null slot-names) (null initargs))  ; when change-class
          )
@@ -929,7 +929,6 @@ Checks the residual mclasses of all instances of <class>."
 (defmethod change-class :before ((instance |rdfs|:|Resource|) (new-class |rdfs|:|Class|) &rest initargs)
   "If <instance> has a slot value and <new-class> has no slot definitions on it,
    then add the slot definitions into <new-class>."
-  ;(format t "~%CHANGE-CLASS:before(~S ~S ~S)" instance new-class initargs)
   (unless (and (c2cl:subtypep (class-of instance) new-class) (null initargs))
     (unless (class-finalized-p new-class) (finalize-inheritance new-class))
     (let* ((new-class-slotds (class-slots new-class))
@@ -949,15 +948,12 @@ Checks the residual mclasses of all instances of <class>."
   (let ((old-class (class-of instance)))
     (when (eq instance |rdfs|:|Class|) (error "Bingo, Check it!"))
     ;(when (eq old-class new-class) (return-from change-class instance))
-    ;(format t "~%Changing class of ~S to ~S~%   with ~S" instance new-class initargs)
     (cond ((and (shadowed-class-p old-class) (not (shadowed-class-p new-class)))
-           ;(format t "~%Changing shadowed class of ~S to ~S~%   with initargs:~S" instance new-class initargs)
            (call-next-method))
           ((c2cl:subtypep old-class new-class)
            (error "Cant happen!")
            (apply #'call-next-method instance old-class initargs))
           ((and (c2cl:typep old-class 'shadowed-class) (c2cl:typep new-class 'shadowed-class))
-           ;(format t "~&Changing the shadow class of ~S to another shadow class ~S with initargs ~S" instance new-class initargs)
            (let ((old-supers (class-direct-superclasses old-class))
                  (new-supers (class-direct-superclasses new-class)))
              (cond ((subsetp old-supers new-supers)
@@ -996,9 +992,7 @@ Checks the residual mclasses of all instances of <class>."
 
 (defmethod change-class :after ((instance |rdfs|:|Resource|) (new-class |rdfs|:|Class|) &rest initargs)
   (declare (ignore initargs))
-  ;(format t "~%Change class :after (~S rdfs:Resource) (~S rdfs:Class)" instance new-class)
   (let ((old-class (class-of instance)))
-    ;(format t "~%   old-class:~S direct-instances:~S" old-class (class-direct-instances old-class))
     (when (null (class-direct-instances old-class))
       (loop for slotd in (class-direct-slots old-class)
           do (let ((name (slot-definition-name slotd)))
@@ -1078,6 +1072,7 @@ Checks the residual mclasses of all instances of <class>."
             ;; violate cardinality constraint
             (t (error "Unification among ~S required, but NOT YET!")))
       )))
+
 #|
 ;; This method is needed for method inheritance.
 (defmethod (setf slot-value-using-class)
@@ -1156,10 +1151,12 @@ Checks the residual mclasses of all instances of <class>."
            (loop for sub in (class-direct-subclasses class)
                append (cond ((eq sub (find-class '|rdfs:Class|)) nil)
                             (t (collect-all-instances-of sub)))))))
+
 #|
 (defmethod collect-all-instances-of ((class metaRDFSclass)) ; when class is rdfsClass
   nil)
 |#
+
 (defun delete-slot (class slot-name)
   (setf (slot-value class 'prototype) nil)
   (let ((direct-slots (class-direct-slots class)))

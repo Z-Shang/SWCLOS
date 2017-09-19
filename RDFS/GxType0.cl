@@ -33,8 +33,6 @@
 	    most-abstract-concepts)))
 
 (eval-when (:execute :load-toplevel :compile-toplevel)
-  (setf (uri-namedspace-package (set-uri-namedspace "http://www.w3.org/2001/XMLSchema#"))
-    (find-package "xsd"))
   (setf (uri-namedspace-package (set-uri-namedspace (documentation (find-package "xsd") t)))
     (find-package "xsd"))
   (setf (uri-namedspace-package (set-uri-namedspace (documentation (find-package "rdf") t)))
