@@ -93,5 +93,6 @@
 
 #+(or lispworks6.1 lispworks7)
 (clos:set-clos-initarg-checking nil)
+
 #+(or lispworks6.0 lispworks5)
 (error "LispWorks versions <= 6.0 are not supported")

@@ -4,7 +4,8 @@
 
 (in-package :gx)
 
-(export '(load-cyc))
+(eval-when (:compile-toplevel :load-toplevel :execute)
+  (export 'load-cyc))
 
 ;; > (translate-logical-pathname #p"CYC:opencyc-latest.owlz")
 ;; #P"/Users/binghe/Lisp/SWCLOS/opencyc/opencyc-latest.owl.gz"
