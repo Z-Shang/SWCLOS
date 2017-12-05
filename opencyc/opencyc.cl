@@ -4,7 +4,7 @@
 
 (in-package :gx)
 
-(eval-when (:compile-toplevel :load-toplevel :execute)
+(eval-when (:load-toplevel :execute)
   (export 'load-cyc))
 
 ;; > (translate-logical-pathname #p"CYC:opencyc-latest.owlz")
