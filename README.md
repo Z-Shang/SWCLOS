@@ -3,7 +3,7 @@ Portable SWCLOS (CLOS-based Semantic Web)
 
 OWL Full Processor on top of Common Lisp Object System (CLOS)
 
-## Original platform (not supported any more)
+## Original platform
 
 * Allegro CL Enterprise Edition 8.x, 9.x
 
